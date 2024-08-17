@@ -7,6 +7,7 @@ import {
 import HomePage from "./views/HomePage";
 import LoginPage from "./views/LoginPage";
 import HomeLayout from "./layouts/HomeLayout";
+import SignupPage from "./views/SignupPage";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
             {
                 path: "login",
                 element: <LoginPage />,
+            },
+            {
+                path: "sign-up",
+                element: <SignupPage />,
             },
             {
                 path: "",

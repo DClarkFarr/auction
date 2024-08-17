@@ -14,9 +14,10 @@ type LoginFormState = {
 };
 
 export type LoginFormProps = {
+    footer?: ReactNode;
     onSubmit: (data: LoginFormState) => Promise<void>;
 };
-export function LoginForm({ onSubmit }: LoginFormProps) {
+export function LoginForm({ onSubmit, footer }: LoginFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -107,100 +108,103 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
     }, []);
 
     return (
-        <form
-            className="flex max-w-md flex-col gap-4 bg-gray-100 p-6"
-            onSubmit={handleSubmit}
-        >
-            <div>
-                <div className="mb-2 block">
-                    <Label htmlFor="email" value="Your email" />
-                </div>
-                <TextInput
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="example@email.com"
-                    color={
-                        !focus.email && dirty.email && !valid.email
-                            ? "failure"
-                            : undefined
-                    }
-                    required
-                    onInput={handleInput}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                    value={form.email}
-                    helperText={
-                        !focus.email &&
-                        dirty.email &&
-                        !valid.email && <div>Email is not valid</div>
-                    }
-                />
-            </div>
-            <div>
-                <div className="mb-2 block">
-                    <Label htmlFor="password" value="Your password" />
-                </div>
-                <TextInput
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    value={form.password}
-                    onInput={handleInput}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                />
-                <SlideUpDown show={focus.password || valid.password.valid}>
-                    <div className="flex flex-col w-full text-xs pt-2">
-                        <PasswordLine valid={valid.password.hasNumber}>
-                            {valid.password.hasNumber
-                                ? "Has 1+ number"
-                                : "Must have 1+ a number"}
-                        </PasswordLine>
-                        <PasswordLine valid={valid.password.hasLowerCase}>
-                            {valid.password.hasLowerCase
-                                ? "Has 1+ lower case char"
-                                : "Must have 1+ lower case char"}
-                        </PasswordLine>
-                        <PasswordLine valid={valid.password.hasUpperCase}>
-                            {valid.password.hasUpperCase
-                                ? "Has 1+ upper case char"
-                                : "Must have 1+ upper case char"}
-                        </PasswordLine>
-                        <PasswordLine valid={valid.password.hasSpecialChar}>
-                            {valid.password.hasSpecialChar
-                                ? "Has 1+ special char (!@#$%^&*)"
-                                : "Must have 1+ special char (!@#$%^&*))"}
-                        </PasswordLine>
-                        <PasswordLine valid={valid.password.isOver8Char}>
-                            {valid.password.isOver8Char
-                                ? "Has 8+ characters"
-                                : "Must have 8+ characters"}
-                        </PasswordLine>
+        <div className="max-w-md">
+            <form
+                className="flex flex-col gap-4 bg-gray-100 p-6"
+                onSubmit={handleSubmit}
+            >
+                <div>
+                    <div className="mb-2 block">
+                        <Label htmlFor="email" value="Your email" />
                     </div>
-                </SlideUpDown>
-            </div>
-
-            {errorMessage && (
-                <Alert className="mb-4" color="failure">
-                    {errorMessage}
-                </Alert>
-            )}
-
-            <Button type="submit" disabled={isSubmitting || !valid.valid}>
-                {isSubmitting ? (
-                    <div className="flex gap-x-2">
-                        <div>
-                            <SpinIcon className="animate-spin" />
+                    <TextInput
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="example@email.com"
+                        color={
+                            !focus.email && dirty.email && !valid.email
+                                ? "failure"
+                                : undefined
+                        }
+                        required
+                        onInput={handleInput}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                        value={form.email}
+                        helperText={
+                            !focus.email &&
+                            dirty.email &&
+                            !valid.email && <div>Email is not valid</div>
+                        }
+                    />
+                </div>
+                <div>
+                    <div className="mb-2 block">
+                        <Label htmlFor="password" value="Your password" />
+                    </div>
+                    <TextInput
+                        id="password"
+                        name="password"
+                        type="password"
+                        required
+                        value={form.password}
+                        onInput={handleInput}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                    />
+                    <SlideUpDown show={focus.password || valid.password.valid}>
+                        <div className="flex flex-col w-full text-xs pt-2">
+                            <PasswordLine valid={valid.password.hasNumber}>
+                                {valid.password.hasNumber
+                                    ? "Has 1+ number"
+                                    : "Must have 1+ a number"}
+                            </PasswordLine>
+                            <PasswordLine valid={valid.password.hasLowerCase}>
+                                {valid.password.hasLowerCase
+                                    ? "Has 1+ lower case char"
+                                    : "Must have 1+ lower case char"}
+                            </PasswordLine>
+                            <PasswordLine valid={valid.password.hasUpperCase}>
+                                {valid.password.hasUpperCase
+                                    ? "Has 1+ upper case char"
+                                    : "Must have 1+ upper case char"}
+                            </PasswordLine>
+                            <PasswordLine valid={valid.password.hasSpecialChar}>
+                                {valid.password.hasSpecialChar
+                                    ? "Has 1+ special char (!@#$%^&*)"
+                                    : "Must have 1+ special char (!@#$%^&*))"}
+                            </PasswordLine>
+                            <PasswordLine valid={valid.password.isOver8Char}>
+                                {valid.password.isOver8Char
+                                    ? "Has 8+ characters"
+                                    : "Must have 8+ characters"}
+                            </PasswordLine>
                         </div>
-                        Logging in...
-                    </div>
-                ) : (
-                    "Log in"
+                    </SlideUpDown>
+                </div>
+
+                {errorMessage && (
+                    <Alert className="mb-4" color="failure">
+                        {errorMessage}
+                    </Alert>
                 )}
-            </Button>
-        </form>
+
+                <Button type="submit" disabled={isSubmitting || !valid.valid}>
+                    {isSubmitting ? (
+                        <div className="flex gap-x-2">
+                            <div>
+                                <SpinIcon className="animate-spin" />
+                            </div>
+                            Logging in...
+                        </div>
+                    ) : (
+                        "Log in"
+                    )}
+                </Button>
+            </form>
+            {footer && <div className="mt-4">{footer}</div>}
+        </div>
     );
 }
 

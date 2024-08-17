@@ -9,6 +9,7 @@ export type UserStore = {
     user: null | User;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<void>;
+    register: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     refresh: () => Promise<User | null>;
 };
@@ -21,6 +22,23 @@ const useUserStore = create(
                 login: async (email: string, password: string) => {
                     try {
                         const user = await UserService.login(email, password);
+                        set({ user });
+                    } catch (err) {
+                        if (err instanceof AxiosError) {
+                            console.error(err.response?.data || err.message);
+                        }
+
+                        set({ user: null });
+
+                        throw err;
+                    }
+                },
+                register: async (email: string, password: string) => {
+                    try {
+                        const user = await UserService.register(
+                            email,
+                            password
+                        );
                         set({ user });
                     } catch (err) {
                         if (err instanceof AxiosError) {
