@@ -14,6 +14,7 @@ createEnvironment({
     PORT: process.env.PORT,
     ENV: process.env.ENV,
     DATABASE_URL: process.env.DATABASE_URL,
+    JWT_SECRET: process.env.JWT_SECRET,
 }).then(() => {
     app.configureExpress();
 

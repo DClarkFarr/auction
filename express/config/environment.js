@@ -7,7 +7,7 @@ const data = {
         url: "TODO",
     },
     jwt: {
-        secret: "xqZR2wNUmI5H_2KVUpLk9MZngqVXdNLXpD0nT9SsY4KhZiHWJt4XEk-q72diBXsDRANNckLCnr5EY_t7-2rjzm9TXkItp3mte6cdjLDpj7pCMcUNxclrjrw71Sd9gzODI3te33XThVntCa",
+        secret: "qZR2wNUmI5H_2KVUpLk9MZngqVXdNLXpD0nT9SsY4KhZiHWJt4XEk-q72diBXsDRANNckLCnr5EY_t7-2rjzm9TXkItp3mte6cdjLDpj7pCMcUNxclrjrw71Sd9gzODI3te33XThVntCa",
     },
     allowedOrigins: [
         "http://localhost:4000",

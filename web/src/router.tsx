@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import HomePage from "./views/HomePage";
 import LoginPage from "./views/LoginPage";
+import HomeLayout from "./layouts/HomeLayout";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -29,12 +30,18 @@ function ErrorPage() {
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <HomePage />,
+        element: <HomeLayout />,
         errorElement: <ErrorPage />,
-    },
-    {
-        path: "/login",
-        element: <LoginPage />,
+        children: [
+            {
+                path: "login",
+                element: <LoginPage />,
+            },
+            {
+                path: "",
+                element: <HomePage />,
+            },
+        ],
     },
 ]);
 

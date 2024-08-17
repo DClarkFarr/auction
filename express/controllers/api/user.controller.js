@@ -26,16 +26,23 @@ class UserController extends BaseController {
             webSessionMiddleware.optional,
             this.route(this.userSignup)
         );
+
+        this.router.get("/test", (req, res) => {
+            res.json({ message: "test" });
+        });
+
+        this.router.get(
+            "/",
+            webSessionMiddleware,
+            hasUser,
+            this.route(this.getUser)
+        );
     }
 
     async getUser(req, res) {
-        throw new Error("TODO: Update userController.getUser");
         const user = req.user;
 
-        return res.json({
-            status: "success",
-            data: user.toJSON(),
-        });
+        return res.json(user);
     }
 
     async userLogin(req, res) {
