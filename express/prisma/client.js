@@ -30,5 +30,6 @@ export function getPrisma() {
         globalThis.prismaClient = _instance;
     }
 
+    // console.log("returning", globalThis.prismaClient, "and", _instance);
     return globalThis.prismaClient || _instance;
 }

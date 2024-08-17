@@ -1,10 +1,12 @@
 import { Button, Label, TextInput, Alert } from "flowbite-react";
-import { FormEvent, ReactNode, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useCallback, useMemo, useState } from "react";
 import { validateEmail, validatePassword } from "../../utils/validate";
 import CheckIcon from "~icons/ic/baseline-check-circle-outline";
 import TimesIcon from "~icons/ic/outline-cancel";
+import SpinIcon from "~icons/ic/baseline-refresh";
 import { cls } from "../../utils/attributes";
 import SlideUpDown from "../transition/SlideUpDown";
+import { AxiosError } from "axios";
 
 type LoginFormState = {
     email: string;
@@ -46,6 +48,13 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
         };
     }, [form]);
 
+    const resetForm = () => {
+        setForm({ email: "", password: "" });
+        setDirty({ email: false, password: false });
+        setFocus({ email: false, password: false });
+        setErrorMessage("");
+    };
+
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -54,8 +63,13 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
         try {
             setIsSubmitting(true);
             await onSubmit(form);
+            resetForm();
         } catch (e) {
-            if (e instanceof Error) {
+            console.log("caught error", e);
+
+            if (e instanceof AxiosError) {
+                setErrorMessage(e.response?.data?.message || e.message);
+            } else if (e instanceof Error) {
                 setErrorMessage(e.message);
             }
         } finally {
@@ -63,7 +77,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
         }
     };
 
-    const handleInput = (e: FormEvent<HTMLInputElement>) => {
+    const handleInput = useCallback((e: FormEvent<HTMLInputElement>) => {
         const target = e.currentTarget;
         setForm((prev) => ({
             ...prev,
@@ -74,23 +88,24 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
             ...prev,
             [target.name]: target.value.length > 0,
         }));
-    };
+    }, []);
 
-    const handleFocus = (e: FormEvent<HTMLInputElement>) => {
+    const handleFocus = useCallback((e: FormEvent<HTMLInputElement>) => {
         const target = e.currentTarget;
         setFocus((prev) => ({
             ...prev,
             [target.name]: true,
         }));
-    };
+    }, []);
 
-    const handleBlur = (e: FormEvent<HTMLInputElement>) => {
+    const handleBlur = useCallback((e: FormEvent<HTMLInputElement>) => {
         const target = e.currentTarget;
         setFocus((prev) => ({
             ...prev,
             [target.name]: false,
         }));
-    };
+    }, []);
+
     return (
         <form
             className="flex max-w-md flex-col gap-4 bg-gray-100 p-6"
@@ -114,6 +129,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
                     onInput={handleInput}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
+                    value={form.email}
                     helperText={
                         !focus.email &&
                         dirty.email &&
@@ -130,6 +146,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
                     name="password"
                     type="password"
                     required
+                    value={form.password}
                     onInput={handleInput}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
@@ -172,7 +189,16 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
             )}
 
             <Button type="submit" disabled={isSubmitting || !valid.valid}>
-                Log in
+                {isSubmitting ? (
+                    <div className="flex gap-x-2">
+                        <div>
+                            <SpinIcon className="animate-spin" />
+                        </div>
+                        Logging in...
+                    </div>
+                ) : (
+                    "Log in"
+                )}
             </Button>
         </form>
     );

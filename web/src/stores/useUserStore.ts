@@ -28,6 +28,8 @@ const useUserStore = create(
                         }
 
                         set({ user: null });
+
+                        throw err;
                     }
                 },
                 logout: async () => {
@@ -39,6 +41,8 @@ const useUserStore = create(
                         if (err instanceof AxiosError) {
                             console.error(err.response?.data || err.message);
                         }
+
+                        throw err;
                     }
                 },
                 refresh: async () => {

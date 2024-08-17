@@ -22,7 +22,7 @@ class UserModel {
      */
     table = null;
 
-    construct() {
+    constructor() {
         this.table = getPrisma().user;
     }
     /**

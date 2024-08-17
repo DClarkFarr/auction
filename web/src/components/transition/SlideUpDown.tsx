@@ -7,8 +7,8 @@ export default function SlideUpDown({
     children,
 }: {
     show: boolean;
-    duration: number;
     children: ReactNode;
+    duration?: number;
 }) {
     const element = useRef<HTMLDivElement>(null);
     const o = useMotionValue(0);
