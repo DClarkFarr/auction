@@ -7,9 +7,9 @@ export default class UserService {
             .post<User>("/user/login", { email, password })
             .then((res) => res.data);
     }
-    static register(email: string, password: string) {
+    static register(email: string, password: string, token: string) {
         return apiClient
-            .post<User>("/user/register", { email, password })
+            .post<User>("/user/register", { email, password, token })
             .then((res) => res.data);
     }
     static logout() {

@@ -18,7 +18,10 @@ function makeBooleanObject<O extends object>(obj: O) {
 }
 
 type Validators<State> = {
-    [K in keyof State]?: (value: State[K]) => [isValid: boolean, error: string];
+    [K in keyof State]?: (
+        value: State[K],
+        state: State
+    ) => [isValid: boolean, error: string];
 };
 
 type ToValidated<State> = {
@@ -58,7 +61,7 @@ export default function useForm<IS extends object>(config: {
             const method =
                 validate[key as keyof typeof validate] || (() => [true, ""]);
 
-            return { ...acc, [key]: method(value) };
+            return { ...acc, [key]: method(value, form) };
         }, {});
 
         return fields as ToValidated<IS>;

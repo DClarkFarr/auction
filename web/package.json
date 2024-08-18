@@ -17,6 +17,7 @@
         "luxon": "^3.5.0",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
+        "react-google-recaptcha-v3": "^1.10.1",
         "react-router-dom": "^6.26.1",
         "zustand": "^4.5.5"
     },

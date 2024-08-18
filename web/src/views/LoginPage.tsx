@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { LoginForm, LoginFormProps } from "../components/user/LoginForm";
+import LoginForm, { LoginFormProps } from "../components/user/LoginForm";
 import useUserStore from "../stores/useUserStore";
 import { Link } from "react-router-dom";
 

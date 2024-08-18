@@ -9,7 +9,7 @@ export type UserStore = {
     user: null | User;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<void>;
-    register: (email: string, password: string) => Promise<void>;
+    register: (email: string, password: string, token: string) => Promise<void>;
     logout: () => Promise<void>;
     refresh: () => Promise<User | null>;
 };
@@ -33,11 +33,16 @@ const useUserStore = create(
                         throw err;
                     }
                 },
-                register: async (email: string, password: string) => {
+                register: async (
+                    email: string,
+                    password: string,
+                    token: string
+                ) => {
                     try {
                         const user = await UserService.register(
                             email,
-                            password
+                            password,
+                            token
                         );
                         set({ user });
                     } catch (err) {

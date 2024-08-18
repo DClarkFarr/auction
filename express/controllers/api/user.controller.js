@@ -8,6 +8,7 @@ import webSessionMiddleware from "../../middleware/webSessionMiddleware.js";
 import UserError from "../../errors/UserError.js";
 import { hasUser } from "../../middleware/auth.middleware.js";
 import UserModel from "../../models/UserModel.js";
+import { hasRecaptcha } from "../../middleware/recaptcha.middleware.js";
 
 class UserController extends BaseController {
     base = "/user";
@@ -22,9 +23,10 @@ class UserController extends BaseController {
             this.route(this.userLogin)
         );
         this.router.post(
-            "/signup",
+            "/register",
             webSessionMiddleware.optional,
-            this.route(this.userSignup)
+            hasRecaptcha((req) => req.body.token),
+            this.route(this.userRegister)
         );
 
         this.router.get("/test", (req, res) => {
@@ -85,9 +87,11 @@ class UserController extends BaseController {
         });
     }
 
-    async userSignup(req, res) {
+    async userRegister(req, res) {
         const session = req.session;
         const userModel = new UserModel();
+
+        console.log("before validation");
 
         if (!req.body.email || !validator.isEmail(req.body.email)) {
             return res.status(401).json({
@@ -104,6 +108,8 @@ class UserController extends BaseController {
                 message: "Name is required",
             });
         }
+
+        console.log("past validation");
 
         try {
             const user = await userModel.create({

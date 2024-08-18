@@ -23,7 +23,7 @@ const initialState = {
     password: "",
 };
 
-export function LoginForm({ onSubmit, footer }: LoginFormProps) {
+export default function LoginForm({ onSubmit, footer }: LoginFormProps) {
     const validate = useMemo(() => {
         return {
             email: (v: string) => {
