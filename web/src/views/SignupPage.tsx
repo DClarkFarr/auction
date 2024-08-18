@@ -1,17 +1,15 @@
 import { useCallback } from "react";
 import useUserStore from "../stores/useUserStore";
 import { Link } from "react-router-dom";
-import SignupForm, { SignupFormProps } from "../components/user/SignupForm";
+import SignupForm from "../components/user/SignupForm";
+import { RegisterPayload } from "../types/User";
 
 export default function SignupPage() {
     const { register } = useUserStore();
-    const onSubmit = useCallback(
-        async (data: Parameters<SignupFormProps["onSubmit"]>[0]) => {
-            await register(data.email, data.password, data.token);
-            console.log("REDIRECT!");
-        },
-        []
-    );
+    const onSubmit = useCallback(async (data: RegisterPayload) => {
+        await register(data);
+        console.log("REDIRECT!");
+    }, []);
     return (
         <div>
             <SignupForm

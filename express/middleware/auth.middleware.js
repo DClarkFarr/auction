@@ -13,11 +13,14 @@ export const getToken = async function (req) {
 };
 export const hasAuth = async function (req, res, next) {
     try {
+        console.log("before said");
         req.auth = await getToken(req);
         if (typeof next == "function") {
             next();
         }
+        console.log("next was", next);
     } catch (err) {
+        console.log("erroring out", err);
         next(err);
     }
 };

@@ -1,5 +1,12 @@
 import { Button, Label, TextInput, Alert } from "flowbite-react";
-import { ReactNode, useCallback, useMemo, useState } from "react";
+import {
+    ReactNode,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import { validateEmail, validatePassword } from "../../utils/validate";
 import CheckIcon from "~icons/ic/baseline-check-circle-outline";
 import TimesIcon from "~icons/ic/outline-cancel";
@@ -10,6 +17,7 @@ import RecaptchaProvider from "../../providers/RecaptchaProvider";
 import { GoogleReCaptcha } from "react-google-recaptcha-v3";
 
 type SignupFormState = {
+    name: string;
     email: string;
     password: string;
     passwordConfirm: string;
@@ -21,6 +29,7 @@ export type SignupFormProps = {
 };
 
 const initialState: SignupFormState = {
+    name: "",
     email: "",
     password: "",
     passwordConfirm: "",
@@ -29,9 +38,16 @@ const initialState: SignupFormState = {
 export default function SignupForm({ onSubmit, footer }: SignupFormProps) {
     const [token, setToken] = useState("");
     const [refreshReCaptcha, setRefreshReCaptcha] = useState(false);
+    const refreshTimeoutId = useRef<number | null>(null);
 
     const validate = useMemo(() => {
         return {
+            name: (v: string) => {
+                return [
+                    v.length > 0,
+                    v.length > 0 ? "" : "Name is required",
+                ] as [boolean, string];
+            },
             email: (v: string) => {
                 const valid = validateEmail(String(v));
 
@@ -61,20 +77,44 @@ export default function SignupForm({ onSubmit, footer }: SignupFormProps) {
         };
     }, []);
 
+    const startTimeout = () => {
+        if (refreshTimeoutId.current) {
+            window.clearTimeout(refreshTimeoutId.current);
+        }
+        refreshTimeoutId.current = window.setTimeout(() => {
+            refreshToken();
+        }, 1000 * 55 * 2); // just short of 2 min
+    };
+
+    const refreshToken = () => {
+        setRefreshReCaptcha((r) => !r);
+        startTimeout();
+    };
+
     const onSubmitWithToken = useCallback(
         async (state: SignupFormState) => {
-            setRefreshReCaptcha((r) => !r);
+            refreshToken();
             await onSubmit({ ...state, token });
         },
         [token]
     );
+
+    useEffect(() => {
+        startTimeout();
+
+        return () => {
+            if (refreshTimeoutId.current) {
+                window.clearTimeout(refreshTimeoutId.current);
+            }
+        };
+    }, []);
 
     const {
         isSubmitting,
         errorMessage,
         handleSubmit,
         isValid,
-        fields: { email, password, passwordConfirm },
+        fields: { name, email, password, passwordConfirm },
         attrs,
     } = useForm<SignupFormState>({
         initialState,
@@ -97,6 +137,31 @@ export default function SignupForm({ onSubmit, footer }: SignupFormProps) {
                     className="flex flex-col gap-4 bg-gray-100 p-6"
                     onSubmit={handleSubmit}
                 >
+                    <div>
+                        <div className="mb-2 block">
+                            <Label htmlFor="name" value="First & Last Name" />
+                        </div>
+                        <TextInput
+                            id="name"
+                            name="name"
+                            type="text"
+                            placeholder="John Doe"
+                            color={
+                                !name.focus && name.dirty && !name.valid
+                                    ? "failure"
+                                    : undefined
+                            }
+                            required
+                            value={name.value}
+                            helperText={
+                                !name.focus &&
+                                name.dirty &&
+                                !name.valid &&
+                                name.error
+                            }
+                            {...attrs}
+                        />
+                    </div>
                     <div>
                         <div className="mb-2 block">
                             <Label htmlFor="email" value="Your email" />

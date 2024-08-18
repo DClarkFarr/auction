@@ -7,3 +7,9 @@ export type User = {
     role: UserRole;
     createdAt: string;
 };
+
+export type RegisterPayload = {
+    email: string;
+    password: string;
+    token: string;
+};

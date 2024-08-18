@@ -1,4 +1,4 @@
-import { User } from "../types/User";
+import { RegisterPayload, User } from "../types/User";
 import apiClient from "./apiClient";
 
 export default class UserService {
@@ -7,9 +7,9 @@ export default class UserService {
             .post<User>("/user/login", { email, password })
             .then((res) => res.data);
     }
-    static register(email: string, password: string, token: string) {
+    static register(data: RegisterPayload) {
         return apiClient
-            .post<User>("/user/register", { email, password, token })
+            .post<User>("/user/register", data)
             .then((res) => res.data);
     }
     static logout() {

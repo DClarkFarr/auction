@@ -15,6 +15,7 @@ const webSessionMiddleware = async (req, res, next, sessionRequired = true) => {
 
     req.session = session;
 
+    console.log("calling next", next);
     next();
 };
 

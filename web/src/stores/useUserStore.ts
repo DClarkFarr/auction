@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-import { User } from "../types/User";
+import { RegisterPayload, User } from "../types/User";
 import UserService from "../services/UserService";
 import { AxiosError } from "axios";
 
@@ -9,7 +9,7 @@ export type UserStore = {
     user: null | User;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<void>;
-    register: (email: string, password: string, token: string) => Promise<void>;
+    register: (data: RegisterPayload) => Promise<void>;
     logout: () => Promise<void>;
     refresh: () => Promise<User | null>;
 };
@@ -33,17 +33,9 @@ const useUserStore = create(
                         throw err;
                     }
                 },
-                register: async (
-                    email: string,
-                    password: string,
-                    token: string
-                ) => {
+                register: async (data: RegisterPayload) => {
                     try {
-                        const user = await UserService.register(
-                            email,
-                            password,
-                            token
-                        );
+                        const user = await UserService.register(data);
                         set({ user });
                     } catch (err) {
                         if (err instanceof AxiosError) {

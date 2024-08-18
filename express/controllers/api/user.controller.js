@@ -36,13 +36,15 @@ class UserController extends BaseController {
         this.router.get(
             "/",
             webSessionMiddleware,
-            hasUser,
+            hasUser(),
             this.route(this.getUser)
         );
     }
 
     async getUser(req, res) {
         const user = req.user;
+
+        console.log("got to user", user);
 
         return res.json(user);
     }
@@ -91,8 +93,6 @@ class UserController extends BaseController {
         const session = req.session;
         const userModel = new UserModel();
 
-        console.log("before validation");
-
         if (!req.body.email || !validator.isEmail(req.body.email)) {
             return res.status(401).json({
                 message: "Email is required",
@@ -108,8 +108,6 @@ class UserController extends BaseController {
                 message: "Name is required",
             });
         }
-
-        console.log("past validation");
 
         try {
             const user = await userModel.create({
