@@ -1,12 +1,12 @@
 import { Button, Label, TextInput, Alert } from "flowbite-react";
-import { FormEvent, ReactNode, useCallback, useMemo, useState } from "react";
+import { ReactNode, useMemo } from "react";
 import { validateEmail, validatePassword } from "../../utils/validate";
 import CheckIcon from "~icons/ic/baseline-check-circle-outline";
 import TimesIcon from "~icons/ic/outline-cancel";
 import SpinIcon from "~icons/ic/baseline-refresh";
 import { cls } from "../../utils/attributes";
 import SlideUpDown from "../transition/SlideUpDown";
-import { AxiosError } from "axios";
+import useForm from "../../hooks/useForm";
 
 type LoginFormState = {
     email: string;
@@ -17,95 +17,52 @@ export type LoginFormProps = {
     footer?: ReactNode;
     onSubmit: (data: LoginFormState) => Promise<void>;
 };
+
+const initialState = {
+    email: "",
+    password: "",
+};
+
 export function LoginForm({ onSubmit, footer }: LoginFormProps) {
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-
-    const [form, setForm] = useState({
-        email: "",
-        password: "",
-    });
-    const [dirty, setDirty] = useState({
-        email: false,
-        password: false,
-    });
-
-    const [focus, setFocus] = useState({
-        email: false,
-        password: false,
-    });
-
-    const valid = useMemo(() => {
-        const pv = validatePassword(form.password);
-        const password = Object.values(pv).every((v) => v);
-        const email = validateEmail(form.email);
+    const validate = useMemo(() => {
         return {
-            valid: password && email,
-            email,
-            password: {
-                valid: password,
-                ...pv,
+            email: (v: string) => {
+                const valid = validateEmail(String(v));
+
+                return [valid, valid ? "" : "Email is not valid"] as [
+                    boolean,
+                    string
+                ];
+            },
+            password: (v: string) => {
+                const allValid = Object.values(
+                    validatePassword(String(v))
+                ).every(Boolean);
+
+                return [allValid, allValid ? "" : "Password is not valid"] as [
+                    boolean,
+                    string
+                ];
             },
         };
-    }, [form]);
-
-    const resetForm = () => {
-        setForm({ email: "", password: "" });
-        setDirty({ email: false, password: false });
-        setFocus({ email: false, password: false });
-        setErrorMessage("");
-    };
-
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        setErrorMessage("");
-
-        try {
-            setIsSubmitting(true);
-            await onSubmit(form);
-            resetForm();
-        } catch (e) {
-            console.log("caught error", e);
-
-            if (e instanceof AxiosError) {
-                setErrorMessage(e.response?.data?.message || e.message);
-            } else if (e instanceof Error) {
-                setErrorMessage(e.message);
-            }
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const handleInput = useCallback((e: FormEvent<HTMLInputElement>) => {
-        const target = e.currentTarget;
-        setForm((prev) => ({
-            ...prev,
-            [target.name]: target.value,
-        }));
-
-        setDirty((prev) => ({
-            ...prev,
-            [target.name]: target.value.length > 0,
-        }));
     }, []);
 
-    const handleFocus = useCallback((e: FormEvent<HTMLInputElement>) => {
-        const target = e.currentTarget;
-        setFocus((prev) => ({
-            ...prev,
-            [target.name]: true,
-        }));
-    }, []);
+    const {
+        isSubmitting,
+        errorMessage,
+        handleSubmit,
+        isValid,
+        fields: { email, password },
+        attrs,
+    } = useForm<LoginFormState>({
+        initialState,
+        validate,
+        onSubmit,
+    });
 
-    const handleBlur = useCallback((e: FormEvent<HTMLInputElement>) => {
-        const target = e.currentTarget;
-        setFocus((prev) => ({
-            ...prev,
-            [target.name]: false,
-        }));
-    }, []);
+    const passwordCriteria = useMemo(() => {
+        return validatePassword(password.value);
+    }, [password.value]);
 
     return (
         <div className="max-w-md">
@@ -123,20 +80,19 @@ export function LoginForm({ onSubmit, footer }: LoginFormProps) {
                         type="email"
                         placeholder="example@email.com"
                         color={
-                            !focus.email && dirty.email && !valid.email
+                            !email.focus && email.dirty && !email.valid
                                 ? "failure"
                                 : undefined
                         }
                         required
-                        onInput={handleInput}
-                        onFocus={handleFocus}
-                        onBlur={handleBlur}
-                        value={form.email}
+                        value={email.value}
                         helperText={
-                            !focus.email &&
-                            dirty.email &&
-                            !valid.email && <div>Email is not valid</div>
+                            !email.focus &&
+                            email.dirty &&
+                            !email.valid &&
+                            email.error
                         }
+                        {...attrs}
                     />
                 </div>
                 <div>
@@ -148,35 +104,35 @@ export function LoginForm({ onSubmit, footer }: LoginFormProps) {
                         name="password"
                         type="password"
                         required
-                        value={form.password}
-                        onInput={handleInput}
-                        onFocus={handleFocus}
-                        onBlur={handleBlur}
+                        value={password.value}
+                        {...attrs}
                     />
-                    <SlideUpDown show={focus.password || valid.password.valid}>
+                    <SlideUpDown show={password.focus || password.valid}>
                         <div className="flex flex-col w-full text-xs pt-2">
-                            <PasswordLine valid={valid.password.hasNumber}>
-                                {valid.password.hasNumber
+                            <PasswordLine valid={passwordCriteria.hasNumber}>
+                                {passwordCriteria.hasNumber
                                     ? "Has 1+ number"
                                     : "Must have 1+ a number"}
                             </PasswordLine>
-                            <PasswordLine valid={valid.password.hasLowerCase}>
-                                {valid.password.hasLowerCase
+                            <PasswordLine valid={passwordCriteria.hasLowerCase}>
+                                {passwordCriteria.hasLowerCase
                                     ? "Has 1+ lower case char"
                                     : "Must have 1+ lower case char"}
                             </PasswordLine>
-                            <PasswordLine valid={valid.password.hasUpperCase}>
-                                {valid.password.hasUpperCase
+                            <PasswordLine valid={passwordCriteria.hasUpperCase}>
+                                {passwordCriteria.hasUpperCase
                                     ? "Has 1+ upper case char"
                                     : "Must have 1+ upper case char"}
                             </PasswordLine>
-                            <PasswordLine valid={valid.password.hasSpecialChar}>
-                                {valid.password.hasSpecialChar
+                            <PasswordLine
+                                valid={passwordCriteria.hasSpecialChar}
+                            >
+                                {passwordCriteria.hasSpecialChar
                                     ? "Has 1+ special char (!@#$%^&*)"
                                     : "Must have 1+ special char (!@#$%^&*))"}
                             </PasswordLine>
-                            <PasswordLine valid={valid.password.isOver8Char}>
-                                {valid.password.isOver8Char
+                            <PasswordLine valid={passwordCriteria.isOver8Char}>
+                                {passwordCriteria.isOver8Char
                                     ? "Has 8+ characters"
                                     : "Must have 8+ characters"}
                             </PasswordLine>
@@ -190,7 +146,7 @@ export function LoginForm({ onSubmit, footer }: LoginFormProps) {
                     </Alert>
                 )}
 
-                <Button type="submit" disabled={isSubmitting || !valid.valid}>
+                <Button type="submit" disabled={isSubmitting || !isValid}>
                     {isSubmitting ? (
                         <div className="flex gap-x-2">
                             <div>
