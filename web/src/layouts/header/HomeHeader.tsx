@@ -14,7 +14,7 @@ export default function HomeHeader() {
     return (
         <div className="container">
             <Navbar>
-                <Navbar.Brand as={Link} href="https://flowbite-react.com">
+                <Navbar.Brand as={Link} href="/">
                     <img
                         src="https://placehold.co/150x80"
                         className="mr-3 h-6 sm:h-9"

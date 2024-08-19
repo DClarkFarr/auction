@@ -8,7 +8,7 @@ import HomePage from "./views/HomePage";
 import LoginPage from "./views/LoginPage";
 import HomeLayout from "./layouts/HomeLayout";
 import SignupPage from "./views/SignupPage";
-import AdminLayout from "./layouts/AdminLayout";
+import AdminLayout, { AdminLayoutProvider } from "./layouts/AdminLayout";
 import DashboardPage from "./views/admin/DashboardPage";
 
 function ErrorPage() {
@@ -52,7 +52,11 @@ const router = createBrowserRouter([
     },
     {
         path: "/admin",
-        element: <AdminLayout />,
+        element: (
+            <AdminLayoutProvider>
+                <AdminLayout />
+            </AdminLayoutProvider>
+        ),
         errorElement: <ErrorPage />,
         children: [
             {
