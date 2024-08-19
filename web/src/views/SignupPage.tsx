@@ -3,12 +3,15 @@ import useUserStore from "../stores/useUserStore";
 import { Link } from "react-router-dom";
 import SignupForm from "../components/user/SignupForm";
 import { RegisterPayload } from "../types/User";
+import useRedirect from "../hooks/useRedirect";
 
 export default function SignupPage() {
     const { register } = useUserStore();
+    const { redirect } = useRedirect("/");
+
     const onSubmit = useCallback(async (data: RegisterPayload) => {
         await register(data);
-        console.log("REDIRECT!");
+        redirect();
     }, []);
     return (
         <div>
