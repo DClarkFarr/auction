@@ -23,6 +23,12 @@ class UserController extends BaseController {
             this.route(this.userLogin)
         );
         this.router.post(
+            "/logout",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.userLogout)
+        );
+        this.router.post(
             "/register",
             webSessionMiddleware.optional,
             hasRecaptcha((req) => req.body.token),
@@ -47,6 +53,14 @@ class UserController extends BaseController {
         console.log("got to user", user);
 
         return res.json(user);
+    }
+
+    async userLogout(req, res) {
+        req.session.destroy();
+        res.json({
+            status: "success",
+            message: "You've been successfully logged out",
+        });
     }
 
     async userLogin(req, res) {

@@ -1,13 +1,14 @@
 import axios from "axios";
 
-console.log("url was", import.meta.env.VITE_API_BASE);
+export const STORAGE_KEY = "x-token";
+
 const apiClient = axios.create({
     baseURL: import.meta.env.VITE_API_BASE,
     withCredentials: true,
 });
 
 apiClient.interceptors.request.use((config) => {
-    const token = localStorage.getItem("x-token");
+    const token = localStorage.getItem(STORAGE_KEY);
     if (token) {
         config.headers.Authorization = "Bearer " + token;
     }
@@ -16,7 +17,9 @@ apiClient.interceptors.request.use((config) => {
 
 apiClient.interceptors.response.use((response) => {
     if (response.headers["x-token"]) {
-        localStorage.setItem("x-token", response.headers["x-token"]);
+        localStorage.setItem(STORAGE_KEY, response.headers["x-token"]);
+        const event = new StorageEvent("storage", { key: STORAGE_KEY });
+        window.dispatchEvent(event);
     }
 
     return response;

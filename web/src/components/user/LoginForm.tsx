@@ -1,11 +1,7 @@
 import { Button, Label, TextInput, Alert } from "flowbite-react";
 import { ReactNode, useMemo } from "react";
 import { validateEmail, validatePassword } from "../../utils/validate";
-import CheckIcon from "~icons/ic/baseline-check-circle-outline";
-import TimesIcon from "~icons/ic/outline-cancel";
 import SpinIcon from "~icons/ic/baseline-refresh";
-import { cls } from "../../utils/attributes";
-import SlideUpDown from "../transition/SlideUpDown";
 import useForm from "../../hooks/useForm";
 
 type LoginFormState = {
@@ -35,11 +31,9 @@ export default function LoginForm({ onSubmit, footer }: LoginFormProps) {
                 ];
             },
             password: (v: string) => {
-                const allValid = Object.values(
-                    validatePassword(String(v))
-                ).every(Boolean);
+                const valid = validatePassword(v).isOver8Char;
 
-                return [allValid, allValid ? "" : "Password is not valid"] as [
+                return [valid, valid ? "" : "Password is not valid"] as [
                     boolean,
                     string
                 ];
@@ -59,10 +53,6 @@ export default function LoginForm({ onSubmit, footer }: LoginFormProps) {
         validate,
         onSubmit,
     });
-
-    const passwordCriteria = useMemo(() => {
-        return validatePassword(password.value);
-    }, [password.value]);
 
     return (
         <div className="max-w-md">
@@ -105,39 +95,19 @@ export default function LoginForm({ onSubmit, footer }: LoginFormProps) {
                         type="password"
                         required
                         value={password.value}
+                        color={
+                            !password.focus && password.dirty && !password.valid
+                                ? "failure"
+                                : undefined
+                        }
+                        helperText={
+                            !password.focus &&
+                            password.dirty &&
+                            !password.valid &&
+                            password.error
+                        }
                         {...attrs}
                     />
-                    <SlideUpDown show={password.focus || password.valid}>
-                        <div className="flex flex-col w-full text-xs pt-2">
-                            <PasswordLine valid={passwordCriteria.hasNumber}>
-                                {passwordCriteria.hasNumber
-                                    ? "Has 1+ number"
-                                    : "Must have 1+ a number"}
-                            </PasswordLine>
-                            <PasswordLine valid={passwordCriteria.hasLowerCase}>
-                                {passwordCriteria.hasLowerCase
-                                    ? "Has 1+ lower case char"
-                                    : "Must have 1+ lower case char"}
-                            </PasswordLine>
-                            <PasswordLine valid={passwordCriteria.hasUpperCase}>
-                                {passwordCriteria.hasUpperCase
-                                    ? "Has 1+ upper case char"
-                                    : "Must have 1+ upper case char"}
-                            </PasswordLine>
-                            <PasswordLine
-                                valid={passwordCriteria.hasSpecialChar}
-                            >
-                                {passwordCriteria.hasSpecialChar
-                                    ? "Has 1+ special char (!@#$%^&*)"
-                                    : "Must have 1+ special char (!@#$%^&*))"}
-                            </PasswordLine>
-                            <PasswordLine valid={passwordCriteria.isOver8Char}>
-                                {passwordCriteria.isOver8Char
-                                    ? "Has 8+ characters"
-                                    : "Must have 8+ characters"}
-                            </PasswordLine>
-                        </div>
-                    </SlideUpDown>
                 </div>
 
                 {errorMessage && (
@@ -163,25 +133,3 @@ export default function LoginForm({ onSubmit, footer }: LoginFormProps) {
         </div>
     );
 }
-
-const PasswordLine = ({
-    valid,
-    children,
-}: {
-    valid: boolean;
-    children: ReactNode;
-}) => {
-    return (
-        <div
-            className={cls(
-                "flex gap-x-2 items-center",
-                valid ? "text-green-500" : "text-red-500"
-            )}
-        >
-            <div className="shrink w-2">
-                {valid ? <CheckIcon /> : <TimesIcon />}
-            </div>
-            <div className="grow">{children}</div>
-        </div>
-    );
-};

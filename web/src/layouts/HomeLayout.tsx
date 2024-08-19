@@ -1,28 +1,23 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { Outlet } from "react-router-dom";
-import useUserStore from "../stores/useUserStore";
+import { useWatchUserSession } from "../stores/useUserStore";
+import HomeHeader from "./header/HomeHeader";
+import HomeFooter from "./footer/HomeFooter";
 
 export default function HomeLayout({ children }: { children?: ReactNode }) {
-    const [hasRefreshed, setHasRefreshed] = useState(false);
-
-    const { refresh, isLoading } = useUserStore();
-
-    useEffect(() => {
-        if (!hasRefreshed && !isLoading) {
-            setHasRefreshed(true);
-            refresh();
-        }
-    }, [hasRefreshed]);
+    useWatchUserSession();
     return (
         <div className="layout layout--home">
             <header className="layout__header">
-                <h1 className="text-gray-500">Header menu</h1>
+                <HomeHeader />
             </header>
             <main className="layout__main">
                 {children && children}
                 {!children && <Outlet />}
             </main>
-            <footer className="layout__footer">dis da footer</footer>
+            <footer className="layout__footer">
+                <HomeFooter />
+            </footer>
         </div>
     );
 }

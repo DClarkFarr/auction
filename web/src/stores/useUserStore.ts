@@ -4,6 +4,8 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { RegisterPayload, User } from "../types/User";
 import UserService from "../services/UserService";
 import { AxiosError } from "axios";
+import { useEffect, useMemo } from "react";
+import { STORAGE_KEY } from "../services/apiClient";
 
 export type UserStore = {
     user: null | User;
@@ -21,8 +23,7 @@ const useUserStore = create(
                 isLoading: false,
                 login: async (email: string, password: string) => {
                     try {
-                        const user = await UserService.login(email, password);
-                        set({ user });
+                        await UserService.login(email, password);
                     } catch (err) {
                         if (err instanceof AxiosError) {
                             console.error(err.response?.data || err.message);
@@ -87,5 +88,45 @@ const useUserStore = create(
         }
     )
 );
+
+export function useUserInitials() {
+    const user = useUserStore((state) => state.user);
+
+    const initials = useMemo(() => {
+        console.log("recalcualting user initials", { ...user });
+        if (user) {
+            const names = user.name.split(" ");
+            return names
+                .map((name) => name[0])
+                .join("")
+                .toUpperCase();
+        }
+
+        return null;
+    }, [user]);
+
+    return initials;
+}
+
+export function useWatchUserSession() {
+    const { refresh } = useUserStore();
+
+    useEffect(() => {
+        refresh();
+
+        const handleSessionEvent = (event: StorageEvent) => {
+            if (event.key === STORAGE_KEY) {
+                console.log("Session storage has changed", event);
+                refresh();
+            }
+        };
+
+        window.addEventListener("storage", handleSessionEvent);
+
+        return () => {
+            window.removeEventListener("storage", handleSessionEvent);
+        };
+    }, []);
+}
 
 export default useUserStore;
