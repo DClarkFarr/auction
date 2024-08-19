@@ -10,6 +10,9 @@ import HomeLayout from "./layouts/HomeLayout";
 import SignupPage from "./views/SignupPage";
 import AdminLayout, { AdminLayoutProvider } from "./layouts/AdminLayout";
 import DashboardPage from "./views/admin/DashboardPage";
+import ProductsPage from "./views/admin/ProductsPage";
+import UsersPage from "./views/admin/UsersPage";
+import UserSinglePage from "./views/admin/Users/UserSinglePage";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -59,6 +62,20 @@ const router = createBrowserRouter([
         ),
         errorElement: <ErrorPage />,
         children: [
+            {
+                path: "products",
+                element: <ProductsPage />,
+            },
+            {
+                path: "users",
+                element: <UsersPage />,
+                children: [
+                    {
+                        path: ":id",
+                        element: <UserSinglePage />,
+                    },
+                ],
+            },
             {
                 path: "",
                 element: <DashboardPage />,

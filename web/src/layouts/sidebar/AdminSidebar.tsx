@@ -3,25 +3,70 @@ import { Sidebar } from "flowbite-react";
 import PieChart from "~icons/ic/baseline-pie-chart";
 import UsersIcon from "~icons/ic/outline-supervisor-account";
 import ProductsIcon from "~icons/ic/outline-shopping-basket";
+import { useLocation } from "react-router-dom";
+import { ComponentProps, FC, ReactNode } from "react";
 
+function SidebarItem({
+    currentPath,
+    href,
+    children,
+    icon,
+    exact = false,
+}: {
+    exact?: boolean;
+    currentPath: string;
+    href: string;
+    children: ReactNode;
+    icon: FC<ComponentProps<"svg">>;
+}) {
+    const active =
+        (exact && currentPath === href) ||
+        (!exact && currentPath.startsWith(href));
+
+    return (
+        <Sidebar.Item active={active} href={href} icon={icon}>
+            {children}
+        </Sidebar.Item>
+    );
+}
 export default function AdminSidebar({ fullWidth }: { fullWidth: boolean }) {
+    const location = useLocation();
+
     return (
         <Sidebar
             className={fullWidth ? "w-full" : ""}
             aria-label="Sidebar with logo branding example"
+            theme={{
+                item: {
+                    active: "bg-purple-200 hover:bg-purple-300",
+                },
+            }}
         >
             <Sidebar.Items>
                 <Sidebar.ItemGroup>
-                    <Sidebar.Item href="#" icon={PieChart}>
+                    <SidebarItem
+                        exact
+                        currentPath={location.pathname}
+                        href="/admin"
+                        icon={PieChart}
+                    >
                         Dashboard
-                    </Sidebar.Item>
+                    </SidebarItem>
 
-                    <Sidebar.Item href="#" icon={UsersIcon}>
+                    <SidebarItem
+                        currentPath={location.pathname}
+                        href="/admin/users"
+                        icon={UsersIcon}
+                    >
                         Users
-                    </Sidebar.Item>
-                    <Sidebar.Item href="#" icon={ProductsIcon}>
+                    </SidebarItem>
+                    <SidebarItem
+                        currentPath={location.pathname}
+                        href="/admin/products"
+                        icon={ProductsIcon}
+                    >
                         Products
-                    </Sidebar.Item>
+                    </SidebarItem>
                 </Sidebar.ItemGroup>
             </Sidebar.Items>
         </Sidebar>
