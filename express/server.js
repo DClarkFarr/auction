@@ -15,6 +15,7 @@ createEnvironment({
     ENV: process.env.ENV,
     DATABASE_URL: process.env.DATABASE_URL,
     JWT_SECRET: process.env.JWT_SECRET,
+    SESSION_SECRET: process.env.SESSION_SECRET,
 }).then(() => {
     app.configureExpress();
 

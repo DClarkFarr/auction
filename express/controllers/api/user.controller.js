@@ -50,8 +50,6 @@ class UserController extends BaseController {
     async getUser(req, res) {
         const user = req.user;
 
-        console.log("got to user", user);
-
         return res.json(user);
     }
 
@@ -93,11 +91,10 @@ class UserController extends BaseController {
             });
         }
 
-        session.addUser(userModel.toObject(user));
-
-        session.save();
+        session.user = userModel.toObject(user);
 
         res.json({
+            user: userModel.toObject(user),
             status: "success",
             message: "You've been successfully logged in",
         });
@@ -130,11 +127,10 @@ class UserController extends BaseController {
                 password: req.body.password,
             });
 
-            session.addUser(userModel.toObject(user));
-
-            session.save();
+            session.user = userModel.toObject(user);
 
             res.json({
+                user: userModel.toObject(user),
                 status: "success",
                 message: "You've been successfully logged in",
             });

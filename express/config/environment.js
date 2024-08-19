@@ -14,6 +14,9 @@ const data = {
         "http://localhost:5173",
         "http://auction.danielsjunk.com",
     ],
+    session: {
+        secret: "put something here",
+    },
     endpoint: {
         production: {
             web: "http://auction.danielsjunk.com",

@@ -1,7 +1,6 @@
 import { Avatar, Dropdown, Navbar } from "flowbite-react";
 import { Link } from "react-router-dom";
 import useUserStore, { useUserInitials } from "../../stores/useUserStore";
-import { STORAGE_KEY } from "../../services/apiClient";
 
 export default function HomeHeader() {
     const { user, logout } = useUserStore();
@@ -9,7 +8,6 @@ export default function HomeHeader() {
     const userInitials = useUserInitials();
 
     const onClickLogout = async () => {
-        localStorage.removeItem(STORAGE_KEY);
         await logout();
     };
 

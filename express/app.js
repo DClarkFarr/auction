@@ -10,6 +10,7 @@ import defaultErrorHandler from "./middleware/errorHandler.middleware.js";
 import http from "http";
 import { env } from "./utils/environment.js";
 import { getPrisma } from "./prisma/client.js";
+import session from "express-session";
 
 class App {
     express = false;
@@ -26,6 +27,19 @@ class App {
     configureExpress() {
         this.express.use(bodyParser.urlencoded({ extended: false }));
         this.express.use(bodyParser.json());
+
+        const sessionConfig = {
+            secret: env("session.secret"),
+            resave: false,
+            saveUninitialized: true,
+            cookie: { secure: false },
+        };
+
+        if (env("env") == "production") {
+            this.express.set("trust proxy", 1); // trust first proxy
+            sessionConfig.cookie.secure = true;
+        }
+        this.express.use(session(sessionConfig));
 
         const allowedOrigins = env("allowedOrigins");
         const productionWeb = env("endpoint.production.web");

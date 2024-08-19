@@ -1,21 +1,9 @@
-import WebSession from "../utils/WebSession.js";
-import AuthenticationSessionStore from "../utils/authenticationSession.js";
-
 const webSessionMiddleware = async (req, res, next, sessionRequired = true) => {
-    const { status, message, payload } =
-        await AuthenticationSessionStore.consumeToken(req, sessionRequired);
-
-    if (status !== 200) {
-        return res.status(status).json({ message });
+    if (sessionRequired && !req.session.user?.id) {
+        return res.status(401).json({
+            message: "Unauthorized",
+        });
     }
-
-    const session = new WebSession(payload || {}, message, status);
-
-    session.bindRoute(req, res);
-
-    req.session = session;
-
-    console.log("calling next", next);
     next();
 };
 

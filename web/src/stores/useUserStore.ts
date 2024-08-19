@@ -5,7 +5,6 @@ import { RegisterPayload, User } from "../types/User";
 import UserService from "../services/UserService";
 import { AxiosError } from "axios";
 import { useEffect, useMemo } from "react";
-import { STORAGE_KEY } from "../services/apiClient";
 
 export type UserStore = {
     user: null | User;
@@ -23,7 +22,8 @@ const useUserStore = create(
                 isLoading: false,
                 login: async (email: string, password: string) => {
                     try {
-                        await UserService.login(email, password);
+                        const user = await UserService.login(email, password);
+                        set({ user });
                     } catch (err) {
                         if (err instanceof AxiosError) {
                             console.error(err.response?.data || err.message);
@@ -110,18 +110,16 @@ export function useUserInitials() {
 export function useWatchUserSession(
     callback?: (user: User | null) => void | Promise<void>
 ) {
-    const { refresh, logout } = useUserStore();
+    const { refresh, logout, user } = useUserStore();
 
     useEffect(() => {
         const syncUserSession = async () => {
             try {
-                const user = await refresh();
                 if (typeof callback === "function") {
                     await callback(user);
                 }
             } catch {
                 logout();
-                localStorage.removeItem(STORAGE_KEY);
 
                 if (typeof callback === "function") {
                     await callback(null);
@@ -130,18 +128,10 @@ export function useWatchUserSession(
         };
 
         syncUserSession();
+    }, [user]);
 
-        const handleSessionEvent = async (event: StorageEvent) => {
-            if (event.key === STORAGE_KEY) {
-                await syncUserSession();
-            }
-        };
-
-        window.addEventListener("storage", handleSessionEvent);
-
-        return () => {
-            window.removeEventListener("storage", handleSessionEvent);
-        };
+    useEffect(() => {
+        refresh();
     }, []);
 }
 
