@@ -1,5 +1,4 @@
-import { useWindowSize } from "@uidotdev/usehooks";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const sizes = {
     xs: 0,
@@ -11,14 +10,16 @@ const sizes = {
 };
 
 export function useWindowBreakpoints() {
-    const { width } = useWindowSize();
+    const [currentBreakpoint, setCurrentBreakpoint] =
+        useState<keyof typeof sizes>("lg");
+    const breakpointRef = useRef<keyof typeof sizes>("lg");
 
-    const currentBreakpoint = useMemo(() => {
+    const getCurrentSize = () => {
         let size: keyof typeof sizes = "xs";
         const keys = Object.keys(sizes) as Array<keyof typeof sizes>;
         for (let i = 0; i < keys.length; i++) {
             const thisSize = keys[i];
-            if (sizes[thisSize] <= (width || 0)) {
+            if (sizes[thisSize] <= window.innerWidth) {
                 size = thisSize;
             } else {
                 break;
@@ -26,15 +27,28 @@ export function useWindowBreakpoints() {
         }
 
         return size;
-    }, [width]);
-
-    return {
-        breakpoint: currentBreakpoint,
     };
+    const checkWidthVsBreakpoint = (size: keyof typeof sizes) => {
+        if (size !== breakpointRef.current) {
+            setCurrentBreakpoint(size);
+            breakpointRef.current = size;
+        }
+    };
+
+    useEffect(() => {
+        const handler = () => {
+            checkWidthVsBreakpoint(getCurrentSize());
+        };
+        window.addEventListener("resize", handler);
+
+        return () => window.removeEventListener("resize", handler);
+    }, []);
+
+    return currentBreakpoint;
 }
 
 export function useIsMinBreakpoint(breakpoint: keyof typeof sizes) {
-    const { breakpoint: currentBreakpoint } = useWindowBreakpoints();
+    const currentBreakpoint = useWindowBreakpoints();
 
     const isMinBreakpoint = useMemo(() => {
         return sizes[currentBreakpoint] >= sizes[breakpoint];

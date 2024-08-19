@@ -4,9 +4,12 @@ import PieChart from "~icons/ic/baseline-pie-chart";
 import UsersIcon from "~icons/ic/outline-supervisor-account";
 import ProductsIcon from "~icons/ic/outline-shopping-basket";
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ fullWidth }: { fullWidth: boolean }) {
     return (
-        <Sidebar aria-label="Sidebar with logo branding example">
+        <Sidebar
+            className={fullWidth ? "w-full" : ""}
+            aria-label="Sidebar with logo branding example"
+        >
             <Sidebar.Items>
                 <Sidebar.ItemGroup>
                     <Sidebar.Item href="#" icon={PieChart}>
