@@ -1,5 +1,9 @@
 import _ from "lodash-es";
 
+/**
+ * @typedef {import("@prisma/client").User} UserDocument
+ */
+
 export const hasUser =
     (fetch = "session.user") =>
     async (req, res, next) => {
@@ -16,6 +20,9 @@ export const hasUser =
         next();
     };
 
+/**
+ * @param {UserDocument['role'][]} accessLevels
+ */
 export const hasAccessLevel = (accessLevels = []) =>
     async function (req, res, next) {
         if (!accessLevels.length) {
