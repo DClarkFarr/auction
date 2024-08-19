@@ -13,7 +13,7 @@ dotenv.config({
 });
 
 import commandLineArgs from "command-line-args";
-import Environment from "../utils/environment.js";
+import { createEnvironment } from "../utils/environment.js";
 import { app } from "../app.js";
 
 /**
@@ -109,12 +109,11 @@ const parseArgs = ({ options, flags, args }) => {
     };
 };
 
-app.setupEnvironment(
-    await Environment.create({
-        MONGODB_URL: process.env.MONGODB_URL,
-        JWT_SECRET: process.env.JWT_SECRET,
-        PORT: process.env.PORT,
-    })
-);
+await createEnvironment({
+    PORT: process.env.PORT,
+    ENV: process.env.ENV,
+    DATABASE_URL: process.env.DATABASE_URL,
+    JWT_SECRET: process.env.JWT_SECRET,
+});
 
 export { app, parseArgs };

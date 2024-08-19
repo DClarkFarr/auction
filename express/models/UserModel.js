@@ -48,7 +48,7 @@ class UserModel {
     }
 
     /**
-     * @param {{name: string, email: string, password: string, role?: string}} doc
+     * @param {{name: string, email: string, password: string, role?: UserDocument['role']}} doc
      */
     async create(doc) {
         const existing = await this.findByEmail(doc.email);

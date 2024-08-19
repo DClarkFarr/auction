@@ -8,10 +8,12 @@ import HomePage from "./views/HomePage";
 import LoginPage from "./views/LoginPage";
 import HomeLayout from "./layouts/HomeLayout";
 import SignupPage from "./views/SignupPage";
+import AdminLayout from "./layouts/AdminLayout";
+import DashboardPage from "./views/admin/DashboardPage";
 
 function ErrorPage() {
     const error = useRouteError();
-    console.log(error);
+    console.error(error);
 
     if (!(error instanceof UNSAFE_ErrorResponseImpl)) {
         return <div>I don't know what this is</div>;
@@ -45,6 +47,17 @@ const router = createBrowserRouter([
             {
                 path: "",
                 element: <HomePage />,
+            },
+        ],
+    },
+    {
+        path: "/admin",
+        element: <AdminLayout />,
+        errorElement: <ErrorPage />,
+        children: [
+            {
+                path: "",
+                element: <DashboardPage />,
             },
         ],
     },

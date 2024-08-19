@@ -93,7 +93,6 @@ export function useUserInitials() {
     const user = useUserStore((state) => state.user);
 
     const initials = useMemo(() => {
-        console.log("recalcualting user initials", { ...user });
         if (user) {
             const names = user.name.split(" ");
             return names
@@ -108,16 +107,33 @@ export function useUserInitials() {
     return initials;
 }
 
-export function useWatchUserSession() {
-    const { refresh } = useUserStore();
+export function useWatchUserSession(
+    callback?: (user: User | null) => void | Promise<void>
+) {
+    const { refresh, logout } = useUserStore();
 
     useEffect(() => {
-        refresh();
+        const syncUserSession = async () => {
+            try {
+                const user = await refresh();
+                if (typeof callback === "function") {
+                    await callback(user);
+                }
+            } catch {
+                logout();
+                localStorage.removeItem(STORAGE_KEY);
 
-        const handleSessionEvent = (event: StorageEvent) => {
+                if (typeof callback === "function") {
+                    await callback(null);
+                }
+            }
+        };
+
+        syncUserSession();
+
+        const handleSessionEvent = async (event: StorageEvent) => {
             if (event.key === STORAGE_KEY) {
-                console.log("Session storage has changed", event);
-                refresh();
+                await syncUserSession();
             }
         };
 

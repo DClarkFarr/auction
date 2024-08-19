@@ -101,8 +101,6 @@ export default function useForm<IS extends object>(config: {
                 await onSubmit(form);
                 resetForm();
             } catch (e) {
-                console.log("caught error", e);
-
                 if (e instanceof AxiosError) {
                     setErrorMessage(e.response?.data?.message || e.message);
                 } else if (e instanceof Error) {
