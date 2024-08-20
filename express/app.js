@@ -12,6 +12,11 @@ import { env } from "./utils/environment.js";
 import { getPrisma } from "./prisma/client.js";
 import session from "express-session";
 
+import CreateMysqlStore from "express-mysql-session";
+
+import mysql from "mysql2/promise";
+import { createDbUrlFromEnv } from "./utils/database.js";
+
 class App {
     express = false;
     httpServer = false;
@@ -24,22 +29,9 @@ class App {
         this.express = express();
     }
 
-    configureExpress() {
+    async configureExpress() {
         this.express.use(bodyParser.urlencoded({ extended: false }));
         this.express.use(bodyParser.json());
-
-        const sessionConfig = {
-            secret: env("session.secret"),
-            resave: false,
-            saveUninitialized: true,
-            cookie: { secure: false },
-        };
-
-        if (env("env") == "production") {
-            this.express.set("trust proxy", 1); // trust first proxy
-            sessionConfig.cookie.secure = true;
-        }
-        this.express.use(session(sessionConfig));
 
         const allowedOrigins = env("allowedOrigins");
         const productionWeb = env("endpoint.production.web");
@@ -64,11 +56,64 @@ class App {
                 "Access-Control-Allow-Methods",
                 "OPTION, GET, POST, PUT, DELETE"
             );
+
             res.header("Access-Control-Allow-Origin", origin);
             res.header("Content-Security-Policy", "frame-ancestors");
             res.header("X-Frame-Options", "SAMEORIGIN");
             next();
         });
+
+        /**
+         * @type {import('mysql2').ConnectionOptions}
+         */
+        const sqlOptions = {
+            host: env("db.host"),
+            port: env("db.port"),
+            user: env("db.user"),
+            password: env("db.password"),
+            database: env("db.name"),
+        };
+
+        const socket = env("db.socket");
+        if (socket) {
+            sqlOptions.socketPath = socket;
+        }
+
+        const connection = await mysql.createConnection(sqlOptions);
+
+        const MySQLStore = CreateMysqlStore(session);
+        const sessionStore = new MySQLStore(
+            { createDatabaseTable: true },
+            connection
+        );
+
+        /**
+         * @type {import('express-session').SessionOptions}
+         */
+        const sessionConfig = {
+            secret: env("session.secret"),
+            resave: false,
+            saveUninitialized: true,
+            cookie: { secure: false },
+            store: sessionStore,
+        };
+
+        if (env("env") == "production") {
+            this.express.set("trust proxy", 1); // trust first proxy
+            sessionConfig.cookie.secure = true;
+        }
+        this.express.use(session(sessionConfig));
+
+        await sessionStore
+            .onReady()
+            .then(() => {
+                // MySQL session store ready for use.
+                console.log("MySQLStore ready");
+            })
+            .catch((error) => {
+                // Something went wrong.
+                console.error("error initiating session sql connection", error);
+            });
     }
     registerControllers(controllers = []) {
         controllers.forEach((c) => {

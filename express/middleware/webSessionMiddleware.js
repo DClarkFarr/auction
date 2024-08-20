@@ -1,5 +1,5 @@
 const webSessionMiddleware = async (req, res, next, sessionRequired = true) => {
-    if (sessionRequired && !req.session.user?.id) {
+    if (sessionRequired && !req.session?.user?.id) {
         return res.status(401).json({
             message: "Unauthorized",
         });

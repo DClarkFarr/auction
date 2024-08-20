@@ -19,7 +19,7 @@ class UserController extends BaseController {
     initRoutes() {
         this.router.post(
             "/login",
-            webSessionMiddleware.optional,
+            // webSessionMiddleware.optional,
             this.route(this.userLogin)
         );
         this.router.post(

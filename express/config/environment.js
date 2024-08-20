@@ -25,6 +25,14 @@ const data = {
             web: "http://localhost:5173",
         },
     },
+    db: {
+        name: "",
+        port: "",
+        host: "",
+        user: "",
+        password: "",
+        socket: "",
+    },
 };
 
 export default data;

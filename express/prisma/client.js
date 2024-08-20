@@ -1,8 +1,13 @@
 import { PrismaClient } from "@prisma/client";
+import { createDbUrlFromEnv } from "../utils/database.js";
 
 const prismaClientSingleton = () => {
-    console.log("creating prisma client");
     const pc = new PrismaClient({
+        datasources: {
+            db: {
+                url: createDbUrlFromEnv(),
+            },
+        },
         log: [
             {
                 emit: "event",

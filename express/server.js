@@ -13,40 +13,44 @@ import ApiController from "./controllers/api.controller.js";
 createEnvironment({
     PORT: process.env.PORT,
     ENV: process.env.ENV,
-    DATABASE_URL: process.env.DATABASE_URL,
+    DB_NAME: process.env.DB_NAME,
+    DB_PORT: process.env.DB_PORT,
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_PASSWORD: process.env.DB_PASSWORD,
+    DB_SOCKET: process.env.DB_SOCKET,
     JWT_SECRET: process.env.JWT_SECRET,
     SESSION_SECRET: process.env.SESSION_SECRET,
-}).then(() => {
-    app.configureExpress();
+})
+    .then(() => app.configureExpress())
+    .then(() => {
+        app.registerControllers([new ApiController(), new WebController()]);
 
-    app.registerControllers([new ApiController(), new WebController()]);
+        app.registerErrorHandler();
 
-    app.registerErrorHandler();
+        return app
+            .connectToDb()
+            .then(() => {
+                return app.listen();
+            })
+            .then(async (port) => {
+                console.log("listening to port", port);
 
-    return app
-        .connectToDb()
-        .then(() => {
-            console.log("connected to db");
-            return app.listen();
-        })
-        .then(async (port) => {
-            console.log("listening to port", port);
+                setTimeout(() => {
+                    if (env("env") == "production") {
+                        console.log("scheduling cron");
 
-            setTimeout(() => {
-                if (env("env") == "production") {
-                    console.log("scheduling cron");
-
-                    // schedule to run at 10PM every 5 days
-                    cron.schedule("0 22 */5 * *", async () => {
-                        queueService.add(async () => {
-                            try {
-                                console.log("log result here");
-                            } catch (err) {
-                                console.log("log error here");
-                            }
+                        // schedule to run at 10PM every 5 days
+                        cron.schedule("0 22 */5 * *", async () => {
+                            queueService.add(async () => {
+                                try {
+                                    console.log("log result here");
+                                } catch (err) {
+                                    console.log("log error here");
+                                }
+                            });
                         });
-                    });
-                }
-            }, 2000);
-        });
-});
+                    }
+                }, 2000);
+            });
+    });
