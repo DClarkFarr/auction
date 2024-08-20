@@ -22,6 +22,14 @@ enum IMAGE_RESOURCE_TYPES {
     product
 }
 
+enum PRODUCT_STATUSES {
+    active // when a product is live, and batches are auctioning 
+    inactive // before a product is live: default
+    scheduled // when a product will go live automatically
+    archived // when a product has been given up on
+    sold // when all the quantities have been sold
+}
+
 model User {
     id        Int      @id @default(autoincrement())
     email     String   @unique
@@ -37,16 +45,19 @@ model Product {
     sku               String?
     name              String
     slug              String
-    priceCost         Float               @db.Double
-    priceInitial      Float               @db.Double
-    priceRetail       Float               @db.Double
+    priceCost         Float?              @db.Double
+    priceInitial      Float?              @db.Double
+    priceRetail       Float?              @db.Double
     initialQuantity   Int                 @default(1)
     remainingQuantity Int                 @default(1)
     quality           Int                 @default(5)
-    description       String              @db.MediumText
+    auctionBatchCount Int                 @default(1)
+    description       String?             @db.MediumText
     detailItems       Json                @default("[]")
-    createdAt         DateTime            @default(now())
-    updatedAt         DateTime            @updatedAt
+    status            PRODUCT_STATUSES    @default(inactive)
+    scheduledFor      DateTime?
+    createdAt         DateTime?           @default(now())
+    updatedAt         DateTime?           @updatedAt
     ProductTags       ProductTags[]
     ProductCategories ProductCategories[]
 }

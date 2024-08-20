@@ -3,6 +3,13 @@ export type ProductDetailItem = {
     description: string;
 };
 
+export type ProductStatus =
+    | "active"
+    | "inactive"
+    | "scheduled"
+    | "archived"
+    | "sold";
+
 export type Product = {
     id_product: number;
     sku: string;
@@ -14,8 +21,11 @@ export type Product = {
     initialQuantity: number;
     remainingQuantity: number;
     quality: number;
+    auctionBatchCount: number;
     description: string;
     detailItems: ProductDetailItem[];
+    status: ProductStatus;
+    scheduledFor: string | undefined;
     createdAt: string;
 };
 

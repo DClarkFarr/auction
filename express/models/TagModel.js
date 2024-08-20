@@ -36,7 +36,7 @@ class TagModel {
         const existing = this.findBySlug(slug);
 
         if (existing) {
-            throw new UserError("Category w/ slug already exists");
+            throw new UserError("Tag w/ slug already exists");
         }
 
         const created = await this.table.create({
@@ -47,7 +47,7 @@ class TagModel {
         });
 
         if (!created) {
-            throw new UserError("Category creation failed lookup");
+            throw new UserError("Tag creation failed lookup");
         }
 
         return created;
