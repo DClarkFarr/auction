@@ -18,6 +18,10 @@ enum ROLES {
     user
 }
 
+enum IMAGE_RESOURCE_TYPES {
+    product
+}
+
 model User {
     id        Int      @id @default(autoincrement())
     email     String   @unique
@@ -26,4 +30,65 @@ model User {
     password  String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+model Product {
+    id_product        Int                 @id @default(autoincrement())
+    sku               String?
+    name              String
+    slug              String
+    priceCost         Float               @db.Double
+    priceInitial      Float               @db.Double
+    priceRetail       Float               @db.Double
+    initialQuantity   Int                 @default(1)
+    remainingQuantity Int                 @default(1)
+    quality           Int                 @default(5)
+    description       String              @db.MediumText
+    detailItems       Json                @default("[]")
+    createdAt         DateTime            @default(now())
+    updatedAt         DateTime            @updatedAt
+    ProductTags       ProductTags[]
+    ProductCategories ProductCategories[]
+}
+
+model Tag {
+    id_tag      Int           @id @default(autoincrement())
+    label       String
+    slug        String
+    ProductTags ProductTags[]
+}
+
+model Category {
+    id_category       Int                 @id @default(autoincrement())
+    label             String
+    slug              String
+    ProductCategories ProductCategories[]
+}
+
+model Image {
+    id_image     Int                  @id @default(autoincrement())
+    resourceType IMAGE_RESOURCE_TYPES
+    resourceId   Int
+    path         String
+    alt          String
+
+    @@index(fields: [resourceType, resourceId], name: "type_id")
+}
+
+model ProductTags {
+    productId Int
+    tagId     Int
+    product   Product @relation(fields: [productId], references: [id_product])
+    tag       Tag     @relation(fields: [tagId], references: [id_tag])
+
+    @@id([tagId, productId])
+}
+
+model ProductCategories {
+    productId  Int
+    categoryId Int
+    product    Product  @relation(fields: [productId], references: [id_product])
+    category   Category @relation(fields: [categoryId], references: [id_category])
+
+    @@id([productId, categoryId])
 }

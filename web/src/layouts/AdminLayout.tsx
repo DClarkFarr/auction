@@ -76,7 +76,7 @@ export default function AdminLayout({ children }: { children?: ReactNode }) {
     });
     return (
         <div className="layout layout--admin flex flex-col min-h-screen">
-            <header className="layout__header sticky top-0">
+            <header className="layout__header sticky top-0 z-[100]">
                 <AdminHeader />
             </header>
             <main className="layout__main w-full flex h-full grow">
