@@ -1,8 +1,23 @@
 import { Button } from "flowbite-react";
-
-const onShowCreateModal = () => {};
+import { useFormModal } from "../../hooks/useModalForm";
+import FormModal from "../../components/modal/FormModal";
+import CreateProductForm, {
+    CreateProductFormState,
+} from "../../components/product/CreateProductForm";
 
 export default function ProductsPage() {
+    const formModal = useFormModal<CreateProductFormState>({
+        heading: "Create Product",
+        size: "md",
+        onAccept: async () => {
+            console.log("launch!");
+        },
+    });
+
+    const onShowCreateModal = () => {
+        formModal.setOpenModal(true);
+    };
+
     return (
         <div>
             <div className="md:flex flex-col md:flex-row">
@@ -20,6 +35,8 @@ export default function ProductsPage() {
                     </Button>
                 </div>
             </div>
+            <FormModal {...formModal} form={CreateProductForm} />
+            TODO: Product tabs here!
         </div>
     );
 }

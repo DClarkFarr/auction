@@ -1,7 +1,7 @@
 import { ModalProps } from "flowbite-react";
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 
-export interface BaseModalProps<Accept extends object = object> {
+export interface BaseModalProps<Accept> {
     openModal: boolean;
     setOpenModal: (bool: boolean) => void;
     onAccept: (data: Accept) => Promise<void>;
@@ -9,15 +9,15 @@ export interface BaseModalProps<Accept extends object = object> {
     onCancel?: () => void;
     size: ModalProps["size"];
     dismissable: ModalProps["dismissible"];
+    heading?: ReactNode;
 }
 
-export interface FormModalProps<Accept extends object = object>
-    extends BaseModalProps<Accept> {
+export interface FormModalProps<Accept> extends BaseModalProps<Accept> {
     form: FC<FormModalFormProps<Accept>>;
     initialState?: Accept;
 }
 
-export type FormModalFormProps<Data extends object = object> = {
+export type FormModalFormProps<Data> = {
     onSubmit: (data: Data) => Promise<void>;
     onCancel?: () => void;
     initialState?: Data;

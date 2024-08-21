@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
 import { FormModalProps } from "../types/Modal";
 
-export type UseFormModalProps = {
-    onAccept: FormModalProps["onAccept"];
-} & Partial<Omit<FormModalProps, "setOpenModal" | "onAccept" | "form">>;
+export type UseFormModalProps<D> = {
+    onAccept: FormModalProps<D>["onAccept"];
+} & Partial<Omit<FormModalProps<D>, "setOpenModal" | "onAccept" | "form">>;
 
-export function useFormModal(
-    props: UseFormModalProps
-): Omit<FormModalProps, "form"> {
+export function useFormModal<D>(
+    props: UseFormModalProps<D>
+): Omit<FormModalProps<D>, "form"> {
     const [openModal, setOpenModal] = useState(props.openModal || false);
 
     const onCancel = useCallback(() => {
@@ -31,6 +31,7 @@ export function useFormModal(
         size: props.size,
         dismissable: props.dismissable,
         initialState: props.initialState,
+        heading: props.heading,
         onAccept: props.onAccept,
         setOpenModal,
         onCancel,
