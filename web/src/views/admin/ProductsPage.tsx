@@ -7,6 +7,7 @@ import CreateProductForm, {
 import { ReactNode, useMemo, useState } from "react";
 import { ProductStatus } from "../../types/Product";
 import ProductList from "../../components/product/ProductList";
+import useProductsQuery from "../../hooks/admin/useProductsQuery";
 
 type ProductTabs = "active" | "archived" | "sold";
 
@@ -16,19 +17,21 @@ const statusMap: Record<ProductTabs, ProductStatus[]> = {
     sold: ["sold"],
 };
 export default function ProductsPage() {
+    const [activeTab, setActiveTab] = useState<ProductTabs>("active");
+
+    const { createProduct } = useProductsQuery(statusMap.active);
+
     const formModal = useFormModal<CreateProductFormState>({
         heading: "Create Product",
         size: "md",
-        onAccept: async () => {
-            console.log("launch!");
+        onAccept: async (data) => {
+            await createProduct(data);
         },
     });
 
     const onShowCreateModal = () => {
         formModal.setOpenModal(true);
     };
-
-    const [activeTab, setActiveTab] = useState<ProductTabs>("active");
 
     const tabs = useMemo<
         {

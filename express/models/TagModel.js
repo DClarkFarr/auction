@@ -33,7 +33,7 @@ class TagModel {
      */
     async create(doc) {
         const slug = toSlug(doc.label);
-        const existing = this.findBySlug(slug);
+        const existing = await this.findBySlug(slug);
 
         if (existing) {
             throw new UserError("Tag w/ slug already exists");

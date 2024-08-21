@@ -34,7 +34,7 @@ class ProductModel {
     async create(doc) {
         const slug = toSlug(doc.name);
 
-        const existing = this.findBySlug(slug);
+        const existing = await this.findBySlug(slug);
 
         if (existing) {
             throw new UserError("Product w/ slug already exists");
@@ -44,6 +44,8 @@ class ProductModel {
             data: {
                 ...doc,
                 slug,
+                status: doc.status || "inactive",
+                detailItems: doc.detailItems || [],
             },
         });
 
