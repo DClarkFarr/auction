@@ -44,20 +44,6 @@ export default class AdminService {
             },
         });
 
-        console.log("query obj", {
-            where: {
-                status: {
-                    in: status,
-                },
-            },
-            // include: {
-            //     categories: true,
-            // },
-            orderBy: { createdAt: "desc" },
-            take: limit,
-            skip: page * limit - limit,
-        });
-
         const rows = await productModel.table.findMany({
             where: {
                 status: {
