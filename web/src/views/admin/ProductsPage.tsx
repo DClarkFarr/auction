@@ -1,10 +1,20 @@
-import { Button } from "flowbite-react";
+import { Button, Tabs } from "flowbite-react";
 import { useFormModal } from "../../hooks/useModalForm";
 import FormModal from "../../components/modal/FormModal";
 import CreateProductForm, {
     CreateProductFormState,
 } from "../../components/product/CreateProductForm";
+import { ReactNode, useMemo, useState } from "react";
+import { ProductStatus } from "../../types/Product";
+import ProductList from "../../components/product/ProductList";
 
+type ProductTabs = "active" | "archived" | "sold";
+
+const statusMap: Record<ProductTabs, ProductStatus[]> = {
+    active: ["active", "inactive", "sold"],
+    archived: ["archived"],
+    sold: ["sold"],
+};
 export default function ProductsPage() {
     const formModal = useFormModal<CreateProductFormState>({
         heading: "Create Product",
@@ -17,6 +27,47 @@ export default function ProductsPage() {
     const onShowCreateModal = () => {
         formModal.setOpenModal(true);
     };
+
+    const [activeTab, setActiveTab] = useState<ProductTabs>("active");
+
+    const tabs = useMemo<
+        {
+            title: string;
+            key: ProductTabs;
+            body: ReactNode;
+        }[]
+    >(() => {
+        return [
+            {
+                title: "Active",
+                key: "active",
+                body: (
+                    <>
+                        <ProductList status={statusMap.active} />
+                    </>
+                ),
+            },
+            {
+                title: "Archived",
+                key: "archived",
+                status: ["archived"],
+                body: (
+                    <>
+                        <ProductList status={statusMap.archived} />
+                    </>
+                ),
+            },
+            {
+                title: "Sold out",
+                key: "sold",
+                body: (
+                    <>
+                        <ProductList status={statusMap.sold} />
+                    </>
+                ),
+            },
+        ];
+    }, []);
 
     return (
         <div>
@@ -36,7 +87,21 @@ export default function ProductsPage() {
                 </div>
             </div>
             <FormModal {...formModal} form={CreateProductForm} />
-            TODO: Product tabs here!
+
+            <Tabs aria-label="Product Tabs" variant="default">
+                {tabs.map((tab) => {
+                    return (
+                        <Tabs.Item
+                            key={tab.key}
+                            active={tab.key === activeTab}
+                            title={tab.title}
+                            onClick={() => setActiveTab(tab.key)}
+                        >
+                            {tab.body}
+                        </Tabs.Item>
+                    );
+                })}
+            </Tabs>
         </div>
     );
 }

@@ -1,11 +1,13 @@
 import {
     keepPreviousData,
+    useMutation,
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query";
 import { Product } from "../../types/Product";
 import { useEffect } from "react";
 import AdminService from "../../services/AdminService";
+import { CreateProductFormState } from "../../components/product/CreateProductForm";
 
 export default function useProductsQuery(
     status: Product["status"][],
@@ -29,6 +31,7 @@ export default function useProductsQuery(
         },
         placeholderData: keepPreviousData,
         staleTime: 5000,
+        retry: false,
     });
 
     // Prefetch the next page!
@@ -45,7 +48,23 @@ export default function useProductsQuery(
         }
     }, [pagination, isPlaceholderData, page, status, queryClient]);
 
+    const { mutateAsync: handleCreate } = useMutation({
+        mutationKey: ["products", status],
+        mutationFn: (data: CreateProductFormState) =>
+            AdminService.createProduct(data),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({
+                queryKey: ["products", status],
+                exact: false,
+                refetchType: "all",
+            });
+        },
+    });
+
+    const createProduct = (data: CreateProductFormState) => handleCreate(data);
+
     return {
+        createProduct,
         pagination,
         isLoading,
         isSuccess,
