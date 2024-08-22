@@ -148,24 +148,44 @@ export default function useForm<IS extends object>(config: {
         [initialState]
     );
 
-    const handleInput = useCallback((e: FormEvent<HTMLInputElement>) => {
-        const target = e.currentTarget;
+    const handleInput = useCallback(
+        <
+            T extends Element & {
+                name: string;
+                value: string;
+            } = HTMLInputElement
+        >(
+            e: FormEvent<T>
+        ) => {
+            const target = e.currentTarget;
 
-        setField(target.name as keyof IS, {
-            value: target.value,
-            dirty: target.value.length > 0,
-        });
-    }, []);
+            setField(target.name as keyof IS, {
+                value: target.value,
+                dirty: target.value.length > 0,
+            });
+        },
+        []
+    );
 
-    const handleFocus = useCallback((e: FormEvent<HTMLInputElement>) => {
-        const target = e.currentTarget;
-        setField(target.name as keyof IS, { focus: true });
-    }, []);
+    const handleFocus = useCallback(
+        <T extends Element & { name: string } = HTMLInputElement>(
+            e: FormEvent<T>
+        ) => {
+            const target = e.currentTarget;
+            setField(target.name as keyof IS, { focus: true });
+        },
+        []
+    );
 
-    const handleBlur = useCallback((e: FormEvent<HTMLInputElement>) => {
-        const target = e.currentTarget;
-        setField(target.name as keyof IS, { focus: false });
-    }, []);
+    const handleBlur = useCallback(
+        <T extends Element & { name: string } = HTMLInputElement>(
+            e: FormEvent<T>
+        ) => {
+            const target = e.currentTarget;
+            setField(target.name as keyof IS, { focus: false });
+        },
+        []
+    );
 
     const attrs = useMemo(() => {
         return {
@@ -173,6 +193,17 @@ export default function useForm<IS extends object>(config: {
             onInput: handleInput,
             onFocus: handleFocus,
             onBlur: handleBlur,
+        };
+    }, [handleInput, handleFocus, handleBlur]);
+
+    const selectAttrs = useMemo(() => {
+        return {
+            onChange: (e: FormEvent<HTMLSelectElement>) =>
+                handleInput<HTMLSelectElement>(e),
+            onBlur: (e: FormEvent<HTMLSelectElement>) =>
+                handleBlur<HTMLSelectElement>(e),
+            onFocus: (e: FormEvent<HTMLSelectElement>) =>
+                handleFocus<HTMLSelectElement>(e),
         };
     }, [handleInput, handleFocus, handleBlur]);
 
@@ -189,6 +220,7 @@ export default function useForm<IS extends object>(config: {
         errorMessage,
         fields,
         attrs,
+        selectAttrs,
         isValid,
         resetForm,
         handleSubmit,
