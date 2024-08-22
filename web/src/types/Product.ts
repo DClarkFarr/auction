@@ -51,7 +51,7 @@ export type Image = {
     alt: string;
 };
 
-export type WithCategory<T> = T & { category: Category };
+export type WithCategory<T> = T & { category: Category | null };
 export type WithTags<T> = T & { tags: Tag[] };
 export type WithImages<T> = T & { images: Image[] };
 

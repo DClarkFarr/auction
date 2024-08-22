@@ -1,5 +1,6 @@
 import ProductModel from "../models/ProductModel.js";
 import UserModel from "../models/UserModel.js";
+import ProductService from "./ProductService.js";
 
 export default class AdminService {
     static async getUsers() {
@@ -50,9 +51,9 @@ export default class AdminService {
                     in: status,
                 },
             },
-            // include: {
-            //     categories: true,
-            // },
+            include: {
+                categories: true,
+            },
             orderBy: { createdAt: "desc" },
             take: limit,
             skip: page * limit - limit,
@@ -65,5 +66,22 @@ export default class AdminService {
             total,
             pages: Math.ceil(total / limit),
         };
+    }
+
+    static async getProductById(idProduct) {
+        const productModel = new ProductModel();
+        const product = await productModel.table.findFirst({
+            where: {
+                id_product: idProduct,
+            },
+            include: {
+                categories: true,
+                tags: true,
+            },
+        });
+
+        product.images = await ProductService.getProductImages(idProduct);
+
+        return product;
     }
 }

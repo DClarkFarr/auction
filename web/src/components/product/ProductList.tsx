@@ -32,7 +32,7 @@ function ProductListTable({
     return (
         <div className="overflow-x-auto">
             {pagination && (
-                <div className="md:flex w-full justify-end">
+                <div className="md:flex w-full justify-end text-xs font-gray-500">
                     <div>
                         Showing {pagination.page} of {pagination.pages}
                     </div>

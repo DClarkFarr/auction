@@ -27,7 +27,7 @@ class ImageModel {
      * @returns
      */
     findByResource(resourceType, resourceId) {
-        return this.table.findFirst({
+        return this.table.findMany({
             where: {
                 resourceId,
                 resourceType,

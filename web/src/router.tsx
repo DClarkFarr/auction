@@ -13,6 +13,7 @@ import DashboardPage from "./views/admin/DashboardPage";
 import ProductsPage from "./views/admin/ProductsPage";
 import UsersPage from "./views/admin/UsersPage";
 import UserSinglePage from "./views/admin/Users/UserSinglePage";
+import ProductSinglePage from "./views/admin/Products/ProductSinglePage";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -65,6 +66,12 @@ const router = createBrowserRouter([
             {
                 path: "products",
                 element: <ProductsPage />,
+                children: [
+                    {
+                        path: ":id",
+                        element: <ProductSinglePage />,
+                    },
+                ],
             },
             {
                 path: "users",

@@ -28,6 +28,31 @@ export default class AdminController extends BaseController {
             middleware,
             this.route(this.queryProducts)
         );
+
+        this.router.get(
+            "/products/:id",
+            middleware,
+            this.route(this.queryProduct)
+        );
+    }
+
+    async queryProduct(req, res) {
+        const id = Number(req.params.id);
+
+        if (!id || isNaN(id)) {
+            return res
+                .status(400)
+                .json({ message: "Invalid product id given" });
+        }
+
+        try {
+            const product = await AdminService.getProductById(id);
+
+            res.json(product);
+        } catch (err) {
+            console.warn("error saving product", err);
+            res.status(401).json({ message: err.message });
+        }
     }
 
     async queryProducts(req, res) {
