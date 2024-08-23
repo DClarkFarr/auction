@@ -1,7 +1,9 @@
+import { pick } from "lodash-es";
 import { hasAccessLevel, hasUser } from "../../middleware/auth.middleware.js";
 import webSessionMiddleware from "../../middleware/webSessionMiddleware.js";
 import AdminService from "../../services/AdminService.js";
 import BaseController from "../_.controller.js";
+import ProductService from "../../services/ProductService.js";
 
 export default class AdminController extends BaseController {
     base = "/admin";
@@ -34,6 +36,43 @@ export default class AdminController extends BaseController {
             middleware,
             this.route(this.queryProduct)
         );
+
+        this.router.put(
+            "/products/:id",
+            middleware,
+            this.route(this.updateProduct)
+        );
+    }
+
+    async updateProduct(req, res) {
+        const id = Number(req.params.id);
+
+        const toSet = pick(req.body, [
+            "auctionBatchCount",
+            "description",
+            "initialQuantity",
+            "name",
+            "priceCost",
+            "priceInitial",
+            "priceRetail",
+            "quality",
+            "remainingQuantity",
+            "scheduledFor",
+            "sku",
+            "status",
+        ]);
+
+        try {
+            await ProductService.updateProduct(id, toSet);
+
+            const product = await AdminService.getProductById(id);
+
+            res.json(product);
+        } catch (err) {
+            console.warn("error updating product", err);
+
+            res.status(400).json({ message: err.message });
+        }
     }
 
     async queryProduct(req, res) {

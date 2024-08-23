@@ -13,6 +13,7 @@ export default function QuickInput<Component extends () => ReactNode>({
     label,
     tooltip,
     type = "text",
+    showInitialError = true,
 }: {
     name: string;
     field: {
@@ -29,6 +30,7 @@ export default function QuickInput<Component extends () => ReactNode>({
     disabled?: boolean;
     type?: TextInputProps["type"];
     tooltip?: string | ReactNode;
+    showInitialError?: boolean;
     attrs: Partial<{
         onChange: (e: FormEvent<HTMLInputElement>) => void;
         onInput: (e: FormEvent<HTMLInputElement>) => void;
@@ -52,6 +54,11 @@ export default function QuickInput<Component extends () => ReactNode>({
                             <Label htmlFor={name} value={label} />
                             {tooltip && (
                                 <Popover
+                                    theme={{
+                                        arrow: {
+                                            base: "absolute h-2 w-2 z-0 rotate-45 bg-gray-600 border border-gray-800 bg-gray-800",
+                                        },
+                                    }}
                                     placement="top"
                                     trigger="hover"
                                     content={content}
@@ -74,11 +81,11 @@ export default function QuickInput<Component extends () => ReactNode>({
                 placeholder={placeholder}
                 disabled={isSubmitting || disabled}
                 color={
-                    !field.focus && field.dirty && !field.valid
+                    ((!field.focus && field.dirty) || showInitialError) &&
+                    !field.valid
                         ? "failure"
                         : undefined
                 }
-                required
                 value={field.value}
                 helperText={
                     !field.focus && field.dirty && !field.valid && field.error

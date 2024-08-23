@@ -1,16 +1,30 @@
 import { DateTime } from "luxon";
 import { useMemo } from "react";
-import { FullProduct, ProductStatus } from "../../types/Product";
+import {
+    Product,
+    FullProduct,
+    ProductQuality,
+    ProductStatus,
+} from "../../types/Product";
 import useForm from "../../hooks/useForm";
-import { Alert, Button, Label, Select, TextInput } from "flowbite-react";
+import {
+    Alert,
+    Button,
+    Label,
+    Popover,
+    Select,
+    Textarea,
+    TextInput,
+} from "flowbite-react";
 import QuickInput from "../controls/QuickInput";
+import Stars from "../controls/Stars";
+import QuestionIcon from "~icons/ic/baseline-contact-support";
 
 const productStatuses = ["active", "inactive", "scheduled", "archived", "sold"];
 
 export type UpdateProductFormState = {
     sku: string;
     name: string;
-    slug: string;
     priceCost: number;
     priceInitial: number;
     priceRetail: number;
@@ -22,6 +36,25 @@ export type UpdateProductFormState = {
     status: ProductStatus;
     scheduledFor: string;
 };
+
+const productFieldDefaults: Record<
+    keyof UpdateProductFormState,
+    string | number
+> = {
+    name: "",
+    status: "inactive",
+    quality: 1,
+    auctionBatchCount: 1,
+    scheduledFor: "",
+    priceCost: 1,
+    priceInitial: 0,
+    priceRetail: 0,
+    sku: "",
+    description: "",
+    initialQuantity: 1,
+    remainingQuantity: 1,
+};
+
 export default function UpdateProductForm({
     onSubmit,
     product,
@@ -30,41 +63,33 @@ export default function UpdateProductForm({
     product: FullProduct;
 }) {
     const initialState = useMemo(() => {
-        const p = { ...product };
-        if (!p.category) {
-            p.category = null;
-        }
-        if (!p.tags) {
-            p.tags = [];
-        }
-        if (!p.images) {
-            p.images = [];
-        }
-        if (!p.status) {
-            p.status = "inactive";
-        }
-        if (!p.quality) {
-            p.quality = 1;
-        }
-        if (!p.auctionBatchCount) {
-            p.auctionBatchCount = 1;
-        }
-        if (!p.scheduledFor) {
-            p.scheduledFor = "";
-        }
+        const p = Object.entries(product).reduce((acc, [key, val]) => {
+            if (
+                !Object.prototype.hasOwnProperty.call(productFieldDefaults, key)
+            ) {
+                return acc;
+            }
 
-        if (!p.priceCost) {
-            p.priceCost = 1;
-        }
-        if (!p.priceInitial) {
-            p.priceInitial = 0;
-        }
-        if (!p.priceRetail) {
-            p.priceRetail = 0;
-        }
+            if (key === "scheduledFor" && val) {
+                return {
+                    ...acc,
+                    [key]: DateTime.fromISO(val as string).toFormat(
+                        "yyyy-MM-dd'T'HH:mm"
+                    ),
+                };
+            }
 
-        return { ...p } as UpdateProductFormState;
+            return {
+                ...acc,
+                [key]:
+                    val ||
+                    productFieldDefaults[key as keyof UpdateProductFormState],
+            };
+        }, {} as Product);
+
+        return p as UpdateProductFormState;
     }, [product]);
+
     const validate = useMemo(() => {
         return {
             name: (v: string) => {
@@ -124,11 +149,11 @@ export default function UpdateProductForm({
             },
             remainingQuantity: (v: number): [boolean, string] => {
                 const n = parseFloat(String(v));
-                if (isNaN(n)) {
+                if (String(v).length && isNaN(n)) {
                     return [false, "Remaining quantity must be a number"];
                 }
 
-                if (n < 0) {
+                if (!isNaN(n) && n < 0) {
                     return [false, "Remaining quantity cannot be less than 0"];
                 }
 
@@ -193,11 +218,43 @@ export default function UpdateProductForm({
         };
     }, []);
 
+    const onCustomSubmit = async (
+        data: UpdateProductFormState
+    ): Promise<void> => {
+        const intKeys = Object.entries(productFieldDefaults).reduce(
+            (acc, [key, value]) => {
+                if (typeof value === "number") {
+                    acc.push(key);
+                }
+                return acc;
+            },
+            [] as string[]
+        );
+
+        const parsed = Object.entries(data).reduce((acc, [key, val]) => {
+            if (intKeys.includes(key)) {
+                if (key === "remainingQuantity" && val === "") {
+                    return acc;
+                }
+                return { ...acc, [key]: Number(val) };
+            }
+
+            if (key === "scheduledFor" && val) {
+                return { ...acc, [key]: new Date(val).toISOString() };
+            }
+
+            return { ...acc, [key]: val };
+        }, {} as UpdateProductFormState);
+
+        await onSubmit(parsed);
+    };
+
     const {
         isSubmitting,
         errorMessage,
         handleSubmit,
         isValid,
+        setField,
         fields: {
             sku,
             name,
@@ -217,7 +274,7 @@ export default function UpdateProductForm({
     } = useForm<UpdateProductFormState>({
         initialState,
         validate,
-        onSubmit,
+        onSubmit: onCustomSubmit,
     });
 
     return (
@@ -281,6 +338,9 @@ export default function UpdateProductForm({
                 </div>
             </div>
 
+            <div className="prices">
+                <h3 className="text-lg pt-2 -mb-4">Quantities</h3>
+            </div>
             <div className="lg:flex flex-col gap-4 lg:flex-row">
                 <div className="lg:w-1/3">
                     <QuickInput
@@ -317,6 +377,9 @@ export default function UpdateProductForm({
                 </div>
             </div>
 
+            <div className="prices">
+                <h3 className="text-lg pt-2 -mb-4">Product information</h3>
+            </div>
             <div className="lg:flex flex-col gap-4 lg:flex-row">
                 <div className="lg:w-1/2">
                     <QuickInput
@@ -331,17 +394,126 @@ export default function UpdateProductForm({
                     <div className="mb-2">
                         <Label>Status</Label>
                     </div>
-                    <Select id="status" name="status" {...selectAttrs}>
+                    <Select
+                        id="status"
+                        name="status"
+                        {...selectAttrs}
+                        defaultValue={status.value}
+                    >
                         {productStatuses.map((s) => (
-                            <option
-                                value={s}
-                                key={s}
-                                selected={status.value === s}
-                            >
+                            <option value={s} key={s}>
                                 {s.toLocaleUpperCase()}
                             </option>
                         ))}
                     </Select>
+                </div>
+            </div>
+
+            <div className="lg:flex flex-col gap-4 lg:flex-row">
+                <div className="lg:w-1/2">
+                    <Label className="mb-2">Description</Label>
+                    <Textarea
+                        id="description"
+                        name="description"
+                        rows={6}
+                        value={description.value}
+                        placeholder="Describe product here..."
+                        disabled={isSubmitting}
+                        color={
+                            !description.focus &&
+                            description.dirty &&
+                            !description.valid
+                                ? "failure"
+                                : undefined
+                        }
+                        helperText={
+                            !description.focus &&
+                            description.dirty &&
+                            !description.valid &&
+                            description.error
+                        }
+                        {...attrs}
+                    />
+                </div>
+                <div className="lg:w-1/2">
+                    <div className="flex flex-col gap-4">
+                        <div>
+                            <Label className="mb-2" htmlFor="quality">
+                                Quality
+                            </Label>
+
+                            <div id="quality">
+                                <Stars
+                                    value={quality.value as ProductQuality}
+                                    onClick={(value) =>
+                                        setField("quality", { value })
+                                    }
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <Label className="flex gap-x-2 items-center mb-2">
+                                <div>Scheduled for:</div>
+                                <Popover
+                                    placement="top"
+                                    trigger="hover"
+                                    theme={{
+                                        arrow: {
+                                            base: "absolute h-2 w-2 z-0 rotate-45 bg-gray-600 border border-gray-800 bg-gray-800",
+                                        },
+                                    }}
+                                    content={
+                                        <div className="p-4 max-w-[250px] text-center bg-gray-800 text-white text-xs">
+                                            Take a product live by changing
+                                            status to "active". Or leave it
+                                            inactive, and schedule it to go live
+                                            here.
+                                        </div>
+                                    }
+                                >
+                                    <div>
+                                        <QuestionIcon className="text-gray-500" />
+                                    </div>
+                                </Popover>
+                            </Label>
+                            <TextInput
+                                id="scheduledFor"
+                                name="scheduledFor"
+                                type="datetime-local"
+                                disabled={isSubmitting}
+                                color={
+                                    !scheduledFor.focus &&
+                                    scheduledFor.dirty &&
+                                    !scheduledFor.valid
+                                        ? "failure"
+                                        : undefined
+                                }
+                                required
+                                value={scheduledFor.value}
+                                helperText={
+                                    !scheduledFor.focus &&
+                                    scheduledFor.dirty &&
+                                    !scheduledFor.valid &&
+                                    scheduledFor.error
+                                }
+                                {...attrs}
+                            />
+                            <div className="flex justify-end">
+                                <div>
+                                    <div
+                                        className="text-sky-600 cursor-pointer hover:underline text-xs"
+                                        onClick={() =>
+                                            setField("scheduledFor", {
+                                                value: "",
+                                            })
+                                        }
+                                    >
+                                        Clear
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -10,6 +10,8 @@ export type ProductStatus =
     | "archived"
     | "sold";
 
+export type ProductQuality = 1 | 2 | 3 | 4 | 5;
+
 export type Product = {
     id_product: number;
     sku: string;
@@ -20,7 +22,7 @@ export type Product = {
     priceRetail: number;
     initialQuantity: number;
     remainingQuantity: number;
-    quality: number;
+    quality: ProductQuality;
     auctionBatchCount: number;
     description: string;
     detailItems: ProductDetailItem[];

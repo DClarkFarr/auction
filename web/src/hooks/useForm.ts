@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AxiosError } from "axios";
-import { FormEvent, useCallback, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 type ToKeyedObject<T, V = boolean> = {
     [K in keyof T]: V;
@@ -90,6 +90,11 @@ export default function useForm<IS extends object>(config: {
         return o as ToFields<IS>;
     }, [form, dirty, focus, valid, initialState]);
 
+    useEffect(() => {
+        console.log("ooops, gotta reset!");
+        setForm(initialState);
+    }, [initialState]);
+
     const handleSubmit = useCallback(
         async (e: FormEvent<HTMLFormElement>) => {
             e.preventDefault();
@@ -161,7 +166,7 @@ export default function useForm<IS extends object>(config: {
 
             setField(target.name as keyof IS, {
                 value: target.value,
-                dirty: target.value.length > 0,
+                dirty: true,
             });
         },
         []
