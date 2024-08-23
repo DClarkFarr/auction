@@ -91,7 +91,6 @@ export default function useForm<IS extends object>(config: {
     }, [form, dirty, focus, valid, initialState]);
 
     useEffect(() => {
-        console.log("ooops, gotta reset!");
         setForm(initialState);
     }, [initialState]);
 
