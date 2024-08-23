@@ -1,7 +1,12 @@
 import { CreateProductFormState } from "../components/product/CreateProductForm";
 import { UpdateProductFormState } from "../components/product/UpdateProductForm";
 import { PaginatedResults } from "../types/Paginate";
-import { FullProduct, Product, WithCategory } from "../types/Product";
+import {
+    FullProduct,
+    Product,
+    ProductDetailItem,
+    WithCategory,
+} from "../types/Product";
 import { User } from "../types/User";
 import apiClient from "./apiClient";
 
@@ -19,6 +24,15 @@ export default class AdminService {
     static updateProduct(idProduct: number, data: UpdateProductFormState) {
         return apiClient
             .put<FullProduct>(`/admin/products/${idProduct}`, data)
+            .then((res) => res.data);
+    }
+
+    static updateProductDetailItems(
+        idProduct: number,
+        items: ProductDetailItem[]
+    ) {
+        return apiClient
+            .post<FullProduct>(`/admin/products/${idProduct}/items`, { items })
             .then((res) => res.data);
     }
 

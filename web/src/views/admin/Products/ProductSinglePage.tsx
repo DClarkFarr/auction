@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import ChevronLeftIcon from "~icons/ic/baseline-chevron-left";
@@ -7,6 +7,7 @@ import { Alert, Spinner } from "flowbite-react";
 import UpdateProductForm, {
     UpdateProductFormState,
 } from "../../../components/product/UpdateProductForm";
+import { ProductDetailItem } from "../../../types/Product";
 
 export default function ProductSinglePage() {
     const params = useParams();
@@ -15,13 +16,16 @@ export default function ProductSinglePage() {
         return params.id;
     }, [params.id]);
 
-    const { isLoading, error, product, isSuccess, update } = useProductQuery(
-        Number(idProduct)
-    );
+    const { isLoading, error, product, isSuccess, update, updateDetailitems } =
+        useProductQuery(Number(idProduct));
 
-    const onSaveProduct = async (data: UpdateProductFormState) => {
+    const onSaveProduct = useCallback(async (data: UpdateProductFormState) => {
         await update(data);
-    };
+    }, []);
+
+    const onSaveItems = useCallback(async (items: ProductDetailItem[]) => {
+        await updateDetailitems(items);
+    }, []);
     return (
         <div>
             <div>
@@ -47,6 +51,7 @@ export default function ProductSinglePage() {
                     <UpdateProductForm
                         product={product}
                         onSubmit={onSaveProduct}
+                        onSaveDetailItems={onSaveItems}
                     />
                 )}
             </div>

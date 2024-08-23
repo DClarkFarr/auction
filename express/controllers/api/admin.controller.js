@@ -42,6 +42,28 @@ export default class AdminController extends BaseController {
             middleware,
             this.route(this.updateProduct)
         );
+
+        this.router.post(
+            "/products/:id/items",
+            middleware,
+            this.route(this.updateDetailItems)
+        );
+    }
+
+    async updateDetailItems(req, res) {
+        const id = Number(req.params.id);
+        const items = req.body.items || [];
+
+        try {
+            await ProductService.updateProductDetails(id, items);
+
+            const product = await ProductService.getProductById(id);
+
+            res.json(product);
+        } catch (err) {
+            console.warn("Caught error saving product items", err);
+            res.status(400).json({ message: err.message });
+        }
     }
 
     async updateProduct(req, res) {
@@ -65,7 +87,7 @@ export default class AdminController extends BaseController {
         try {
             await ProductService.updateProduct(id, toSet);
 
-            const product = await AdminService.getProductById(id);
+            const product = await ProductService.getProductById(id);
 
             res.json(product);
         } catch (err) {
@@ -85,7 +107,7 @@ export default class AdminController extends BaseController {
         }
 
         try {
-            const product = await AdminService.getProductById(id);
+            const product = await ProductService.getProductById(id);
 
             res.json(product);
         } catch (err) {
@@ -100,7 +122,7 @@ export default class AdminController extends BaseController {
         const limit = req.query.limit ? Number(req.query.limit) : 20;
 
         try {
-            const results = await AdminService.getPaginatedProducts({
+            const results = await ProductService.getPaginatedProducts({
                 status,
                 page,
                 limit,
@@ -124,7 +146,7 @@ export default class AdminController extends BaseController {
         }
 
         try {
-            const product = await AdminService.createProduct({ name });
+            const product = await ProductService.createProduct({ name });
 
             res.json(product);
         } catch (err) {

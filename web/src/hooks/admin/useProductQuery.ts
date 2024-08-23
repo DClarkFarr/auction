@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminService from "../../services/AdminService";
 import { UpdateProductFormState } from "../../components/product/UpdateProductForm";
+import { ProductDetailItem } from "../../types/Product";
 
 export default function useProductQuery(idProduct: number) {
     const queryClient = useQueryClient();
@@ -15,7 +16,7 @@ export default function useProductQuery(idProduct: number) {
         queryFn: () => AdminService.getProduct(idProduct),
     });
 
-    const { mutateAsync } = useMutation({
+    const { mutateAsync: mutateUpdate } = useMutation({
         mutationKey: ["product", idProduct],
         mutationFn: (data: UpdateProductFormState) => {
             return AdminService.updateProduct(idProduct, data);
@@ -29,7 +30,22 @@ export default function useProductQuery(idProduct: number) {
         },
     });
 
-    const update = (data: UpdateProductFormState) => mutateAsync(data);
+    const { mutateAsync: mutateItems } = useMutation({
+        mutationKey: ["product", idProduct],
+        mutationFn: (items: ProductDetailItem[]) =>
+            AdminService.updateProductDetailItems(idProduct, items),
+        onSuccess: (product) => {
+            queryClient.setQueryData(["product", idProduct], product);
+            queryClient.invalidateQueries({
+                queryKey: ["products"],
+                exact: false,
+            });
+        },
+    });
+
+    const update = (data: UpdateProductFormState) => mutateUpdate(data);
+
+    const updateDetailitems = (data: ProductDetailItem[]) => mutateItems(data);
 
     const refresh = () => {
         queryClient.refetchQueries({
@@ -44,5 +60,6 @@ export default function useProductQuery(idProduct: number) {
         isSuccess,
         refresh,
         update,
+        updateDetailitems,
     };
 }
