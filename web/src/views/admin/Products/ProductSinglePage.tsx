@@ -26,6 +26,10 @@ export default function ProductSinglePage() {
     const onSaveItems = useCallback(async (items: ProductDetailItem[]) => {
         await updateDetailitems(items);
     }, []);
+
+    const onSaveCategory = useCallback(async (idCategory: number) => {
+        console.log("update", idCategory);
+    }, []);
     return (
         <div>
             <div>
@@ -52,6 +56,7 @@ export default function ProductSinglePage() {
                         product={product}
                         onSubmit={onSaveProduct}
                         onSaveDetailItems={onSaveItems}
+                        onSaveCategory={onSaveCategory}
                     />
                 )}
             </div>

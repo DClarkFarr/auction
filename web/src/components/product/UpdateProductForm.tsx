@@ -21,6 +21,7 @@ import QuickInput from "../controls/QuickInput";
 import Stars from "../controls/Stars";
 import QuestionIcon from "~icons/ic/baseline-contact-support";
 import ManageDetailItems from "./ManageDetailItems";
+import ManageCategory from "./ManageCategory";
 
 const productStatuses = ["active", "inactive", "scheduled", "archived", "sold"];
 
@@ -60,10 +61,12 @@ const productFieldDefaults: Record<
 export default function UpdateProductForm({
     onSubmit,
     onSaveDetailItems,
+    onSaveCategory,
     product,
 }: {
     onSubmit: (data: UpdateProductFormState) => Promise<void>;
     onSaveDetailItems: (items: ProductDetailItem[]) => Promise<void>;
+    onSaveCategory: (idCategory: number) => Promise<void>;
     product: FullProduct;
 }) {
     const initialState = useMemo(() => {
@@ -545,6 +548,11 @@ export default function UpdateProductForm({
                     onChange={onSaveDetailItems}
                     detailItems={product.detailItems}
                 />
+            </div>
+
+            <div className="bg-gray-100 mb-6 p-6">
+                <h2 className="text-xl">Category</h2>
+                <ManageCategory onSelectCategory={onSaveCategory} />
             </div>
         </div>
     );

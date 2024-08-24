@@ -1,7 +1,8 @@
 import BaseController from "./_.controller.js";
 
-import UserController from "./api/user.controller.js";
 import AdminController from "./api/admin.controller.js";
+import SiteController from "./api/site.controller.js";
+import UserController from "./api/user.controller.js";
 
 import notFound from "../middleware/notFound.middleware.js";
 import { injectionCheck } from "../middleware/validation.middleware.js";
@@ -16,7 +17,11 @@ class ApiController extends BaseController {
     initRoutes() {
         this.router.use(injectionCheck);
 
-        this.registerControllers([new UserController(), new AdminController()]);
+        this.registerControllers([
+            new UserController(),
+            new AdminController(),
+            new SiteController(),
+        ]);
 
         this.router.get("/test", (req, res) => {
             res.send({ page: "api test" });
