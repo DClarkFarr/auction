@@ -1,8 +1,52 @@
 import UserError from "../errors/UserError.js";
+import CategoryModel from "../models/CategoryModel.js";
 import ImageModel from "../models/ImageModel.js";
 import ProductModel from "../models/ProductModel.js";
+import { getPrisma } from "../prisma/client.js";
+import { toSlug } from "../utils/slug.js";
 
 export default class ProductService {
+    static async setProductCategory(idProduct, idCategory) {
+        await ProductService.attachProductCategory(idProduct, idCategory);
+    }
+
+    static async attachProductCategory(idProduct, idCategory) {
+        const client = getPrisma();
+
+        await client.productCategories.deleteMany({
+            where: {
+                productId: idProduct,
+            },
+        });
+
+        // Then, create the new relationship
+        await client.productCategories.create({
+            data: {
+                productId: idProduct,
+                categoryId: idCategory,
+            },
+        });
+    }
+
+    static async createProductCategory(idProduct, categoryLabel) {
+        const categoryModel = new CategoryModel();
+
+        const slug = toSlug(categoryLabel);
+
+        let category = await categoryModel.findBySlug(slug);
+        if (!category) {
+            category = await categoryModel.create({ label: categoryLabel });
+        }
+        console.log("category id was", category.id_category);
+
+        await ProductService.attachProductCategory(
+            idProduct,
+            category.id_category
+        );
+
+        return category;
+    }
+
     static async updateProductDetails(idProduct, detailItems) {
         if (!Array.isArray(detailItems)) {
             return res

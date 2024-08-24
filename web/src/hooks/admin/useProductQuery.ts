@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminService from "../../services/AdminService";
 import { UpdateProductFormState } from "../../components/product/UpdateProductForm";
-import { ProductDetailItem } from "../../types/Product";
+import { Category, ProductDetailItem } from "../../types/Product";
 
 export default function useProductQuery(idProduct: number) {
     const queryClient = useQueryClient();
@@ -43,9 +43,61 @@ export default function useProductQuery(idProduct: number) {
         },
     });
 
+    const { mutateAsync: mutateCreateCategory } = useMutation({
+        mutationFn: ({
+            idProduct,
+            label,
+        }: {
+            idProduct: number;
+            label: string;
+        }) => {
+            return AdminService.createProductCategory(idProduct, label);
+        },
+        onSuccess: (category) => {
+            queryClient.invalidateQueries({
+                queryKey: ["product", idProduct],
+            });
+
+            const categories =
+                queryClient.getQueryData<Category[]>(["categories"]) || [];
+
+            queryClient.setQueryData(
+                ["categories"],
+                [...categories, category].sort((a, b) =>
+                    a.label.localeCompare(b.label)
+                )
+            );
+        },
+    });
+
+    const { mutateAsync: mutateSetCategory } = useMutation({
+        mutationFn: ({
+            idProduct,
+            idCategory,
+        }: {
+            idProduct: number;
+            idCategory: number;
+        }) => {
+            return AdminService.setProductCategory(idProduct, idCategory);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["product", idProduct],
+            });
+        },
+    });
+
     const update = (data: UpdateProductFormState) => mutateUpdate(data);
 
     const updateDetailitems = (data: ProductDetailItem[]) => mutateItems(data);
+
+    const createProductCategory = (idProduct: number, categoryLabel: string) =>
+        mutateCreateCategory({ idProduct, label: categoryLabel }).then(
+            () => {}
+        );
+
+    const setProductCategory = (idProduct: number, idCategory: number) =>
+        mutateSetCategory({ idProduct, idCategory }).then(() => {});
 
     const refresh = () => {
         queryClient.refetchQueries({
@@ -61,5 +113,7 @@ export default function useProductQuery(idProduct: number) {
         refresh,
         update,
         updateDetailitems,
+        createProductCategory,
+        setProductCategory,
     };
 }

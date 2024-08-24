@@ -2,6 +2,7 @@ import { CreateProductFormState } from "../components/product/CreateProductForm"
 import { UpdateProductFormState } from "../components/product/UpdateProductForm";
 import { PaginatedResults } from "../types/Paginate";
 import {
+    Category,
     FullProduct,
     Product,
     ProductDetailItem,
@@ -47,6 +48,22 @@ export default class AdminService {
     static createProduct(data: CreateProductFormState) {
         return apiClient
             .post<Product>("/admin/products", data)
+            .then((res) => res.data);
+    }
+
+    static createProductCategory(idProduct: number, categoryLabel: string) {
+        return apiClient
+            .post<Category>(`/admin/products/${idProduct}/categories`, {
+                label: categoryLabel,
+            })
+            .then((res) => res.data);
+    }
+
+    static setProductCategory(idProduct: number, idCategory: number) {
+        return apiClient
+            .put<Category>(`/admin/products/${idProduct}/categories`, {
+                idCategory,
+            })
             .then((res) => res.data);
     }
 }

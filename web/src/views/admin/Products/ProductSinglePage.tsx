@@ -16,8 +16,16 @@ export default function ProductSinglePage() {
         return params.id;
     }, [params.id]);
 
-    const { isLoading, error, product, isSuccess, update, updateDetailitems } =
-        useProductQuery(Number(idProduct));
+    const {
+        isLoading,
+        error,
+        product,
+        isSuccess,
+        update,
+        updateDetailitems,
+        createProductCategory,
+        setProductCategory,
+    } = useProductQuery(Number(idProduct));
 
     const onSaveProduct = useCallback(async (data: UpdateProductFormState) => {
         await update(data);
@@ -27,9 +35,12 @@ export default function ProductSinglePage() {
         await updateDetailitems(items);
     }, []);
 
-    const onSaveCategory = useCallback(async (idCategory: number) => {
-        console.log("update", idCategory);
-    }, []);
+    const onSaveCategory = useCallback(
+        async (idCategory: number) => {
+            await setProductCategory(product!.id_product, idCategory);
+        },
+        [product]
+    );
     return (
         <div>
             <div>
@@ -57,6 +68,7 @@ export default function ProductSinglePage() {
                         onSubmit={onSaveProduct}
                         onSaveDetailItems={onSaveItems}
                         onSaveCategory={onSaveCategory}
+                        onCreateProductCategory={createProductCategory}
                     />
                 )}
             </div>

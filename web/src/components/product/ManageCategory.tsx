@@ -2,12 +2,14 @@ import { Label, Spinner } from "flowbite-react";
 import { SingleValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import useCategoriesQuery from "../../hooks/useCategoriesQuery";
-import { LegacyRef, useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 export default function ManageCategory({
     onSelectCategory,
+    onCreateCategory,
 }: {
     onSelectCategory: (idCategory: number) => Promise<void>;
+    onCreateCategory: (categoryLabel: string) => Promise<void>;
 }) {
     const { categories, isLoading } = useCategoriesQuery();
 
@@ -26,8 +28,8 @@ export default function ManageCategory({
         }
     };
 
-    const handleCreateCategory = (...xs) => {
-        console.log("create category", xs);
+    const handleCreateCategory = (label: string) => {
+        onCreateCategory(label);
     };
 
     return (

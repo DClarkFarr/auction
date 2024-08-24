@@ -48,6 +48,56 @@ export default class AdminController extends BaseController {
             middleware,
             this.route(this.updateDetailItems)
         );
+
+        this.router.post(
+            "/products/:id/categories",
+            middleware,
+            this.route(this.createProductCategory)
+        );
+
+        this.router.put(
+            "/products/:id/categories",
+            middleware,
+            this.route(this.setProductCategory)
+        );
+    }
+
+    async setProductCategory(req, res) {
+        const idProduct = Number(req.params.id);
+        const idCategory = Number(req.body.idCategory);
+
+        if (isNaN(idCategory)) {
+            return res
+                .status(400)
+                .json({ message: "Category ID must be a number" });
+        }
+
+        try {
+            const category = await ProductService.setProductCategory(
+                idProduct,
+                idCategory
+            );
+
+            res.json(category);
+        } catch (err) {
+            console.warn("error setting product category", err);
+            res.status(400).json({ message: err.message });
+        }
+    }
+
+    async createProductCategory(req, res) {
+        const id = Number(req.params.id);
+        const label = req.body.label;
+
+        try {
+            const category = await ProductService.createProductCategory(
+                id,
+                label
+            );
+            res.json(category);
+        } catch (err) {
+            res.status(400).json({ message: err.message });
+        }
     }
 
     async updateDetailItems(req, res) {
