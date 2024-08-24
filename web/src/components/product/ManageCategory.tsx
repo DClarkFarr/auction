@@ -1,8 +1,8 @@
 import { Label, Spinner } from "flowbite-react";
-import { SingleValue } from "react-select";
+import { SelectInstance, SingleValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import useCategoriesQuery from "../../hooks/useCategoriesQuery";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Category } from "../../types/Product";
 
 export default function ManageCategory({
@@ -15,6 +15,8 @@ export default function ManageCategory({
     onCreateCategory: (categoryLabel: string) => Promise<void>;
 }) {
     const { categories, isLoading } = useCategoriesQuery();
+
+    const ref = useRef<SelectInstance>(null);
 
     const options = useMemo(() => {
         return categories.map((c) => ({
@@ -45,6 +47,12 @@ export default function ManageCategory({
         onCreateCategory(label);
     };
 
+    useEffect(() => {
+        if (defaultValue && ref.current) {
+            ref.current.setValue(defaultValue, "select-option");
+        }
+    }, [defaultValue]);
+
     return (
         <div className="category-select">
             <Label>Assign Category</Label>
@@ -55,12 +63,17 @@ export default function ManageCategory({
             )}
             {!isLoading && (
                 <CreatableSelect
+                    ref={ref}
                     defaultValue={defaultValue}
                     options={options}
                     isClearable={false}
                     isMulti={false}
                     isSearchable
-                    onChange={handleChange}
+                    onChange={(val) =>
+                        handleChange(
+                            val as SingleValue<{ label: string; value: number }>
+                        )
+                    }
                     placeholder="Find or create category"
                     onCreateOption={handleCreateCategory}
                 />

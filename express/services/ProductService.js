@@ -37,7 +37,6 @@ export default class ProductService {
         if (!category) {
             category = await categoryModel.create({ label: categoryLabel });
         }
-        console.log("category id was", category.id_category);
 
         await ProductService.attachProductCategory(
             idProduct,

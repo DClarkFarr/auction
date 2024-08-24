@@ -60,18 +60,9 @@ const productFieldDefaults: Record<
 
 export default function UpdateProductForm({
     onSubmit,
-    onSaveDetailItems,
-    onSaveCategory,
-    onCreateProductCategory,
     product,
 }: {
     onSubmit: (data: UpdateProductFormState) => Promise<void>;
-    onSaveDetailItems: (items: ProductDetailItem[]) => Promise<void>;
-    onSaveCategory: (idCategory: number) => Promise<void>;
-    onCreateProductCategory: (
-        idProduct: number,
-        categoryLabel: string
-    ) => Promise<void>;
     product: FullProduct;
 }) {
     const initialState = useMemo(() => {
@@ -288,10 +279,6 @@ export default function UpdateProductForm({
         validate,
         onSubmit: onCustomSubmit,
     });
-
-    const onCreateCategory = async (categoryLabel: string) => {
-        await onCreateProductCategory(product.id_product, categoryLabel);
-    };
 
     return (
         <div>
@@ -550,23 +537,6 @@ export default function UpdateProductForm({
                     </Button>
                 </div>
             </form>
-
-            <div className="bg-gray-100 mb-6 p-6">
-                <h2 className="text-xl">Detail Items</h2>
-                <ManageDetailItems
-                    onChange={onSaveDetailItems}
-                    detailItems={product.detailItems}
-                />
-            </div>
-
-            <div className="bg-gray-100 mb-6 p-6">
-                <h2 className="text-xl">Category</h2>
-                <ManageCategory
-                    category={product.category}
-                    onSelectCategory={onSaveCategory}
-                    onCreateCategory={onCreateCategory}
-                />
-            </div>
         </div>
     );
 }

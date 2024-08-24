@@ -8,6 +8,8 @@ import UpdateProductForm, {
     UpdateProductFormState,
 } from "../../../components/product/UpdateProductForm";
 import { ProductDetailItem } from "../../../types/Product";
+import ManageDetailItems from "../../../components/product/ManageDetailItems";
+import ManageCategory from "../../../components/product/ManageCategory";
 
 export default function ProductSinglePage() {
     const params = useParams();
@@ -41,6 +43,13 @@ export default function ProductSinglePage() {
         },
         [product]
     );
+
+    const onCreateCategory = useCallback(
+        (categoryLabel: string) => {
+            return createProductCategory(product!.id_product, categoryLabel);
+        },
+        [product]
+    );
     return (
         <div>
             <div>
@@ -63,13 +72,29 @@ export default function ProductSinglePage() {
                     </div>
                 )}
                 {!isLoading && product && (
-                    <UpdateProductForm
-                        product={product}
-                        onSubmit={onSaveProduct}
-                        onSaveDetailItems={onSaveItems}
-                        onSaveCategory={onSaveCategory}
-                        onCreateProductCategory={createProductCategory}
-                    />
+                    <>
+                        <UpdateProductForm
+                            product={product}
+                            onSubmit={onSaveProduct}
+                        />
+
+                        <div className="bg-gray-100 mb-6 p-6">
+                            <h2 className="text-xl">Detail Items</h2>
+                            <ManageDetailItems
+                                onChange={onSaveItems}
+                                detailItems={product.detailItems}
+                            />
+                        </div>
+
+                        <div className="bg-gray-100 mb-6 p-6">
+                            <h2 className="text-xl">Category</h2>
+                            <ManageCategory
+                                category={product.category}
+                                onSelectCategory={onSaveCategory}
+                                onCreateCategory={onCreateCategory}
+                            />
+                        </div>
+                    </>
                 )}
             </div>
         </div>
