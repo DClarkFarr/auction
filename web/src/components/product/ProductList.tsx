@@ -66,7 +66,10 @@ function ProductListTable({
                     )}
                     {pagination?.rows.map((product) => {
                         return (
-                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                            <Table.Row
+                                className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                                key={product.id_product}
+                            >
                                 <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                     {product.name}
                                 </Table.Cell>

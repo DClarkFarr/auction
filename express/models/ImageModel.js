@@ -39,10 +39,6 @@ class ImageModel {
      * @param {ImageDocument} doc
      */
     async create(doc) {
-        if (existing) {
-            throw new UserError("Image w/ slug already exists");
-        }
-
         const created = await this.table.create({
             data: {
                 ...doc,

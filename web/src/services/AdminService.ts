@@ -4,6 +4,7 @@ import { PaginatedResults } from "../types/Paginate";
 import {
     Category,
     FullProduct,
+    Image,
     Product,
     ProductDetailItem,
     Tag,
@@ -11,6 +12,17 @@ import {
 } from "../types/Product";
 import { User } from "../types/User";
 import apiClient from "./apiClient";
+
+type ImageBase = { id: string; status: boolean };
+type ImageUploadSuccess = ImageBase & { image: Image };
+type ImageUploadFailure = ImageBase & { filename: string; message: string };
+type ImageUploadResponse = (ImageUploadFailure | ImageUploadSuccess)[];
+
+export function isImageUploadSuccess(
+    response: ImageUploadFailure | ImageUploadSuccess
+): response is ImageUploadSuccess {
+    return response.status === true;
+}
 
 export default class AdminService {
     static getUsers() {
@@ -81,6 +93,20 @@ export default class AdminService {
             .put<Category>(`/admin/products/${idProduct}/tags`, {
                 idTags,
             })
+            .then((res) => res.data);
+    }
+
+    static uploadProductImages(idProduct: number, fd: FormData) {
+        return apiClient
+            .post<ImageUploadResponse>(
+                `/admin/products/${idProduct}/images`,
+                fd,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            )
             .then((res) => res.data);
     }
 }

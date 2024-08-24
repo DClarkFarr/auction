@@ -7,3 +7,7 @@
         @apply max-w-6xl mx-auto px-4;
     }
 }
+
+.admin__product__images__grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}

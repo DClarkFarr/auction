@@ -21,6 +21,11 @@ class WebController extends BaseController {
 
     initRoutes() {
         app.express.use(
+            "/uploads",
+            express.static(path.join(__dirname, "../uploads"))
+        );
+
+        app.express.use(
             express.static(path.join(__dirname, "../../web/dist/"))
         );
         app.express.use(cookieParser());

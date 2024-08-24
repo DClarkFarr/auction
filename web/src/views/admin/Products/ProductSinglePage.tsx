@@ -7,12 +7,13 @@ import { Alert, Spinner } from "flowbite-react";
 import UpdateProductForm, {
     UpdateProductFormState,
 } from "../../../components/product/UpdateProductForm";
-import { ProductDetailItem } from "../../../types/Product";
+import { Image, ProductDetailItem } from "../../../types/Product";
 import ManageDetailItems from "../../../components/product/ManageDetailItems";
 import ManageCategory from "../../../components/product/ManageCategory";
 import useToastContext from "../../../providers/useToastContext";
 import { AxiosError } from "axios";
 import ManageTags from "../../../components/product/ManageTags";
+import ManageImages from "../../../components/product/ManageImages";
 
 export default function ProductSinglePage() {
     const { toast } = useToastContext();
@@ -34,6 +35,7 @@ export default function ProductSinglePage() {
         setProductCategory,
         createProductTag,
         setProductTags,
+        appendImages,
     } = useProductQuery(Number(idProduct));
 
     const onSaveProduct = useCallback(async (data: UpdateProductFormState) => {
@@ -149,6 +151,14 @@ export default function ProductSinglePage() {
         [product]
     );
 
+    const onAddImages = useCallback((images: Image[]) => {
+        appendImages(images);
+        toast({
+            text: images.length + " Images uploaded successfully",
+            type: "success",
+        });
+    }, []);
+
     const onCreateTag = useCallback(
         async (tagLabel: string) => {
             try {
@@ -223,6 +233,15 @@ export default function ProductSinglePage() {
                                 tags={product.tags}
                                 onCreateTag={onCreateTag}
                                 onSelectTag={onSetProductTags}
+                            />
+                        </div>
+
+                        <div className="bg-gray-100 p-6 mb-6">
+                            <h2 className="text-xl mb-4">Images</h2>
+                            <ManageImages
+                                images={product.images}
+                                product={product}
+                                onAddImages={onAddImages}
                             />
                         </div>
                     </>

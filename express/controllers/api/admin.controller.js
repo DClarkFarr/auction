@@ -4,6 +4,11 @@ import webSessionMiddleware from "../../middleware/webSessionMiddleware.js";
 import AdminService from "../../services/AdminService.js";
 import BaseController from "../_.controller.js";
 import ProductService from "../../services/ProductService.js";
+import { upload } from "../../middleware/uploadMiddleware.js";
+import fs from "fs";
+import ProductModel from "../../models/ProductModel.js";
+import { toSlug } from "../../utils/slug.js";
+import ImageModel from "../../models/ImageModel.js";
 
 export default class AdminController extends BaseController {
     base = "/admin";
@@ -72,6 +77,84 @@ export default class AdminController extends BaseController {
             middleware,
             this.route(this.setProductTags)
         );
+
+        this.router.post(
+            "/products/:id/images",
+            middleware,
+            this.route(this.uploadProductImages)
+        );
+    }
+
+    async uploadProductImages(req, res) {
+        upload.array("files[]", 10)(req, res, async (err) => {
+            const files = req.files || [];
+            const ids = req.body.ids || [];
+            const uploads = [];
+            const idProduct = parseInt(req.params.id);
+            const productModel = new ProductModel();
+            const imageModel = new ImageModel();
+
+            if (isNaN(idProduct)) {
+                return res.status(400).json({ message: "Product ID invalid" });
+            }
+
+            const product = await productModel.table.findFirst({
+                where: { id_product: idProduct },
+            });
+
+            if (!product) {
+                return res.status(404).json({ message: "Product not found" });
+            }
+
+            if (err) {
+                return res.status(400).json({ message: err.message });
+            }
+
+            const count = await imageModel.table.count({
+                where: {
+                    resourceId: product.id_product,
+                    resourceType: "product",
+                },
+            });
+
+            // Process each file manually
+            await Promise.all(
+                files.map(async (file, i) => {
+                    if (file.size > 2 * 1024 * 1024) {
+                        uploads.push({
+                            status: false,
+                            id: ids[i],
+                            filename: file.originalname,
+                            message: "Invalid file",
+                        });
+                    } else {
+                        const toFilename =
+                            toSlug(product.name) + "--" + file.filename;
+
+                        fs.renameSync(
+                            file.destination + file.filename,
+                            file.destination + toFilename
+                        );
+
+                        const image = await imageModel.create({
+                            resourceId: product.id_product,
+                            resourceType: "product",
+                            path: toFilename,
+                            alt: `${product.name} -- Image ${count + i + 1}`,
+                        });
+
+                        uploads.push({
+                            status: true,
+                            id: ids[i],
+                            image: { ...image, path: "/uploads/" + image.path },
+                        });
+                    }
+                })
+            );
+
+            res.json(uploads);
+        });
+        console.log("files were", req.files);
     }
 
     async setProductTags(req, res) {

@@ -33,6 +33,8 @@ class App {
         this.express.use(bodyParser.urlencoded({ extended: false }));
         this.express.use(bodyParser.json());
 
+        // this.express.use(express.static('./uploads'))
+
         const allowedOrigins = env("allowedOrigins");
         const productionWeb = env("endpoint.production.web");
 

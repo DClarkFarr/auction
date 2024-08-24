@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminService from "../../services/AdminService";
 import { UpdateProductFormState } from "../../components/product/UpdateProductForm";
-import { Category, ProductDetailItem, Tag } from "../../types/Product";
+import {
+    Category,
+    FullProduct,
+    Image,
+    ProductDetailItem,
+    Tag,
+} from "../../types/Product";
 
 export default function useProductQuery(idProduct: number) {
     const queryClient = useQueryClient();
@@ -128,6 +134,18 @@ export default function useProductQuery(idProduct: number) {
         },
     });
 
+    const appendImages = (images: Image[]) => {
+        const p =
+            ((queryClient.getQueryData(["product", idProduct]) ||
+                null) as FullProduct) || null;
+        if (p?.images) {
+            queryClient.setQueryData(["product", idProduct], {
+                ...p,
+                images: [...p.images, ...images],
+            });
+        }
+    };
+
     const update = (data: UpdateProductFormState) => mutateUpdate(data);
 
     const updateDetailitems = (data: ProductDetailItem[]) => mutateItems(data);
@@ -161,6 +179,7 @@ export default function useProductQuery(idProduct: number) {
         isSuccess,
         refresh,
         update,
+        appendImages,
         updateDetailitems,
         createProductCategory,
         setProductCategory,

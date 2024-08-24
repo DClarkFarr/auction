@@ -1,4 +1,3 @@
-import { set } from "lodash-es";
 import UserError from "../errors/UserError.js";
 import CategoryModel from "../models/CategoryModel.js";
 import ImageModel from "../models/ImageModel.js";
@@ -7,7 +6,6 @@ import TagModel from "../models/TagModel.js";
 import { getPrisma } from "../prisma/client.js";
 import { toSlug } from "../utils/slug.js";
 import { Prisma } from "@prisma/client";
-
 export default class ProductService {
     static async setProductTags(idProduct, idtags) {
         await ProductService.addProductTags(idProduct, idtags, true);
@@ -208,9 +206,11 @@ export default class ProductService {
     }
 
     static async applyProductImages(product) {
-        product.images = await ProductService.getProductImages(
-            product.id_product
-        );
+        product.images = (
+            await ProductService.getProductImages(product.id_product)
+        ).map((image) => {
+            return { ...image, path: "/uploads/" + image.path };
+        });
     }
 
     static applyProductCategories(product) {

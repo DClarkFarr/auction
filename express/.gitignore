@@ -43,3 +43,4 @@ typings
 .DS_Store
 
 serviceAccountKey.json
+uploads/
