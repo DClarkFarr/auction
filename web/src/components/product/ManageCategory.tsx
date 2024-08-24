@@ -3,11 +3,14 @@ import { SingleValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import useCategoriesQuery from "../../hooks/useCategoriesQuery";
 import { useMemo } from "react";
+import { Category } from "../../types/Product";
 
 export default function ManageCategory({
     onSelectCategory,
     onCreateCategory,
+    category,
 }: {
+    category: Category | null;
     onSelectCategory: (idCategory: number) => Promise<void>;
     onCreateCategory: (categoryLabel: string) => Promise<void>;
 }) {
@@ -19,6 +22,16 @@ export default function ManageCategory({
             value: c.id_category,
         }));
     }, [categories]);
+
+    const defaultValue = useMemo(() => {
+        if (!category) {
+            return undefined;
+        }
+        return {
+            value: category.id_category,
+            label: category.label,
+        };
+    }, [category]);
 
     const handleChange = (
         newValue: SingleValue<{ value: number; label: string }>
@@ -42,6 +55,7 @@ export default function ManageCategory({
             )}
             {!isLoading && (
                 <CreatableSelect
+                    defaultValue={defaultValue}
                     options={options}
                     isClearable={false}
                     isMulti={false}

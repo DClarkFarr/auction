@@ -67,8 +67,8 @@ model ProductTags {
     relId     Int     @id @default(autoincrement())
     productId Int
     tagId     Int
-    Product   Product @relation(fields: [productId], references: [id_product])
-    Tag       Tag     @relation(fields: [tagId], references: [id_tag])
+    product   Product @relation(fields: [productId], references: [id_product])
+    tag       Tag     @relation(fields: [tagId], references: [id_tag])
 
     @@index([productId], map: "ProductTags_productId_fkey")
     @@index([tagId])
@@ -78,8 +78,8 @@ model ProductCategories {
     relId      Int      @id @default(autoincrement())
     productId  Int
     categoryId Int
-    Category   Category @relation(fields: [categoryId], references: [id_category])
-    Product    Product  @relation(fields: [productId], references: [id_product])
+    category   Category @relation(fields: [categoryId], references: [id_category])
+    product    Product  @relation(fields: [productId], references: [id_product])
 
     @@index([categoryId], map: "ProductCategories_categoryId_fkey")
     @@index([productId])

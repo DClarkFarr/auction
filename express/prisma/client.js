@@ -15,12 +15,12 @@ const prismaClientSingleton = () => {
             },
         ],
     });
-    pc.$on("query", async (e) => {
-        if (e.query.startsWith("SELECT")) {
-            return console.log("aborting select");
-        }
-        console.log(`Logging Query: ${e.query} ${e.params}`);
-    });
+    // pc.$on("query", async (e) => {
+    //     if (e.query.startsWith("SELECT")) {
+    //         return console.log("aborting select");
+    //     }
+    //     console.log(`Logging Query: ${e.query} ${e.params}`);
+    // });
 
     return pc;
 };

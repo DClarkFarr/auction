@@ -562,6 +562,7 @@ export default function UpdateProductForm({
             <div className="bg-gray-100 mb-6 p-6">
                 <h2 className="text-xl">Category</h2>
                 <ManageCategory
+                    category={product.category}
                     onSelectCategory={onSaveCategory}
                     onCreateCategory={onCreateCategory}
                 />

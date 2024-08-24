@@ -132,12 +132,18 @@ export default class ProductService {
                 },
             },
             include: {
-                categories: true,
+                categories: {
+                    include: {
+                        category: true,
+                    },
+                },
             },
             orderBy: { createdAt: "desc" },
             take: limit,
             skip: page * limit - limit,
         });
+
+        rows.forEach((row) => ProductService.applyProductCategories(row));
 
         return {
             limit,
@@ -148,6 +154,22 @@ export default class ProductService {
         };
     }
 
+    static async applyProductImages(product) {
+        product.images = await ProductService.getProductImages(
+            product.id_product
+        );
+    }
+
+    static applyProductCategories(product) {
+        product.category = product.categories?.[0]?.category || null;
+
+        delete product.categories;
+    }
+
+    static applyProductTags(product) {
+        product.tags = product.tags?.map((t) => t.tag) || [];
+    }
+
     static async getProductById(idProduct) {
         const productModel = new ProductModel();
         const product = await productModel.table.findFirst({
@@ -155,12 +177,22 @@ export default class ProductService {
                 id_product: idProduct,
             },
             include: {
-                categories: true,
-                tags: true,
+                categories: {
+                    include: {
+                        category: true,
+                    },
+                },
+                tags: {
+                    include: {
+                        tag: true,
+                    },
+                },
             },
         });
 
-        product.images = await ProductService.getProductImages(idProduct);
+        ProductService.applyProductCategories(product);
+        ProductService.applyProductTags(product);
+        await ProductService.applyProductImages(product);
 
         return product;
     }
