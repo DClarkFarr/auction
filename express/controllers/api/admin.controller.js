@@ -60,6 +60,50 @@ export default class AdminController extends BaseController {
             middleware,
             this.route(this.setProductCategory)
         );
+
+        this.router.post(
+            "/products/:id/tags",
+            middleware,
+            this.route(this.createProductTag)
+        );
+
+        this.router.put(
+            "/products/:id/tags",
+            middleware,
+            this.route(this.setProductTags)
+        );
+    }
+
+    async setProductTags(req, res) {
+        const idProduct = Number(req.params.id);
+        const idTags = req.body?.idTags?.map((v) => Number(v));
+
+        if (idTags.some((v) => isNaN(v))) {
+            return res
+                .status(400)
+                .json({ message: "Tag IDs must be a number" });
+        }
+
+        try {
+            const tags = await ProductService.setProductTags(idProduct, idTags);
+
+            res.json(tags);
+        } catch (err) {
+            console.warn("error setting product tags", err);
+            res.status(400).json({ message: err.message });
+        }
+    }
+
+    async createProductTag(req, res) {
+        const id = Number(req.params.id);
+        const label = req.body.label;
+
+        try {
+            const tag = await ProductService.createProductTag(id, label);
+            res.json(tag);
+        } catch (err) {
+            res.status(400).json({ message: err.message });
+        }
     }
 
     async setProductCategory(req, res) {

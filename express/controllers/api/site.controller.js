@@ -14,6 +14,8 @@ export default class SiteController extends BaseController {
     }
     initRoutes() {
         this.router.get("/categories", this.route(this.getCategories));
+
+        this.router.get("/tags", this.route(this.getTags));
     }
 
     async getCategories(req, res) {
@@ -23,6 +25,17 @@ export default class SiteController extends BaseController {
             res.json(categories);
         } catch (err) {
             console.warn("error fetching categories", err);
+            res.status(400).json({ message: err.message });
+        }
+    }
+
+    async getTags(req, res) {
+        try {
+            const tags = await CategoryService.getTags();
+
+            res.json(tags);
+        } catch (err) {
+            console.warn("error fetching tags", err);
             res.status(400).json({ message: err.message });
         }
     }

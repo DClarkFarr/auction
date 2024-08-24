@@ -6,6 +6,7 @@ import {
     FullProduct,
     Product,
     ProductDetailItem,
+    Tag,
     WithCategory,
 } from "../types/Product";
 import { User } from "../types/User";
@@ -59,10 +60,26 @@ export default class AdminService {
             .then((res) => res.data);
     }
 
+    static createProductTag(idProduct: number, tagLabel: string) {
+        return apiClient
+            .post<Tag>(`/admin/products/${idProduct}/tags`, {
+                label: tagLabel,
+            })
+            .then((res) => res.data);
+    }
+
     static setProductCategory(idProduct: number, idCategory: number) {
         return apiClient
             .put<Category>(`/admin/products/${idProduct}/categories`, {
                 idCategory,
+            })
+            .then((res) => res.data);
+    }
+
+    static setProductTags(idProduct: number, idTags: number[]) {
+        return apiClient
+            .put<Category>(`/admin/products/${idProduct}/tags`, {
+                idTags,
             })
             .then((res) => res.data);
     }

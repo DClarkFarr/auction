@@ -70,6 +70,7 @@ model ProductTags {
     product   Product @relation(fields: [productId], references: [id_product])
     tag       Tag     @relation(fields: [tagId], references: [id_tag])
 
+    @@unique([productId, tagId])
     @@index([productId], map: "ProductTags_productId_fkey")
     @@index([tagId])
 }

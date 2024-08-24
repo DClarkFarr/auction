@@ -12,6 +12,7 @@ import ManageDetailItems from "../../../components/product/ManageDetailItems";
 import ManageCategory from "../../../components/product/ManageCategory";
 import useToastContext from "../../../providers/useToastContext";
 import { AxiosError } from "axios";
+import ManageTags from "../../../components/product/ManageTags";
 
 export default function ProductSinglePage() {
     const { toast } = useToastContext();
@@ -31,6 +32,8 @@ export default function ProductSinglePage() {
         updateDetailitems,
         createProductCategory,
         setProductCategory,
+        createProductTag,
+        setProductTags,
     } = useProductQuery(Number(idProduct));
 
     const onSaveProduct = useCallback(async (data: UpdateProductFormState) => {
@@ -80,9 +83,30 @@ export default function ProductSinglePage() {
     const onSaveCategory = async (idCategory: number) => {
         try {
             await setProductCategory(product!.id_product, idCategory);
-            console.log("toasting to product category");
             toast({
-                text: "Product category svaed successfully",
+                text: "Product category saved successfully",
+                type: "success",
+            });
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                toast({
+                    text: err.response?.data?.message || err.message,
+                    type: "failure",
+                });
+            } else if (err instanceof Error) {
+                toast({
+                    text: err.message,
+                    type: "failure",
+                });
+            }
+        }
+    };
+
+    const onSetProductTags = async (idTags: number[]) => {
+        try {
+            await setProductTags(product!.id_product, idTags);
+            toast({
+                text: "Product tag saved successfully",
                 type: "success",
             });
         } catch (err) {
@@ -106,6 +130,31 @@ export default function ProductSinglePage() {
                 await createProductCategory(product!.id_product, categoryLabel);
                 toast({
                     text: "Category created successfully",
+                    type: "success",
+                });
+            } catch (err) {
+                if (err instanceof AxiosError) {
+                    toast({
+                        text: err.response?.data?.message || err.message,
+                        type: "failure",
+                    });
+                } else if (err instanceof Error) {
+                    toast({
+                        text: err.message,
+                        type: "failure",
+                    });
+                }
+            }
+        },
+        [product]
+    );
+
+    const onCreateTag = useCallback(
+        async (tagLabel: string) => {
+            try {
+                await createProductTag(product!.id_product, tagLabel);
+                toast({
+                    text: "Tag created successfully",
                     type: "success",
                 });
             } catch (err) {
@@ -162,11 +211,18 @@ export default function ProductSinglePage() {
                         </div>
 
                         <div className="bg-gray-100 mb-6 p-6">
-                            <h2 className="text-xl">Category</h2>
-                            <ManageCategory
-                                category={product.category}
-                                onSelectCategory={onSaveCategory}
-                                onCreateCategory={onCreateCategory}
+                            <h2 className="text-xl">Categorization</h2>
+                            <div className="mb-4">
+                                <ManageCategory
+                                    category={product.category}
+                                    onSelectCategory={onSaveCategory}
+                                    onCreateCategory={onCreateCategory}
+                                />
+                            </div>
+                            <ManageTags
+                                tags={product.tags}
+                                onCreateTag={onCreateTag}
+                                onSelectTag={onSetProductTags}
                             />
                         </div>
                     </>

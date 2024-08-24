@@ -1,11 +1,18 @@
+import { set } from "lodash-es";
 import UserError from "../errors/UserError.js";
 import CategoryModel from "../models/CategoryModel.js";
 import ImageModel from "../models/ImageModel.js";
 import ProductModel from "../models/ProductModel.js";
+import TagModel from "../models/TagModel.js";
 import { getPrisma } from "../prisma/client.js";
 import { toSlug } from "../utils/slug.js";
+import { Prisma } from "@prisma/client";
 
 export default class ProductService {
+    static async setProductTags(idProduct, idtags) {
+        await ProductService.addProductTags(idProduct, idtags, true);
+    }
+
     static async setProductCategory(idProduct, idCategory) {
         await ProductService.attachProductCategory(idProduct, idCategory);
     }
@@ -26,6 +33,53 @@ export default class ProductService {
                 categoryId: idCategory,
             },
         });
+    }
+
+    static async addProductTags(idProduct, idTags, clear = false) {
+        const client = getPrisma();
+        const productId = parseInt(idProduct);
+        const tagIds = idTags.map((v) =>
+            typeof v === "number" ? v : parseInt(v)
+        );
+
+        if (clear) {
+            const joinIds = tagIds.length ? tagIds.join(",") : "NULL";
+            await client.$queryRaw`DELETE FROM ProductTags WHERE productId=${productId} AND tagId NOT IN(${joinIds})`;
+        }
+
+        if (!tagIds.length) {
+            return;
+        }
+
+        const sql = `INSERT INTO ProductTags (productId, tagId)
+        SELECT ${productId}, id_tag FROM Tag
+        WHERE id_tag IN(${Array.from({ length: tagIds.length }, () => "?").join(
+            ","
+        )})
+        ON DUPLICATE KEY UPDATE
+        productId = ${productId}, tagId = id_tag`;
+
+        const query = Prisma.raw(sql);
+
+        // inputString can be untrusted input
+        query.values = tagIds;
+
+        const result = await client.$queryRaw(query);
+    }
+
+    static async createProductTag(idProduct, tagLabel) {
+        const tagModel = new TagModel();
+
+        const slug = toSlug(tagLabel);
+
+        let tag = await tagModel.findBySlug(slug);
+        if (!tag) {
+            tag = await tagModel.create({ label: tagLabel });
+        }
+
+        await ProductService.addProductTags(idProduct, [tag.id_tag]);
+
+        return tag;
     }
 
     static async createProductCategory(idProduct, categoryLabel) {

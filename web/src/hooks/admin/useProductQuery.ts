@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AdminService from "../../services/AdminService";
 import { UpdateProductFormState } from "../../components/product/UpdateProductForm";
-import { Category, ProductDetailItem } from "../../types/Product";
+import { Category, ProductDetailItem, Tag } from "../../types/Product";
 
 export default function useProductQuery(idProduct: number) {
     const queryClient = useQueryClient();
@@ -70,6 +70,30 @@ export default function useProductQuery(idProduct: number) {
         },
     });
 
+    const { mutateAsync: mutateCreateTag } = useMutation({
+        mutationFn: ({
+            idProduct,
+            label,
+        }: {
+            idProduct: number;
+            label: string;
+        }) => {
+            return AdminService.createProductTag(idProduct, label);
+        },
+        onSuccess: (tag) => {
+            queryClient.invalidateQueries({
+                queryKey: ["product", idProduct],
+            });
+
+            const tags = queryClient.getQueryData<Tag[]>(["tags"]) || [];
+
+            queryClient.setQueryData(
+                ["tags"],
+                [...tags, tag].sort((a, b) => a.label.localeCompare(b.label))
+            );
+        },
+    });
+
     const { mutateAsync: mutateSetCategory } = useMutation({
         mutationFn: ({
             idProduct,
@@ -79,6 +103,23 @@ export default function useProductQuery(idProduct: number) {
             idCategory: number;
         }) => {
             return AdminService.setProductCategory(idProduct, idCategory);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["product", idProduct],
+            });
+        },
+    });
+
+    const { mutateAsync: mutateSetTags } = useMutation({
+        mutationFn: ({
+            idProduct,
+            idTags,
+        }: {
+            idProduct: number;
+            idTags: number[];
+        }) => {
+            return AdminService.setProductTags(idProduct, idTags);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({
@@ -99,6 +140,14 @@ export default function useProductQuery(idProduct: number) {
     const setProductCategory = (idProduct: number, idCategory: number) =>
         mutateSetCategory({ idProduct, idCategory }).then(() => {});
 
+    const setProductTags = async (idProduct: number, idTags: number[]) => {
+        await mutateSetTags({ idProduct, idTags });
+    };
+
+    const createProductTag = async (idProduct: number, tagLabel: string) => {
+        await mutateCreateTag({ idProduct, label: tagLabel });
+    };
+
     const refresh = () => {
         queryClient.refetchQueries({
             queryKey: ["product", idProduct],
@@ -115,5 +164,7 @@ export default function useProductQuery(idProduct: number) {
         updateDetailitems,
         createProductCategory,
         setProductCategory,
+        setProductTags,
+        createProductTag,
     };
 }
