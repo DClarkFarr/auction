@@ -10,8 +10,12 @@ import UpdateProductForm, {
 import { ProductDetailItem } from "../../../types/Product";
 import ManageDetailItems from "../../../components/product/ManageDetailItems";
 import ManageCategory from "../../../components/product/ManageCategory";
+import useToastContext from "../../../providers/useToastContext";
+import { AxiosError } from "axios";
 
 export default function ProductSinglePage() {
+    const { toast } = useToastContext();
+
     const params = useParams();
 
     const idProduct = useMemo(() => {
@@ -30,26 +34,97 @@ export default function ProductSinglePage() {
     } = useProductQuery(Number(idProduct));
 
     const onSaveProduct = useCallback(async (data: UpdateProductFormState) => {
-        await update(data);
+        try {
+            await update(data);
+            toast({
+                text: "Product information saved successfully",
+                type: "success",
+            });
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                toast({
+                    text: err.response?.data?.message || err.message,
+                    type: "failure",
+                });
+            } else if (err instanceof Error) {
+                toast({
+                    text: err.message,
+                    type: "failure",
+                });
+            }
+        }
     }, []);
 
     const onSaveItems = useCallback(async (items: ProductDetailItem[]) => {
-        await updateDetailitems(items);
+        try {
+            await updateDetailitems(items);
+            toast({
+                text: "Product details saved",
+                type: "success",
+            });
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                toast({
+                    text: err.response?.data?.message || err.message,
+                    type: "failure",
+                });
+            } else if (err instanceof Error) {
+                toast({
+                    text: err.message,
+                    type: "failure",
+                });
+            }
+        }
     }, []);
 
-    const onSaveCategory = useCallback(
-        async (idCategory: number) => {
+    const onSaveCategory = async (idCategory: number) => {
+        try {
             await setProductCategory(product!.id_product, idCategory);
+            console.log("toasting to product category");
+            toast({
+                text: "Product category svaed successfully",
+                type: "success",
+            });
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                toast({
+                    text: err.response?.data?.message || err.message,
+                    type: "failure",
+                });
+            } else if (err instanceof Error) {
+                toast({
+                    text: err.message,
+                    type: "failure",
+                });
+            }
+        }
+    };
+
+    const onCreateCategory = useCallback(
+        async (categoryLabel: string) => {
+            try {
+                await createProductCategory(product!.id_product, categoryLabel);
+                toast({
+                    text: "Category created successfully",
+                    type: "success",
+                });
+            } catch (err) {
+                if (err instanceof AxiosError) {
+                    toast({
+                        text: err.response?.data?.message || err.message,
+                        type: "failure",
+                    });
+                } else if (err instanceof Error) {
+                    toast({
+                        text: err.message,
+                        type: "failure",
+                    });
+                }
+            }
         },
         [product]
     );
 
-    const onCreateCategory = useCallback(
-        (categoryLabel: string) => {
-            return createProductCategory(product!.id_product, categoryLabel);
-        },
-        [product]
-    );
     return (
         <div>
             <div>

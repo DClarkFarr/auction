@@ -5,7 +5,6 @@ import {
     FullProduct,
     ProductQuality,
     ProductStatus,
-    ProductDetailItem,
 } from "../../types/Product";
 import useForm from "../../hooks/useForm";
 import {
@@ -20,8 +19,6 @@ import {
 import QuickInput from "../controls/QuickInput";
 import Stars from "../controls/Stars";
 import QuestionIcon from "~icons/ic/baseline-contact-support";
-import ManageDetailItems from "./ManageDetailItems";
-import ManageCategory from "./ManageCategory";
 
 const productStatuses = ["active", "inactive", "scheduled", "archived", "sold"];
 
