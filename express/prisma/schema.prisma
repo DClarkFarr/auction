@@ -64,23 +64,25 @@ model Image {
 }
 
 model ProductTags {
+    relId     Int     @id @default(autoincrement())
     productId Int
     tagId     Int
-    product   Product @relation(fields: [productId], references: [id_product])
-    tag       Tag     @relation(fields: [tagId], references: [id_tag])
+    Product   Product @relation(fields: [productId], references: [id_product])
+    Tag       Tag     @relation(fields: [tagId], references: [id_tag])
 
-    @@id([tagId, productId])
     @@index([productId], map: "ProductTags_productId_fkey")
+    @@index([tagId])
 }
 
 model ProductCategories {
+    relId      Int      @id @default(autoincrement())
     productId  Int
     categoryId Int
-    category   Category @relation(fields: [categoryId], references: [id_category])
-    product    Product  @relation(fields: [productId], references: [id_product])
+    Category   Category @relation(fields: [categoryId], references: [id_category])
+    Product    Product  @relation(fields: [productId], references: [id_product])
 
-    @@id([productId, categoryId])
     @@index([categoryId], map: "ProductCategories_categoryId_fkey")
+    @@index([productId])
 }
 
 model sessions {
