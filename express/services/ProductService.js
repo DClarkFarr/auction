@@ -23,7 +23,6 @@ export default class ProductService {
         });
 
         if (del) {
-            console.log("del was", del);
             fs.unlinkSync(path.join("./uploads", del.path));
         }
     }

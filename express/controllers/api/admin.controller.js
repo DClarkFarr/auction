@@ -172,7 +172,6 @@ export default class AdminController extends BaseController {
 
             res.json(uploads);
         });
-        console.log("files were", req.files);
     }
 
     async setProductTags(req, res) {
