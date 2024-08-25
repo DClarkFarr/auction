@@ -83,6 +83,24 @@ export default class AdminController extends BaseController {
             middleware,
             this.route(this.uploadProductImages)
         );
+
+        this.router.delete(
+            "/products/:id/images/:imageId",
+            middleware,
+            this.route(this.deleteProductImage)
+        );
+    }
+
+    async deleteProductImage(req, res) {
+        const idProduct = parseInt(req.params.id);
+        const idImage = parseInt(req.params.imageId);
+
+        try {
+            await ProductService.deleteProductImage(idProduct, idImage);
+            res.json({ deleted: true });
+        } catch (err) {
+            res.status(401).json({ message: err.message });
+        }
     }
 
     async uploadProductImages(req, res) {

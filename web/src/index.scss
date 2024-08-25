@@ -11,3 +11,7 @@
 .admin__product__images__grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
+
+.animate-opacity {
+    transition: opacity ease-out 0.3s;
+}

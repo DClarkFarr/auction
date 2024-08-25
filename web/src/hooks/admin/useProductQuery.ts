@@ -134,6 +134,30 @@ export default function useProductQuery(idProduct: number) {
         },
     });
 
+    const { mutateAsync: mutateDeleteImage } = useMutation({
+        mutationFn: ({ idImage }: { idImage: number }) =>
+            AdminService.deleteProductImage(idProduct, idImage),
+        onSuccess: (_v, { idImage }) => {
+            queryClient.setQueryData(
+                ["product", idProduct],
+                (prev: FullProduct) => {
+                    const toSet = { ...prev } as FullProduct;
+
+                    return {
+                        ...toSet,
+                        images: toSet.images.filter(
+                            (i) => i.id_image !== idImage
+                        ),
+                    };
+                }
+            );
+        },
+    });
+
+    const deleteProductImage = async (idImage: number) => {
+        await mutateDeleteImage({ idImage });
+    };
+
     const appendImages = (images: Image[]) => {
         const p =
             ((queryClient.getQueryData(["product", idProduct]) ||
@@ -181,6 +205,7 @@ export default function useProductQuery(idProduct: number) {
         update,
         appendImages,
         updateDetailitems,
+        deleteProductImage,
         createProductCategory,
         setProductCategory,
         setProductTags,

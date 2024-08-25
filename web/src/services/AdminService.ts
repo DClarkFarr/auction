@@ -109,4 +109,10 @@ export default class AdminService {
             )
             .then((res) => res.data);
     }
+
+    static deleteProductImage(idProduct: number, idImage: number) {
+        return apiClient
+            .delete(`/admin/products/${idProduct}/images/${idImage}`)
+            .then(() => {});
+    }
 }

@@ -33,6 +33,7 @@ export default function ProductSinglePage() {
         updateDetailitems,
         createProductCategory,
         setProductCategory,
+        deleteProductImage,
         createProductTag,
         setProductTags,
         appendImages,
@@ -151,12 +152,34 @@ export default function ProductSinglePage() {
         [product]
     );
 
-    const onAddImages = useCallback((images: Image[]) => {
+    const onAddImages = useCallback(async (images: Image[]) => {
         appendImages(images);
         toast({
             text: images.length + " Images uploaded successfully",
             type: "success",
         });
+    }, []);
+
+    const onRemoveImage = useCallback(async (image: Image) => {
+        try {
+            await deleteProductImage(image.id_image);
+            toast({
+                text: "Image deleted successfully",
+                type: "success",
+            });
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                toast({
+                    text: err.response?.data?.message || err.message,
+                    type: "failure",
+                });
+            } else if (err instanceof Error) {
+                toast({
+                    text: err.message,
+                    type: "failure",
+                });
+            }
+        }
     }, []);
 
     const onCreateTag = useCallback(
@@ -242,6 +265,7 @@ export default function ProductSinglePage() {
                                 images={product.images}
                                 product={product}
                                 onAddImages={onAddImages}
+                                onRemoveImage={onRemoveImage}
                             />
                         </div>
                     </>

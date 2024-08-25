@@ -26,6 +26,7 @@ export default function ManageImages({
     onRemoveImage: (image: Image) => Promise<void>;
 }) {
     const [uploadingImages, setUploadingImages] = useState<ImageLoading[]>([]);
+    const [removingIds, setRemovingIds] = useState<Record<number, boolean>>({});
 
     const handleSelectFiles = async (e: ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -85,6 +86,11 @@ export default function ManageImages({
         e.target.value = "";
     };
 
+    const onClickRemove = async (image: Image) => {
+        setRemovingIds({ ...removingIds, [image.id_image]: true });
+        await onRemoveImage(image);
+    };
+
     return (
         <div className="manage-images pt-4">
             {!images.length && (
@@ -94,7 +100,12 @@ export default function ManageImages({
             )}
             <div className="grid admin__product__images__grid gap-4 mb-8">
                 {images.map((image) => (
-                    <ImageTile image={image} key={image.id_image} />
+                    <ImageTile
+                        image={image}
+                        key={image.id_image}
+                        onClickRemove={onClickRemove}
+                        isRemoving={removingIds[image.id_image]}
+                    />
                 ))}
                 {uploadingImages.map((image) => {
                     return <ImageLoading image={image} key={image.id} />;
@@ -145,12 +156,26 @@ export default function ManageImages({
     );
 }
 
-function ImageTile({ image }: { image: Image }) {
+function ImageTile({
+    image,
+    isRemoving,
+    onClickRemove,
+}: {
+    image: Image;
+    isRemoving: boolean;
+    onClickRemove: (image: Image) => void;
+}) {
     return (
         <div className="image group/image relative w-[150px]">
-            <div className="absolute top-5 right-5 opacity-0 -z-[100] group-hover/image:opacity-100 group-hover/image:z-[50]">
-                <Button size="xs" color="failure">
-                    <TrashIcon />
+            <div className="absolute top-1 right-1 animate-opacity opacity-0 -z-[100] group-hover/image:opacity-100 group-hover/image:z-[50]">
+                <Button
+                    size="xs"
+                    color="failure"
+                    isProcessing={isRemoving}
+                    disabled={isRemoving}
+                    onClick={() => onClickRemove(image)}
+                >
+                    {!isRemoving && <TrashIcon />}
                 </Button>
             </div>
             <img src={uploadedAsset(image.path)} />

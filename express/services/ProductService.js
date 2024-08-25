@@ -6,7 +6,27 @@ import TagModel from "../models/TagModel.js";
 import { getPrisma } from "../prisma/client.js";
 import { toSlug } from "../utils/slug.js";
 import { Prisma } from "@prisma/client";
+
+import fs from "fs";
+import path from "path";
+
 export default class ProductService {
+    static async deleteProductImage(idProduct, idImage) {
+        const imageModel = new ImageModel();
+
+        const del = await imageModel.table.delete({
+            where: {
+                resourceId: idProduct,
+                resourceType: "product",
+                id_image: idImage,
+            },
+        });
+
+        if (del) {
+            console.log("del was", del);
+            fs.unlinkSync(path.join("./uploads", del.path));
+        }
+    }
     static async setProductTags(idProduct, idtags) {
         await ProductService.addProductTags(idProduct, idtags, true);
     }
