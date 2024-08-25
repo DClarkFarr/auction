@@ -81,12 +81,7 @@ export default class ProductService {
         // adjust + remaining quantity
         if (toCancel.length) {
             const maxUpdateable = product.initialQuantity - toCancel.length;
-            console.log(
-                "max updateable",
-                maxUpdateable,
-                "from",
-                toCancel.length
-            );
+
             await this.adjustRemainingQuantity(
                 product,
                 Math.min(toCancel.length, maxUpdateable)
