@@ -215,7 +215,25 @@ export default function ProductSinglePage() {
 
     const onChangeStatus = useCallback(
         async (_idProduct: number, status: ProductStatus) => {
-            await setProductStatus(status);
+            try {
+                await setProductStatus(status);
+                toast({
+                    text: "Product status updated: " + status,
+                    type: "success",
+                });
+            } catch (err) {
+                if (err instanceof AxiosError) {
+                    toast({
+                        text: err.response?.data?.message || err.message,
+                        type: "failure",
+                    });
+                } else if (err instanceof Error) {
+                    toast({
+                        text: err.message,
+                        type: "failure",
+                    });
+                }
+            }
         },
         []
     );
