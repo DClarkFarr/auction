@@ -1,26 +1,18 @@
 import { DateTime } from "luxon";
 import { useMemo } from "react";
-import {
-    Product,
-    FullProduct,
-    ProductQuality,
-    ProductStatus,
-} from "../../types/Product";
+import { Product, FullProduct, ProductQuality } from "../../types/Product";
 import useForm from "../../hooks/useForm";
 import {
     Alert,
     Button,
     Label,
     Popover,
-    Select,
     Textarea,
     TextInput,
 } from "flowbite-react";
 import QuickInput from "../controls/QuickInput";
 import Stars from "../controls/Stars";
 import QuestionIcon from "~icons/ic/baseline-contact-support";
-
-const productStatuses = ["active", "inactive", "scheduled", "archived", "sold"];
 
 export type UpdateProductFormState = {
     sku: string;
@@ -33,7 +25,6 @@ export type UpdateProductFormState = {
     quality: number;
     auctionBatchCount: number;
     description: string;
-    status: ProductStatus;
     scheduledFor: string;
 };
 
@@ -42,7 +33,6 @@ const productFieldDefaults: Record<
     string | number
 > = {
     name: "",
-    status: "inactive",
     quality: 1,
     auctionBatchCount: 1,
     scheduledFor: "",
@@ -207,14 +197,6 @@ export default function UpdateProductForm({
 
                 return [true, ""];
             },
-            status: (v: string): [boolean, string] => {
-                const valid = productStatuses.includes(v);
-
-                return [
-                    valid,
-                    valid ? "" : "Please select valid product status",
-                ];
-            },
         };
     }, []);
 
@@ -266,11 +248,9 @@ export default function UpdateProductForm({
             quality,
             auctionBatchCount,
             description,
-            status,
             scheduledFor,
         },
         attrs,
-        selectAttrs,
     } = useForm<UpdateProductFormState>({
         initialState,
         validate,
@@ -391,23 +371,7 @@ export default function UpdateProductForm({
                             isSubmitting={isSubmitting}
                         />
                     </div>
-                    <div className="lg:w-1/2">
-                        <div className="mb-2">
-                            <Label>Status</Label>
-                        </div>
-                        <Select
-                            id="status"
-                            name="status"
-                            {...selectAttrs}
-                            defaultValue={status.value}
-                        >
-                            {productStatuses.map((s) => (
-                                <option value={s} key={s}>
-                                    {s.toLocaleUpperCase()}
-                                </option>
-                            ))}
-                        </Select>
-                    </div>
+                    <div className="lg:w-1/2"></div>
                 </div>
 
                 <div className="lg:flex flex-col gap-4 lg:flex-row">

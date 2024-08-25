@@ -15,28 +15,69 @@ model User {
     password  String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    Bid Bid[]
 }
 
 model Product {
-    id_product        Int                 @id @default(autoincrement())
+    id_product        Int              @id @default(autoincrement())
     sku               String?
     name              String
     priceCost         Float?
     priceInitial      Float?
     priceRetail       Float?
-    initialQuantity   Int                 @default(1)
-    remainingQuantity Int                 @default(1)
-    quality           Int                 @default(5)
-    description       String?             @db.MediumText
-    createdAt         DateTime?           @default(now())
-    updatedAt         DateTime?           @updatedAt
+    initialQuantity   Int              @default(1)
+    remainingQuantity Int              @default(1)
+    quality           Int              @default(5)
+    description       String?          @db.MediumText
+    createdAt         DateTime?        @default(now())
+    updatedAt         DateTime?        @updatedAt
     detailItems       Json?
-    auctionBatchCount Int                 @default(1)
+    auctionBatchCount Int              @default(1)
     scheduledFor      DateTime?
     slug              String
-    status            PRODUCT_STATUSES    @default(inactive)
-    categories        ProductCategories[]
-    tags              ProductTags[]
+    status            PRODUCT_STATUSES @default(inactive)
+
+    categories ProductCategories[]
+    tags       ProductTags[]
+    items      ProductItem[]
+    bids       Bid[]
+}
+
+model ProductItem {
+    id_item     Int                 @id @default(autoincrement())
+    id_product  Int
+    id_purchase Int?
+    createdAt   DateTime?           @default(now())
+    expiresAt   DateTime
+    expiredAt   DateTime?
+    purchasedAt DateTime?
+    rejectsAt   DateTime?
+    rejectedAt  DateTime?
+    status      PRODUCT_ITEM_STATUS @default(active)
+
+    product Product @relation(fields: [id_product], references: [id_product])
+    bids    Bid[]
+
+    @@index([id_product])
+}
+
+model Bid {
+    id_bid     Int        @id @default(autoincrement())
+    id_product Int
+    id_item    Int
+    id_user    Int
+    amount     Int
+    status     BID_STATUS
+    createdAt  DateTime?  @default(now())
+
+    product Product     @relation(fields: [id_product], references: [id_product])
+    item    ProductItem @relation(fields: [id_item], references: [id_item])
+    user    User        @relation(fields: [id_user], references: [id])
+
+    @@index([id_product])
+    @@index([id_item])
+    @@index([id_user])
 }
 
 model Tag {
@@ -107,4 +148,17 @@ enum PRODUCT_STATUSES {
     scheduled
     archived
     sold
+}
+
+enum BID_STATUS {
+    active
+    inactive
+}
+
+enum PRODUCT_ITEM_STATUS {
+    active // auction still ongoing
+    purchased // was bought
+    rejected // somebody bid, but didn't pay
+    expired // nobody bid
+    canceled // when product is changed to inactive
 }
