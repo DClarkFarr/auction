@@ -48,12 +48,13 @@ model ProductItem {
     id_item     Int                 @id @default(autoincrement())
     id_product  Int
     id_purchase Int?
-    createdAt   DateTime?           @default(now())
     expiresAt   DateTime
+    createdAt   DateTime?           @default(now())
     expiredAt   DateTime?
     purchasedAt DateTime?
     rejectsAt   DateTime?
     rejectedAt  DateTime?
+    canceledAt  DateTime?
     status      PRODUCT_ITEM_STATUS @default(active)
 
     product Product @relation(fields: [id_product], references: [id_product])

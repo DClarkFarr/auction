@@ -98,9 +98,27 @@ export default class AdminController extends BaseController {
     }
 
     async setProductStatus(req, res) {
-        setTimeout(() => {
-            res.json({ todo: "this" });
-        }, 3000);
+        const idProduct = parseInt(req.params.id);
+        const status = req.body.status;
+
+        if (typeof status !== "string") {
+            return res.status(400).json({ message: "Status must be a string" });
+        }
+
+        if (typeof idProduct !== "number") {
+            return res.status(400).json({ message: "Invalid product ID" });
+        }
+
+        try {
+            const result = await ProductService.publishProductStatus(
+                idProduct,
+                status
+            );
+
+            res.json(result);
+        } catch (err) {
+            res.status(401).json({ message: err.message });
+        }
     }
 
     async deleteProductImage(req, res) {
@@ -287,7 +305,6 @@ export default class AdminController extends BaseController {
             "remainingQuantity",
             "scheduledFor",
             "sku",
-            "status",
         ]);
 
         try {

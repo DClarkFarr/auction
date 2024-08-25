@@ -28,6 +28,14 @@ class ProductModel {
         });
     }
 
+    findById(idProduct) {
+        return this.table.findFirst({
+            where: {
+                id_product: idProduct,
+            },
+        });
+    }
+
     /**
      * @param {ProductDocument} doc
      */
