@@ -54,6 +54,12 @@ export default class AdminController extends BaseController {
             this.route(this.updateDetailItems)
         );
 
+        this.router.put(
+            "/products/:id/status",
+            middleware,
+            this.route(this.setProductStatus)
+        );
+
         this.router.post(
             "/products/:id/categories",
             middleware,
@@ -89,6 +95,12 @@ export default class AdminController extends BaseController {
             middleware,
             this.route(this.deleteProductImage)
         );
+    }
+
+    async setProductStatus(req, res) {
+        setTimeout(() => {
+            res.json({ todo: "this" });
+        }, 3000);
     }
 
     async deleteProductImage(req, res) {

@@ -7,6 +7,7 @@ import {
     Image,
     Product,
     ProductDetailItem,
+    ProductStatus,
     Tag,
     WithCategory,
 } from "../types/Product";
@@ -39,6 +40,12 @@ export default class AdminService {
         return apiClient
             .put<FullProduct>(`/admin/products/${idProduct}`, data)
             .then((res) => res.data);
+    }
+
+    static setProductStatus(idProduct: number, status: ProductStatus) {
+        return apiClient
+            .put(`/admin/products/${idProduct}/status`, { status })
+            .then(() => {});
     }
 
     static updateProductDetailItems(

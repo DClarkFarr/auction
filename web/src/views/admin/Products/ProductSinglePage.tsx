@@ -7,13 +7,18 @@ import { Alert, Spinner } from "flowbite-react";
 import UpdateProductForm, {
     UpdateProductFormState,
 } from "../../../components/product/UpdateProductForm";
-import { Image, ProductDetailItem } from "../../../types/Product";
+import {
+    Image,
+    ProductDetailItem,
+    ProductStatus,
+} from "../../../types/Product";
 import ManageDetailItems from "../../../components/product/ManageDetailItems";
 import ManageCategory from "../../../components/product/ManageCategory";
 import useToastContext from "../../../providers/useToastContext";
 import { AxiosError } from "axios";
 import ManageTags from "../../../components/product/ManageTags";
 import ManageImages from "../../../components/product/ManageImages";
+import ManageStatusBar from "../../../components/product/ManageStatusBar";
 
 export default function ProductSinglePage() {
     const { toast } = useToastContext();
@@ -37,6 +42,7 @@ export default function ProductSinglePage() {
         createProductTag,
         setProductTags,
         appendImages,
+        setProductStatus,
     } = useProductQuery(Number(idProduct));
 
     const onSaveProduct = useCallback(async (data: UpdateProductFormState) => {
@@ -207,6 +213,13 @@ export default function ProductSinglePage() {
         [product]
     );
 
+    const onChangeStatus = useCallback(
+        async (_idProduct: number, status: ProductStatus) => {
+            await setProductStatus(status);
+        },
+        []
+    );
+
     return (
         <div>
             <div>
@@ -230,6 +243,12 @@ export default function ProductSinglePage() {
                 )}
                 {!isLoading && product && (
                     <>
+                        <div className="mb-6">
+                            <ManageStatusBar
+                                product={product}
+                                onChangeStatus={onChangeStatus}
+                            />
+                        </div>
                         <UpdateProductForm
                             product={product}
                             onSubmit={onSaveProduct}

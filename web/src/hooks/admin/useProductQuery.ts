@@ -6,6 +6,7 @@ import {
     FullProduct,
     Image,
     ProductDetailItem,
+    ProductStatus,
     Tag,
 } from "../../types/Product";
 
@@ -154,6 +155,24 @@ export default function useProductQuery(idProduct: number) {
         },
     });
 
+    const { mutateAsync: mutateProductStatus } = useMutation({
+        mutationFn: ({ status }: { status: ProductStatus }) =>
+            AdminService.setProductStatus(idProduct, status),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["product", idProduct],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["products"],
+                exact: false,
+            });
+        },
+    });
+
+    const setProductStatus = async (status: ProductStatus) => {
+        await mutateProductStatus({ status });
+    };
+
     const deleteProductImage = async (idImage: number) => {
         await mutateDeleteImage({ idImage });
     };
@@ -210,5 +229,6 @@ export default function useProductQuery(idProduct: number) {
         setProductCategory,
         setProductTags,
         createProductTag,
+        setProductStatus,
     };
 }
