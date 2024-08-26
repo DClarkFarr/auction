@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Product, FullProduct, ProductQuality } from "../../types/Product";
 import useForm from "../../hooks/useForm";
 import {
@@ -13,6 +13,7 @@ import {
 import QuickInput from "../controls/QuickInput";
 import Stars from "../controls/Stars";
 import QuestionIcon from "~icons/ic/baseline-contact-support";
+import { debounce } from "lodash-es";
 
 export type UpdateProductFormState = {
     sku: string;
@@ -52,6 +53,8 @@ export default function UpdateProductForm({
     onSubmit: (data: UpdateProductFormState) => Promise<void>;
     product: FullProduct;
 }) {
+    const prevValue = useRef<string>("");
+
     const initialState = useMemo(() => {
         const p = Object.entries(product).reduce((acc, [key, val]) => {
             if (
@@ -231,7 +234,12 @@ export default function UpdateProductForm({
         await onSubmit(parsed);
     };
 
+    const onDebounce = useMemo(() => {
+        return debounce((cb) => cb(), 4000);
+    }, []);
+
     const {
+        form,
         isSubmitting,
         errorMessage,
         handleSubmit,
@@ -256,6 +264,16 @@ export default function UpdateProductForm({
         validate,
         onSubmit: onCustomSubmit,
     });
+
+    useEffect(() => {
+        if (isValid) {
+            const serialized = JSON.stringify(form);
+            if (prevValue.current && prevValue.current !== serialized) {
+                onDebounce(() => onCustomSubmit(form));
+            }
+            prevValue.current = serialized;
+        }
+    }, [isValid, form]);
 
     return (
         <div>
@@ -453,7 +471,6 @@ export default function UpdateProductForm({
                                             ? "failure"
                                             : undefined
                                     }
-                                    required
                                     value={scheduledFor.value}
                                     helperText={
                                         !scheduledFor.focus &&

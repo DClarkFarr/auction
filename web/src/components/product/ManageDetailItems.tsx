@@ -1,11 +1,13 @@
 import { Button, Label, TextInput } from "flowbite-react";
 import { Product, ProductDetailItem } from "../../types/Product";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import TransIcon from "~icons/ic/baseline-delete";
 import { debounce } from "lodash-es";
 
 type DetailItems = Product["detailItems"];
+
+const emptyItem = { label: "", description: "" };
 
 export default function ManageDetailItems({
     detailItems,
@@ -46,7 +48,7 @@ export default function ManageDetailItems({
             })}
 
             <DetailItem
-                item={{ label: "", description: "" }}
+                item={emptyItem}
                 key={detailItems.length}
                 index={detailItems.length}
                 onChange={onAddItem}
@@ -69,13 +71,20 @@ function DetailItem({
     onChange: (index: number, item: ProductDetailItem) => Promise<void>;
     onRemove?: (index: number) => void;
 }) {
+    const prevValue = useRef("");
     const [{ label, description }, setState] = useState({ ...item });
 
     const [dirty, setDirty] = useState({ label: false, description: false });
 
     useEffect(() => {
-        setState({ ...item });
-        setDirty({ label: false, description: false });
+        const serialized = JSON.stringify(item);
+        if (prevValue.current && prevValue.current !== serialized) {
+            console.log("item changed!");
+            setState({ ...item });
+            setDirty({ label: false, description: false });
+        }
+
+        prevValue.current = serialized;
     }, [item, index]);
 
     const valid = useMemo(() => {
@@ -107,12 +116,6 @@ function DetailItem({
         setDirty({ ...dirty, [e.target.name]: true });
         setState((prev) => {
             const toSet = { ...prev, [e.target.name]: e.target.value };
-
-            if (toSet.label.trim().length && toSet.description.trim().length) {
-                onChangeDebounced(() => {
-                    onChange(index, toSet);
-                });
-            }
             return toSet;
         });
     };
@@ -124,6 +127,15 @@ function DetailItem({
 
         return debouncer;
     }, []);
+
+    const handleInputBlur = () => {
+        onChangeDebounced(() => {
+            console.log("in debounce");
+            if (valid.label && valid.description) {
+                onChange(index, { label, description });
+            }
+        });
+    };
 
     return (
         <div className="detail-item flex w-full gap-x-3 items-start">
@@ -142,6 +154,7 @@ function DetailItem({
                     }
                     value={label}
                     onInput={handleInputChange}
+                    onBlur={handleInputBlur}
                 />
             </div>
             <div className="w-2/5">
@@ -163,6 +176,7 @@ function DetailItem({
                     }
                     value={description}
                     onInput={handleInputChange}
+                    onBlur={handleInputBlur}
                 />
             </div>
             <div className="w-1/5">

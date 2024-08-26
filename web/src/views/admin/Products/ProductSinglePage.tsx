@@ -2,7 +2,9 @@ import { useCallback, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import ChevronLeftIcon from "~icons/ic/baseline-chevron-left";
-import useProductQuery from "../../../hooks/admin/useProductQuery";
+import useProductQuery, {
+    useProductStatus,
+} from "../../../hooks/admin/useProductQuery";
 import { Alert, Spinner } from "flowbite-react";
 import UpdateProductForm, {
     UpdateProductFormState,
@@ -42,8 +44,9 @@ export default function ProductSinglePage() {
         createProductTag,
         setProductTags,
         appendImages,
-        setProductStatus,
     } = useProductQuery(Number(idProduct));
+
+    const { setProductStatus } = useProductStatus();
 
     const onSaveProduct = useCallback(async (data: UpdateProductFormState) => {
         try {
@@ -214,9 +217,9 @@ export default function ProductSinglePage() {
     );
 
     const onChangeStatus = useCallback(
-        async (_idProduct: number, status: ProductStatus) => {
+        async (idProduct: number, status: ProductStatus) => {
             try {
-                await setProductStatus(status);
+                await setProductStatus(idProduct, status);
                 toast({
                     text: "Product status updated: " + status,
                     type: "success",

@@ -155,24 +155,6 @@ export default function useProductQuery(idProduct: number) {
         },
     });
 
-    const { mutateAsync: mutateProductStatus } = useMutation({
-        mutationFn: ({ status }: { status: ProductStatus }) =>
-            AdminService.setProductStatus(idProduct, status),
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["product", idProduct],
-            });
-            queryClient.invalidateQueries({
-                queryKey: ["products"],
-                exact: false,
-            });
-        },
-    });
-
-    const setProductStatus = async (status: ProductStatus) => {
-        await mutateProductStatus({ status });
-    };
-
     const deleteProductImage = async (idImage: number) => {
         await mutateDeleteImage({ idImage });
     };
@@ -229,6 +211,39 @@ export default function useProductQuery(idProduct: number) {
         setProductCategory,
         setProductTags,
         createProductTag,
+    };
+}
+
+export function useProductStatus() {
+    const queryClient = useQueryClient();
+
+    const { mutateAsync: mutateProductStatus } = useMutation({
+        mutationFn: ({
+            idProduct,
+            status,
+        }: {
+            idProduct: number;
+            status: ProductStatus;
+        }) => AdminService.setProductStatus(idProduct, status),
+        onSuccess: (_data, { idProduct }) => {
+            queryClient.invalidateQueries({
+                queryKey: ["product", idProduct],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["products"],
+                exact: false,
+            });
+        },
+    });
+
+    const setProductStatus = async (
+        idProduct: number,
+        status: ProductStatus
+    ) => {
+        await mutateProductStatus({ idProduct, status });
+    };
+
+    return {
         setProductStatus,
     };
 }

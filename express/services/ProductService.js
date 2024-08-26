@@ -49,7 +49,15 @@ export default class ProductService {
         }
 
         if (status === product.status) {
-            throw new Error("Product status is already " + status);
+            /**
+             * If status is inactive, but scheduledFor is set, let it through.
+             */
+            if (
+                (status === "inactive" && !product.scheduledFor) ||
+                status !== "inactive"
+            ) {
+                throw new Error("Product status is already " + status);
+            }
         }
 
         switch (status) {
@@ -89,7 +97,9 @@ export default class ProductService {
             await this.cancelActiveProductItems(product);
         }
 
-        await this.setProductStatus(product, "inactive");
+        await this.setProductStatus(product, "inactive", {
+            scheduledFor: null,
+        });
     }
 
     static async cancelActiveProductItems(product) {
@@ -213,11 +223,13 @@ export default class ProductService {
     /**
      * @param {ProductDocument} product
      * @param {ProductStatus} status
+     * @param {Partial<ProductDocument>} extra
      */
-    static async setProductStatus(product, status) {
+    static async setProductStatus(product, status, extra = {}) {
         const productModel = new ProductModel();
 
         return productModel.update(product.id_product, {
+            ...extra,
             status,
         });
     }
@@ -363,6 +375,10 @@ export default class ProductService {
 
         if (typeof toSet.remainingQuantity === "undefined") {
             toSet.remainingQuantity = toSet.initialQuantity;
+        }
+
+        if (typeof toSet.scheduledFor === "string" && !toSet.scheduledFor) {
+            toSet.scheduledFor = null;
         }
 
         const product = await productModel.update(id, toSet);

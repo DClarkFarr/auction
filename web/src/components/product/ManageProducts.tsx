@@ -10,8 +10,9 @@ import ProductList from "../../components/product/ProductList";
 import useProductsQuery from "../../hooks/admin/useProductsQuery";
 
 import EditIcon from "~icons/ic/round-mode-edit-outline";
-import ArchiveIcon from "~icons/ic/baseline-archive";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { ProductStatusButtons } from "./ManageStatusBar";
+import { useProductStatus } from "../../hooks/admin/useProductQuery";
 
 type ProductTabs = "active" | "archived" | "sold";
 
@@ -23,14 +24,18 @@ const statusMap: Record<ProductTabs, ProductStatus[]> = {
 
 export default function ManageProducts() {
     const [activeTab, setActiveTab] = useState<ProductTabs>("active");
+    const navigate = useNavigate();
 
     const { createProduct } = useProductsQuery(statusMap.active);
+
+    const { setProductStatus: onChangeStatus } = useProductStatus();
 
     const formModal = useFormModal<CreateProductFormState>({
         heading: "Create Product",
         size: "md",
         onAccept: async (data) => {
-            await createProduct(data);
+            const p = await createProduct(data);
+            navigate(`/admin/products/${p.id_product}`);
         },
     });
 
@@ -70,14 +75,11 @@ export default function ManageProducts() {
                                         </Tooltip>
                                     </div>
                                     <div>
-                                        <Tooltip
-                                            style="dark"
-                                            content="Archive Product"
-                                        >
-                                            <Button size="xs" color="warning">
-                                                <ArchiveIcon />
-                                            </Button>
-                                        </Tooltip>
+                                        <ProductStatusButtons
+                                            minify
+                                            product={product}
+                                            onChangeStatus={onChangeStatus}
+                                        />
                                     </div>
                                 </div>
                             )}
