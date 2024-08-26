@@ -65,14 +65,18 @@ export default class ProductService {
                 await this.activateProduct(product);
                 break;
             case "inactive":
-                this.deactivateProduct(product);
-
+                await this.deactivateProduct(product);
                 break;
             case "archived":
+                await this.archiveProduct(product);
                 break;
             case "scheduled":
+                await this.deactivateProduct(product, {
+                    scheduledFor: null,
+                });
                 break;
             case "sold":
+                await this.markSoldProduct(product);
                 break;
             default:
                 throw new Error("Unrecognized status: " + status);
@@ -82,7 +86,48 @@ export default class ProductService {
     /**
      * @param {ProductDocument} product
      */
-    static async deactivateProduct(product) {
+    static async markSoldProduct(product) {
+        // cancel active items, if any, and adjust remaining
+        const items = await this.cancelActiveItemsAndAdjustRemaining(product);
+
+        await this.setProductStatus(product, "sold", {
+            scheduledFor: null,
+            remainingQuantity: 0,
+        });
+
+        return items;
+    }
+
+    /**
+     * @param {ProductDocument} product
+     */
+    static async archiveProduct(product) {
+        // cancel active items, if any, and adjust remaining
+        const items = await this.cancelActiveItemsAndAdjustRemaining(product);
+
+        await this.setProductStatus(product, "archived", {
+            scheduledFor: null,
+        });
+
+        return items;
+    }
+
+    /**
+     * @param {ProductDocument} product
+     */
+    static async deactivateProduct(product, extra = {}) {
+        // cancel active items, if any, and adjust remaining
+        const items = await this.cancelActiveItemsAndAdjustRemaining(product);
+
+        await this.setProductStatus(product, "inactive", extra);
+
+        return items;
+    }
+
+    /**
+     * @param {ProductDocument} product
+     */
+    static async cancelActiveItemsAndAdjustRemaining(product) {
         // get refund quantity amount
         const toCancel = await this.getActiveProductItems(product);
 
@@ -97,9 +142,7 @@ export default class ProductService {
             await this.cancelActiveProductItems(product);
         }
 
-        await this.setProductStatus(product, "inactive", {
-            scheduledFor: null,
-        });
+        return toCancel;
     }
 
     static async cancelActiveProductItems(product) {

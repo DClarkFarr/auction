@@ -177,6 +177,8 @@ const actions: Record<ProductStatus, FC<ButtonWrapperBaseProps>> = {
                         1) Mark content as sold out.
                         <br />
                         2) Clear published items, if any.
+                        <br />
+                        3) Set remaining quantity to 0
                     </div>
                 </div>
             }

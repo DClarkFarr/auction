@@ -5,11 +5,12 @@ import CreateProductForm, {
     CreateProductFormState,
 } from "../../components/product/CreateProductForm";
 import { ReactNode, useMemo, useState } from "react";
-import { ProductStatus } from "../../types/Product";
+import { Product, ProductStatus } from "../../types/Product";
 import ProductList from "../../components/product/ProductList";
 import useProductsQuery from "../../hooks/admin/useProductsQuery";
 
 import EditIcon from "~icons/ic/round-mode-edit-outline";
+import ViewIcon from "~icons/ic/round-remove-red-eye";
 import { Link, useNavigate } from "react-router-dom";
 import { ProductStatusButtons } from "./ManageStatusBar";
 import { useProductStatus } from "../../hooks/admin/useProductQuery";
@@ -59,29 +60,11 @@ export default function ManageProducts() {
                         <ProductList
                             status={statusMap.active}
                             actions={({ product }) => (
-                                <div className="flex gap-x-3">
-                                    <div>
-                                        <Tooltip
-                                            style="dark"
-                                            content="Edit Product"
-                                        >
-                                            <Button
-                                                as={Link}
-                                                size="xs"
-                                                to={`/admin/products/${product.id_product}`}
-                                            >
-                                                <EditIcon />
-                                            </Button>
-                                        </Tooltip>
-                                    </div>
-                                    <div>
-                                        <ProductStatusButtons
-                                            minify
-                                            product={product}
-                                            onChangeStatus={onChangeStatus}
-                                        />
-                                    </div>
-                                </div>
+                                <ProductActions
+                                    product={product}
+                                    onChangeStatus={onChangeStatus}
+                                    edit
+                                />
                             )}
                         />
                     </>
@@ -93,7 +76,15 @@ export default function ManageProducts() {
                 status: ["archived"],
                 body: (
                     <>
-                        <ProductList status={statusMap.archived} />
+                        <ProductList
+                            status={statusMap.archived}
+                            actions={({ product }) => (
+                                <ProductActions
+                                    product={product}
+                                    onChangeStatus={onChangeStatus}
+                                />
+                            )}
+                        />
                     </>
                 ),
             },
@@ -102,7 +93,15 @@ export default function ManageProducts() {
                 key: "sold",
                 body: (
                     <>
-                        <ProductList status={statusMap.sold} />
+                        <ProductList
+                            status={statusMap.sold}
+                            actions={({ product }) => (
+                                <ProductActions
+                                    product={product}
+                                    onChangeStatus={onChangeStatus}
+                                />
+                            )}
+                        />
                     </>
                 ),
             },
@@ -142,6 +141,52 @@ export default function ManageProducts() {
                     );
                 })}
             </Tabs>
+        </div>
+    );
+}
+
+function ProductActions({
+    product,
+    onChangeStatus,
+    edit = false,
+}: {
+    onChangeStatus: (idProduct: number, status: ProductStatus) => Promise<void>;
+    edit?: boolean;
+    product: Product;
+}) {
+    return (
+        <div className="flex gap-x-3">
+            <div>
+                {edit && (
+                    <Tooltip style="dark" content="Edit Product">
+                        <Button
+                            as={Link}
+                            size="xs"
+                            to={`/admin/products/${product.id_product}`}
+                        >
+                            <EditIcon />
+                        </Button>
+                    </Tooltip>
+                )}
+                {!edit && (
+                    <Tooltip style="dark" content="View Product">
+                        <Button
+                            as={Link}
+                            size="xs"
+                            to={`/admin/products/${product.id_product}?mode=view`}
+                        >
+                            <ViewIcon />
+                        </Button>
+                    </Tooltip>
+                )}
+            </div>
+            <div>
+                <ProductStatusButtons
+                    minify
+                    product={product}
+                    onChangeStatus={onChangeStatus}
+                />
+            </div>
         </div>
     );
 }

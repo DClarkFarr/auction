@@ -11,7 +11,7 @@ export default function BigTextTooltip({
             trigger="hover"
             theme={{
                 arrow: {
-                    base: "absolute h-2 w-2 z-0 rotate-45 bg-gray-600 border border-gray-800 bg-gray-800",
+                    base: "absolute z-[90] h-2 w-2 z-0 rotate-45 bg-gray-600 border border-gray-800 bg-gray-800",
                 },
             }}
             content={
