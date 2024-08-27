@@ -1,8 +1,10 @@
+import { UpdateCategoryFormState } from "../components/category/UpdateCategoryForm";
 import { CreateProductFormState } from "../components/product/CreateProductForm";
 import { UpdateProductFormState } from "../components/product/UpdateProductForm";
 import { PaginatedResults } from "../types/Paginate";
 import {
     Category,
+    FullCategory,
     FullProduct,
     Image,
     Product,
@@ -28,6 +30,30 @@ export function isImageUploadSuccess(
 export default class AdminService {
     static getUsers() {
         return apiClient.get<User[]>("/admin/users").then((res) => res.data);
+    }
+
+    static getPaginatedCategories({ page }: { page: number }) {
+        return apiClient
+            .get<PaginatedResults<FullCategory>>("/admin/categories", {
+                params: { page },
+            })
+            .then((res) => res.data);
+    }
+
+    static getCategory(idCategory: number) {
+        return apiClient
+            .get<FullCategory>(`/admin/categories/${idCategory}`)
+            .then((res) => res.data);
+    }
+    static updateCategory(idCategory: number, data: UpdateCategoryFormState) {
+        return apiClient
+            .put<FullCategory>(`/admin/categories/${idCategory}`, data)
+            .then((res) => res.data);
+    }
+    static createCategory(data: UpdateCategoryFormState) {
+        return apiClient
+            .post<FullCategory>("/admin/categories", data)
+            .then((res) => res.data);
     }
 
     static getProduct(idProduct: number) {

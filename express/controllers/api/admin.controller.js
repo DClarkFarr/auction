@@ -9,6 +9,7 @@ import fs from "fs";
 import ProductModel from "../../models/ProductModel.js";
 import { toSlug } from "../../utils/slug.js";
 import ImageModel from "../../models/ImageModel.js";
+import CategoryService from "../../services/CategoryService.js";
 
 export default class AdminController extends BaseController {
     base = "/admin";
@@ -23,6 +24,12 @@ export default class AdminController extends BaseController {
             hasAccessLevel("admin"),
         ];
         this.router.get("/users", middleware, this.route(this.getUsers));
+
+        this.router.get(
+            "/categories",
+            middleware,
+            this.route(this.queryCategories)
+        );
 
         this.router.post(
             "/products",
@@ -95,6 +102,26 @@ export default class AdminController extends BaseController {
             middleware,
             this.route(this.deleteProductImage)
         );
+    }
+
+    async queryCategories(req, res) {
+        const page = req.query.page ? Number(req.query.page) : 1;
+        const limit = req.query.limit ? Number(req.query.limit) : 20;
+
+        try {
+            const results = await CategoryService.getPaginatedCategories({
+                page,
+                limit,
+                withImage: true,
+            });
+
+            res.json(results);
+        } catch (err) {
+            res.status(401).json({
+                message: "Error loading categories",
+                error: err.message,
+            });
+        }
     }
 
     async setProductStatus(req, res) {

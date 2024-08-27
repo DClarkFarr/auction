@@ -3,6 +3,8 @@ import { Sidebar } from "flowbite-react";
 import PieChart from "~icons/ic/baseline-pie-chart";
 import UsersIcon from "~icons/ic/outline-supervisor-account";
 import ProductsIcon from "~icons/ic/outline-shopping-basket";
+import CategoriesIcon from "~icons/ic/baseline-category";
+
 import { useLocation } from "react-router-dom";
 import { ComponentProps, FC, ReactNode } from "react";
 
@@ -66,6 +68,13 @@ export default function AdminSidebar({ fullWidth }: { fullWidth: boolean }) {
                         icon={ProductsIcon}
                     >
                         Products
+                    </SidebarItem>
+                    <SidebarItem
+                        currentPath={location.pathname}
+                        href="/admin/categories"
+                        icon={CategoriesIcon}
+                    >
+                        Categories
                     </SidebarItem>
                 </Sidebar.ItemGroup>
             </Sidebar.Items>

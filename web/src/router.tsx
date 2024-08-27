@@ -14,6 +14,7 @@ import ProductsPage from "./views/admin/ProductsPage";
 import UsersPage from "./views/admin/UsersPage";
 import UserSinglePage from "./views/admin/Users/UserSinglePage";
 import ProductSinglePage from "./views/admin/Products/ProductSinglePage";
+import CategoriesPage from "./views/admin/CategoriesPage";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
                         element: <ProductSinglePage />,
                     },
                 ],
+            },
+            {
+                path: "categories",
+                element: <CategoriesPage />,
             },
             {
                 path: "users",

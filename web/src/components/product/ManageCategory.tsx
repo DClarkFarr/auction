@@ -1,7 +1,7 @@
 import { Label, Spinner } from "flowbite-react";
 import { SelectInstance, SingleValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
-import useCategoriesQuery from "../../hooks/useCategoriesQuery";
+import useCategoriesQuery from "../../hooks/admin/usePaginatedCategoriesQuery";
 import { useEffect, useMemo, useRef } from "react";
 import { Category } from "../../types/Product";
 
