@@ -131,7 +131,7 @@ export default function SignupForm({ onSubmit, footer }: SignupFormProps) {
     }, []);
 
     return (
-        <div className="max-w-md">
+        <div className="max-w-full w-[450px]">
             <RecaptchaProvider>
                 <form
                     className="flex flex-col gap-4 bg-gray-100 p-6"

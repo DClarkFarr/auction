@@ -8,10 +8,32 @@
     }
 }
 
+html,
+body,
+#root,
+.layout {
+    min-height: 100vh;
+}
+
 .admin__product__images__grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
 }
 
 .animate-opacity {
     transition: opacity ease-out 0.3s;
+}
+
+.layout--home {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    .layout__header,
+    .layout__footer {
+        flex-shrink: 0;
+    }
+
+    .layout__main {
+        flex-grow: 1;
+    }
 }
