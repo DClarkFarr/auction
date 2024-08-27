@@ -43,7 +43,7 @@ export type Tag = {
     slug: string;
 };
 
-export type ImageResourceType = "product";
+export type ImageResourceType = "product" | "category";
 
 export type Image = {
     id_image: number;

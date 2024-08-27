@@ -141,6 +141,7 @@ enum ROLES {
 
 enum IMAGE_RESOURCE_TYPES {
     product
+    category
 }
 
 enum PRODUCT_STATUSES {
