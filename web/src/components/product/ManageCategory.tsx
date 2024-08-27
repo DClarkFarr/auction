@@ -38,12 +38,18 @@ export default function ManageCategory({
     const handleChange = (
         newValue: SingleValue<{ value: number; label: string }>
     ) => {
-        if (newValue) {
+        if (isLoading) {
+            return;
+        }
+        if (newValue && newValue.value !== category?.id_category) {
             onSelectCategory(newValue.value);
         }
     };
 
     const handleCreateCategory = (label: string) => {
+        if (isLoading) {
+            return;
+        }
         onCreateCategory(label);
     };
 

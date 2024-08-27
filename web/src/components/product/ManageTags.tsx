@@ -39,7 +39,6 @@ export default function ManageTags({
         newValue: MultiValue<{ value: number; label: string }>
     ) => {
         if (newValue) {
-            console.log("new value", newValue);
             onSelectTag(newValue.map((v) => v.value));
         }
     };
@@ -50,7 +49,6 @@ export default function ManageTags({
 
     useEffect(() => {
         if (defaultValue && ref.current) {
-            console.log("new value", defaultValue);
             if (defaultValue.length !== ref.current.getValue().length) {
                 ref.current.setValue(defaultValue, "deselect-option");
             }
