@@ -10,6 +10,7 @@ import ProductModel from "../../models/ProductModel.js";
 import { toSlug } from "../../utils/slug.js";
 import ImageModel from "../../models/ImageModel.js";
 import CategoryService from "../../services/CategoryService.js";
+import CategoryModel from "../../models/CategoryModel.js";
 
 export default class AdminController extends BaseController {
     base = "/admin";
@@ -29,6 +30,23 @@ export default class AdminController extends BaseController {
             "/categories",
             middleware,
             this.route(this.queryCategories)
+        );
+
+        this.router.put(
+            "/categories/:id",
+            middleware,
+            this.route(this.updateCategory)
+        );
+
+        this.router.post(
+            "/categories/:id/image",
+            middleware,
+            this.route(this.uploadCategoryImage)
+        );
+        this.router.delete(
+            "/categories/:id/image",
+            middleware,
+            this.route(this.deleteCategoryImage)
         );
 
         this.router.post(
@@ -104,6 +122,73 @@ export default class AdminController extends BaseController {
         );
     }
 
+    async deleteCategoryImage(req, res) {
+        const idCategory = Number(req.params.id);
+
+        if (isNaN(idCategory)) {
+            return res.status(400).json({ message: "Invalid category id" });
+        }
+
+        try {
+            const category = await CategoryService.deleteCategoryImage(
+                idCategory
+            );
+
+            res.json(category);
+        } catch (err) {
+            console.warn("error deleting category image", err);
+            res.status(400).json({ message: err.message });
+        }
+    }
+    async uploadCategoryImage(req, res) {
+        upload.single("file")(req, res, async (err) => {
+            if (err) {
+                return res.status(400).json({ message: err.message });
+            }
+
+            const file = req.file;
+
+            if (!file) {
+                return res.status(400).json({ message: "File not uploaded" });
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+                return res.status(400).json({ message: "File too large" });
+            }
+
+            const idCategory = Number(req.params.id);
+
+            if (isNaN(idCategory)) {
+                return res.status(400).json({ message: "Invalid category ID" });
+            }
+
+            const imageModel = new ImageModel();
+            const categoryModel = new CategoryModel();
+
+            const category = await categoryModel.table.findFirst({
+                where: { id_category: idCategory },
+            });
+
+            const toFilename = toSlug(category.label) + "--" + file.filename;
+
+            fs.renameSync(
+                file.destination + file.filename,
+                file.destination + toFilename
+            );
+
+            const image = await imageModel.create({
+                resourceId: category.id_category,
+                resourceType: "category",
+                path: toFilename,
+                alt: `${category.label} -- Image`,
+            });
+
+            category.image = image;
+
+            res.json(category);
+        });
+    }
+
     async queryCategories(req, res) {
         const page = req.query.page ? Number(req.query.page) : 1;
         const limit = req.query.limit ? Number(req.query.limit) : 20;
@@ -117,10 +202,33 @@ export default class AdminController extends BaseController {
 
             res.json(results);
         } catch (err) {
+            console.warn("error paginating categories", err);
             res.status(401).json({
                 message: "Error loading categories",
                 error: err.message,
             });
+        }
+    }
+
+    async updateCategory(req, res) {
+        const id = Number(req.params.id);
+
+        if (isNaN(id)) {
+            return res.status(400).json({ message: "Category ID is required" });
+        }
+
+        const label = req.body.label;
+
+        try {
+            const category = await CategoryService.updateCategory(id, {
+                label,
+            });
+
+            res.json(category);
+        } catch (err) {
+            console.warn("caught error updating category", err);
+
+            res.status(400).json({ message: err.message });
         }
     }
 
@@ -221,7 +329,7 @@ export default class AdminController extends BaseController {
                         uploads.push({
                             status: true,
                             id: ids[i],
-                            image: { ...image, path: "/uploads/" + image.path },
+                            image,
                         });
                     }
                 })

@@ -20,7 +20,7 @@ export default function FormModal<D>({
                     heading
                 )}
             </Modal.Header>
-            <Modal.Body className="p-0">
+            <Modal.Body className="p-0 rounded-b-lg">
                 <Form
                     onSubmit={props.onAccept}
                     onCancel={props.onCancel}

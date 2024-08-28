@@ -10,6 +10,7 @@ import {
 } from "react";
 import Pagination from "../controls/Pagination";
 import usePaginatedCategoriesQuery from "../../hooks/admin/usePaginatedCategoriesQuery";
+import { uploadedAsset } from "../../utils/asset";
 
 type Data = PaginatedResults<FullCategory>;
 type ActionsProp =
@@ -71,8 +72,11 @@ function CategoryListTable({
                                     <img
                                         className="max-w-[100px]"
                                         src={
-                                            category.image?.path ||
-                                            "https://placehold.co/200x120"
+                                            category.image?.path
+                                                ? uploadedAsset(
+                                                      category.image.path
+                                                  )
+                                                : "https://placehold.co/200x120"
                                         }
                                     />
                                 </Table.Cell>

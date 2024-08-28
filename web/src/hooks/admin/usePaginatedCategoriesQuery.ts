@@ -9,8 +9,6 @@ import AdminService from "../../services/AdminService";
 export default function usePaginatedCategoriesQuery(page: number) {
     const queryClient = useQueryClient();
 
-    console.log("paginated query with", page);
-
     const {
         data: pagination,
         isLoading,

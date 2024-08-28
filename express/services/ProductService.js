@@ -481,11 +481,7 @@ export default class ProductService {
     }
 
     static async applyProductImages(product) {
-        product.images = (await this.getProductImages(product.id_product)).map(
-            (image) => {
-                return { ...image, path: "/uploads/" + image.path };
-            }
-        );
+        product.images = await this.getProductImages(product.id_product);
     }
 
     static applyProductCategories(product) {

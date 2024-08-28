@@ -7,6 +7,29 @@ import { useMemo } from "react";
 export function useUpdateCategory() {
     const queryClient = useQueryClient();
 
+    const refresh = <C extends Category>(category: C) => {
+        if (category) {
+            queryClient.setQueryData(
+                ["category", category.id_category],
+                category
+            );
+        } else {
+            queryClient.invalidateQueries({
+                queryKey: ["category"],
+                exact: false,
+            });
+        }
+        queryClient.invalidateQueries({
+            queryKey: ["categories"],
+            exact: false,
+        });
+
+        queryClient.invalidateQueries({
+            queryKey: ["paginatedCategories"],
+            exact: false,
+        });
+    };
+
     const { mutateAsync: mutateUpdate } = useMutation({
         mutationFn: ({
             idCategory,
@@ -18,21 +41,14 @@ export function useUpdateCategory() {
             return AdminService.updateCategory(idCategory, data);
         },
         onSuccess: (category) => {
-            queryClient.setQueryData(
-                ["category", category.id_category],
-                category
-            );
-            queryClient.invalidateQueries({
-                queryKey: ["categories"],
-                exact: false,
-            });
+            refresh(category);
         },
     });
 
     const update = (idCategory: number, data: UpdateCategoryFormState) =>
         mutateUpdate({ idCategory, data });
 
-    return { update };
+    return { update, refresh };
 }
 export function useCreateCategory() {
     const queryClient = useQueryClient();

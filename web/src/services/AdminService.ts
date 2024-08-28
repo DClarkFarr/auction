@@ -50,6 +50,19 @@ export default class AdminService {
             .put<FullCategory>(`/admin/categories/${idCategory}`, data)
             .then((res) => res.data);
     }
+    static uploadCategoryImage(idCategory: number, file: File) {
+        const fd = new FormData();
+        fd.append("file", file);
+        return apiClient
+            .post<FullCategory>(`/admin/categories/${idCategory}/image`, fd)
+            .then((res) => res.data);
+    }
+    static deleteCategoryImage(idCategory: number) {
+        return apiClient
+            .delete<FullCategory>(`/admin/categories/${idCategory}/image`)
+            .then((res) => res.data);
+    }
+
     static createCategory(data: UpdateCategoryFormState) {
         return apiClient
             .post<FullCategory>("/admin/categories", data)

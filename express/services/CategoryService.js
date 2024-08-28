@@ -7,6 +7,31 @@ import ImageModel from "../models/ImageModel.js";
  * @typedef {import("../models/CategoryModel.js").CategoryDocument} CategoryDocument
  */
 export default class CategoryService {
+    static async deleteCategoryImage(idCategory) {
+        const categoryModel = new CategoryModel();
+        const imageModel = new ImageModel();
+
+        const category = await categoryModel.table.findFirst({
+            where: {
+                id_category: idCategory,
+            },
+        });
+
+        if (!category) {
+            throw new Error("Category not found");
+        }
+
+        await imageModel.table.deleteMany({
+            where: {
+                resourceType: "category",
+                resourceId: category.id_category,
+            },
+        });
+
+        category.image = null;
+
+        return category;
+    }
     static async getCategories() {
         const categoryModel = new CategoryModel();
 
@@ -15,6 +40,20 @@ export default class CategoryService {
                 label: "asc",
             },
         });
+    }
+
+    /**
+     * @param {number} id
+     * @param {CategoryDocument} toSet
+     */
+    static async updateCategory(id, toSet) {
+        const categoryModel = new CategoryModel();
+
+        const category = await categoryModel.update(id, toSet);
+
+        await this.applyImageToCategory(category);
+
+        return category;
     }
 
     static async getTags() {
@@ -56,12 +95,25 @@ export default class CategoryService {
             if (!keyed[image.resourceId]) {
                 return;
             }
-            keyed[image.resourceId] = image;
+            keyed[image.resourceId].image = image;
         });
 
         return Object.values(keyed).sort((a, b) =>
             a.label.localeCompare(b.label)
         );
+    }
+
+    static async applyImageToCategory(category) {
+        const imageModel = new ImageModel();
+
+        const image = await imageModel.findByResource(
+            "category",
+            category.id_category
+        );
+
+        category.image = image || null;
+
+        return category;
     }
 
     static async getPaginatedCategories({ page, limit, withImage } = {}) {
