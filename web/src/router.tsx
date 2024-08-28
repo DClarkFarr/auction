@@ -15,6 +15,7 @@ import UsersPage from "./views/admin/UsersPage";
 import UserSinglePage from "./views/admin/Users/UserSinglePage";
 import ProductSinglePage from "./views/admin/Products/ProductSinglePage";
 import CategoriesPage from "./views/admin/CategoriesPage";
+import SettingsPage from "./views/admin/SettingsPage";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -87,6 +88,10 @@ const router = createBrowserRouter([
                         element: <UserSinglePage />,
                     },
                 ],
+            },
+            {
+                path: "settings",
+                element: <SettingsPage />,
             },
             {
                 path: "",
