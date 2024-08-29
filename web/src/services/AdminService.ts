@@ -96,7 +96,12 @@ export default class AdminService {
             .then((res) => res.data);
     }
 
-    static getProducts(data: { status: Product["status"][]; page: number }) {
+    static getProducts(data: {
+        status: Product["status"][];
+        page: number;
+        limit: number;
+        withImages?: boolean;
+    }) {
         return apiClient
             .get<PaginatedResults<WithCategory<Product>>>("/admin/products", {
                 params: data,

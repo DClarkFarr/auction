@@ -11,8 +11,11 @@ import { CreateProductFormState } from "../../components/product/CreateProductFo
 
 export default function useProductsQuery(
     status: Product["status"][],
-    page = 1
+    page = 1,
+    options: Partial<{ limit: number; withImages: boolean }> = {}
 ) {
+    const { limit = 20, withImages = false } = options;
+
     const queryClient = useQueryClient();
 
     const {
@@ -27,6 +30,8 @@ export default function useProductsQuery(
             return AdminService.getProducts({
                 status,
                 page,
+                limit,
+                withImages,
             });
         },
         placeholderData: keepPreviousData,
@@ -43,7 +48,12 @@ export default function useProductsQuery(
             queryClient.prefetchQuery({
                 queryKey: ["products", status, page + 1],
                 queryFn: () =>
-                    AdminService.getProducts({ status, page: page + 1 }),
+                    AdminService.getProducts({
+                        status,
+                        page: page + 1,
+                        limit,
+                        withImages,
+                    }),
             });
         }
     }, [pagination, isPlaceholderData, page, status, queryClient]);

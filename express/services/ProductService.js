@@ -440,6 +440,7 @@ export default class ProductService {
         status,
         page,
         limit,
+        withImages = false,
         withCategories = true,
     }) {
         const productModel = new ProductModel();
@@ -469,7 +470,13 @@ export default class ProductService {
             skip: page * limit - limit,
         });
 
-        rows.forEach((row) => this.applyProductCategories(row));
+        if (withCategories) {
+            rows.forEach((row) => this.applyProductCategories(row));
+        }
+
+        if (withImages) {
+            await Promise.all(rows.map((row) => this.applyProductImages(row)));
+        }
 
         return {
             limit,

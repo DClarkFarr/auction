@@ -505,13 +505,17 @@ export default class AdminController extends BaseController {
         const status = Array.isArray(req.query.status) ? req.query.status : [];
         const page = req.query.page ? Number(req.query.page) : 1;
         const limit = req.query.limit ? Number(req.query.limit) : 20;
+        const withImages = String(req.query.withImages) === "true";
+        const withCategories =
+            String(req.query.withCategories) === "false" ? false : true;
 
         try {
             const results = await ProductService.getPaginatedProducts({
                 status,
                 page,
                 limit,
-                withCategories: true,
+                withImages,
+                withCategories,
             });
 
             res.json(results);
