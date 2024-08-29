@@ -30,6 +30,7 @@ export default class SiteController extends BaseController {
 
         try {
             const setting = await SiteService.getSetting(key);
+
             res.json(setting);
         } catch (err) {
             console.warn("caught error getting site setting", err.message);
