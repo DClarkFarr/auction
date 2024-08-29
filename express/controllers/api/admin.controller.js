@@ -11,6 +11,7 @@ import { toSlug } from "../../utils/slug.js";
 import ImageModel from "../../models/ImageModel.js";
 import CategoryService from "../../services/CategoryService.js";
 import CategoryModel from "../../models/CategoryModel.js";
+import SiteService from "../../services/SiteService.js";
 
 export default class AdminController extends BaseController {
     base = "/admin";
@@ -120,6 +121,32 @@ export default class AdminController extends BaseController {
             middleware,
             this.route(this.deleteProductImage)
         );
+
+        this.router.put(
+            "/site/setting/:key",
+            middleware,
+            this.route(this.saveSiteSetting)
+        );
+    }
+
+    async saveSiteSetting(req, res) {
+        const key = String(req.params.key);
+        const value = req.body.value;
+
+        if (!key) {
+            return res.status(400).json({ message: "Key must be valid" });
+        }
+        if (!value || typeof value !== "object") {
+            return res.status(400).json({ message: "Value not valid" });
+        }
+
+        try {
+            const setting = await SiteService.saveSetting(key, value);
+            res.json(setting);
+        } catch (err) {
+            console.warn("error saving site setting", err.message);
+            res.status(400).json({ message: err.message });
+        }
     }
 
     async deleteCategoryImage(req, res) {

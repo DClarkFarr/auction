@@ -161,4 +161,8 @@ export default class AdminService {
             .delete(`/admin/products/${idProduct}/images/${idImage}`)
             .then(() => {});
     }
+
+    static saveSetting(key: string, value: object) {
+        return apiClient.post(`/admin/site/setting/${key}`, { value });
+    }
 }

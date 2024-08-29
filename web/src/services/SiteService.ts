@@ -10,4 +10,14 @@ export default class SiteService {
             .get<Category[]>("/site/categories")
             .then((res) => res.data);
     }
+
+    static async getSetting<D>(key: string) {
+        return apiClient.get<D>(`/site/setting/${key}`).then((res) => res.data);
+    }
+
+    static async getSettings(keys: string[]) {
+        return apiClient
+            .get("/site/settings", { params: { keys } })
+            .then((res) => res.data);
+    }
 }

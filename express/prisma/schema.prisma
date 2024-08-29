@@ -128,6 +128,14 @@ model ProductCategories {
     @@index([productId])
 }
 
+model SiteSettings {
+    id    Int    @id @default(autoincrement())
+    key   String
+    value Json
+
+    @@unique([key])
+}
+
 model sessions {
     session_id String  @id @db.VarChar(128)
     expires    Int     @db.UnsignedInt

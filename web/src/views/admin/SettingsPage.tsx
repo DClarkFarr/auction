@@ -1,5 +1,6 @@
 import { Tabs } from "flowbite-react";
 import { ReactNode, useMemo, useState } from "react";
+import SettingsFeaturedProducts from "../../components/settings/FeaturedProducts";
 
 type SettingTabs = "featured-products" | "featured-categories";
 
@@ -18,7 +19,7 @@ export default function SettingsPage() {
             {
                 key: "featured-products",
                 title: "Featured Products",
-                body: <div>Select products</div>,
+                body: <SettingsFeaturedProducts />,
             },
             {
                 key: "featured-categories",
