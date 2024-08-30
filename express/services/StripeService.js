@@ -112,4 +112,63 @@ export default class StripeService {
 
         return setupIntent;
     }
+
+    static async getCustomerPaymentMethods(customerId) {
+        const stripe = this.getStripe();
+
+        const response = await stripe.customers.listPaymentMethods(customerId);
+
+        return response.data;
+    }
+
+    /**
+     * @param {UserDocument} user
+     */
+    static async getUserPaymentMethods(user) {
+        const customer = await this.findOrCreateCustomer(user);
+
+        return this.getCustomerPaymentMethods(customer.id);
+    }
+
+    /**
+     * @param {UserDocument} user
+     * @param {string} customerId
+     */
+    static async getCustomerPaymentMethod(user, customerId) {
+        const stripe = this.getStripe();
+
+        const stripeUser = await this.getStripeUser(user);
+
+        if (!stripeUser) {
+            throw new Error("Must create stripe user first");
+        }
+
+        if (!stripeUser.id_card) {
+            const methods = await this.getUserPaymentMethods(user);
+
+            if (methods?.length) {
+                await getPrisma().stripeUser.update({
+                    where: {
+                        id_stripe_user: stripUser.id_stripe_user,
+                    },
+                    data: {
+                        id_card: methods[0].id,
+                    },
+                });
+            }
+        }
+
+        return stripe.customers.retrievePaymentMethod(customerId);
+    }
+
+    /**
+     * @param {UserDocument} user
+     */
+    static async getUserDefaultPaymentMethod(user) {
+        const customer = await this.findOrCreateCustomer(user);
+
+        return this.getCustomerPaymentMethod(user, customer.id);
+    }
+
+    retrievePaymentMethod;
 }
