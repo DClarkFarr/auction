@@ -33,6 +33,9 @@ const data = {
         password: "",
         socket: "",
     },
+    stripe: {
+        secret: "[replace this]",
+    },
 };
 
 export default data;

@@ -11,6 +11,8 @@ const validatePassword = async (text, hash) =>
 /**
  * @typedef {import("@prisma/client").User} UserDocument
  * @typedef {import("@prisma/client").PrismaClient["user"]} UserTable
+ *
+ * @typedef {import("@prisma/client").StripeUser} StripeUserDocument
  */
 
 /**

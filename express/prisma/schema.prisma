@@ -16,7 +16,8 @@ model User {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    Bid Bid[]
+    Bid        Bid[]
+    stripeUser StripeUser?
 }
 
 model Product {
@@ -134,6 +135,16 @@ model SiteSettings {
     value Json
 
     @@unique([key])
+}
+
+model StripeUser {
+    id_stripe_user Int       @id @default(autoincrement())
+    id_user        Int       @unique
+    id_external    String
+    id_card        String?
+    createdAt      DateTime? @default(now())
+
+    user User @relation(fields: [id_user], references: [id])
 }
 
 model sessions {

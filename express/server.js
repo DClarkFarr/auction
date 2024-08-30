@@ -21,6 +21,7 @@ createEnvironment({
     DB_SOCKET: process.env.DB_SOCKET,
     JWT_SECRET: process.env.JWT_SECRET,
     SESSION_SECRET: process.env.SESSION_SECRET,
+    STRIPE_SECRET: process.env.STRIPE_SECRET_KEY,
 })
     .then(() => app.configureExpress())
     .then(() => {
