@@ -1,11 +1,66 @@
 import { Avatar, Dropdown, Navbar } from "flowbite-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import useUserStore, { useUserInitials } from "../../stores/useUserStore";
+import { useMemo } from "react";
 
+const homeRoutes = {
+    home: {
+        to: "/",
+        exact: true,
+    },
+    shop: {
+        to: "/shop",
+        exact: false,
+    },
+    categories: {
+        to: "/categories",
+        exact: false,
+    },
+    login: {
+        to: "/login",
+        exact: true,
+    },
+    signUp: {
+        to: "/sign-up",
+        exact: true,
+    },
+};
 export default function HomeHeader() {
     const { user, logout } = useUserStore();
 
     const userInitials = useUserInitials();
+
+    const location = useLocation();
+
+    const activeRouteName = useMemo(() => {
+        const matched = Object.entries(homeRoutes)
+            .map(([key, obj]) => {
+                return { ...obj, key };
+            })
+            .filter((obj) => location.pathname.startsWith(obj.to));
+
+        const fullMatched = matched.find((m) => m.to === location.pathname);
+
+        if (fullMatched) {
+            return fullMatched.key;
+        }
+
+        const exact = matched.find(
+            (m) => m.exact && m.to === location.pathname
+        );
+
+        if (exact) {
+            return exact.key;
+        }
+
+        const unexact = matched.find((obj) => !obj.exact);
+
+        if (unexact?.to && !unexact.exact) {
+            return unexact.key;
+        }
+
+        return null;
+    }, [location]);
 
     const onClickLogout = async () => {
         await logout();
@@ -14,7 +69,7 @@ export default function HomeHeader() {
     return (
         <div className="container">
             <Navbar>
-                <Navbar.Brand as={Link} href="/">
+                <Navbar.Brand as={Link} to={homeRoutes.home.to}>
                     <img
                         src="https://placehold.co/150x80"
                         className="mr-3 h-6 sm:h-9"
@@ -59,19 +114,33 @@ export default function HomeHeader() {
                     <Navbar.Toggle />
                 </div>
                 <Navbar.Collapse className="md:mr-4">
-                    <Navbar.Link href="#" active>
-                        Home
+                    <Navbar.Link as="span" active={activeRouteName === "home"}>
+                        <Link to={homeRoutes.home.to}>Home</Link>
                     </Navbar.Link>
-                    <Navbar.Link href="#">About</Navbar.Link>
-                    <Navbar.Link href="#">Services</Navbar.Link>
-                    <Navbar.Link href="#">Pricing</Navbar.Link>
-                    <Navbar.Link href="#">Contact</Navbar.Link>
+                    <Navbar.Link as="span" active={activeRouteName === "shop"}>
+                        <Link to={homeRoutes.shop.to}>Shop</Link>
+                    </Navbar.Link>
+                    <Navbar.Link
+                        as="span"
+                        active={activeRouteName === "categories"}
+                    >
+                        <Link to={homeRoutes.categories.to}>Categories</Link>
+                    </Navbar.Link>
                     {!user && (
                         <>
-                            <Navbar.Link className="ml-4" href="/login">
-                                Log in
+                            <Navbar.Link
+                                as="span"
+                                className="ml-4"
+                                active={activeRouteName === "login"}
+                            >
+                                <Link to={homeRoutes.login.to}>Log in</Link>
                             </Navbar.Link>
-                            <Navbar.Link href="/sign-up">Sign up</Navbar.Link>
+                            <Navbar.Link
+                                as="span"
+                                active={activeRouteName === "signup"}
+                            >
+                                <Link to={homeRoutes.signUp.to}>Sign up</Link>
+                            </Navbar.Link>
                         </>
                     )}
                 </Navbar.Collapse>
