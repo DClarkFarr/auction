@@ -12,6 +12,7 @@ import Select, { SelectInstance, SingleValue } from "react-select";
 import QuickInput from "../controls/QuickInput";
 import { uploadedAsset } from "../../utils/asset";
 import { useMutateSetting } from "../../hooks/admin/useMutateSetting";
+import Accordion from "../controls/Accordion";
 
 export default function SettingsFeaturedProducts() {
     return (
@@ -290,114 +291,129 @@ function ProductRow({
     }, [featuredProduct, products]);
 
     return (
-        <div>
-            <div className="product bg-slate-100 p-4">
-                <div className="product__header flex items-center gap-4">
-                    <div>
-                        <h2 className="text-xl">
-                            Product #{featuredProduct.order + 1}
-                        </h2>
+        <Accordion
+            initialOpen={true}
+            heading={
+                <Accordion.Heading className="bg-gray-300 p-1">
+                    <div className="product__header flex items-center gap-4 w-full">
+                        <div>
+                            <h2 className="text-xl">
+                                Product #{featuredProduct.order + 1}
+                            </h2>
+                        </div>
+                        <div className="ml-auto">
+                            <Button
+                                size="xs"
+                                color="failure"
+                                onClick={(e) => (
+                                    onRemove(featuredProduct),
+                                    e.preventDefault()
+                                )}
+                            >
+                                <TimesIcon />
+                            </Button>
+                        </div>
                     </div>
-                    <div className="ml-auto">
-                        <Button
-                            color="failure"
-                            onClick={() => onRemove(featuredProduct)}
-                        >
-                            <TimesIcon />
-                        </Button>
-                    </div>
-                </div>
-                <form
-                    className="flex w-full flex-col gap-4"
-                    onSubmit={handleSubmit}
-                >
-                    <input
-                        type="hidden"
-                        name="uuid"
-                        value={featuredProduct.uuid}
-                    />
-                    <div>
-                        <Label>Select Product</Label>
-                        <Select
-                            ref={selectRef}
-                            options={products}
-                            getOptionLabel={(p) => p.name}
-                            getOptionValue={(p) => String(p.id_product)}
-                            defaultValue={products.find(
-                                (p) =>
-                                    String(p.id_product) ===
-                                    String(id_product.value)
-                            )}
-                            onChange={handleProductSelect}
+                </Accordion.Heading>
+            }
+        >
+            <div>
+                <div className="product bg-slate-100 p-4">
+                    <form
+                        className="flex w-full flex-col gap-4"
+                        onSubmit={handleSubmit}
+                    >
+                        <input
+                            type="hidden"
+                            name="uuid"
+                            value={featuredProduct.uuid}
                         />
-                    </div>
+                        <div>
+                            <Label>Select Product</Label>
+                            <Select
+                                ref={selectRef}
+                                options={products}
+                                getOptionLabel={(p) => p.name}
+                                getOptionValue={(p) => String(p.id_product)}
+                                defaultValue={products.find(
+                                    (p) =>
+                                        String(p.id_product) ===
+                                        String(id_product.value)
+                                )}
+                                onChange={handleProductSelect}
+                            />
+                        </div>
 
-                    {!!id_product.value && (
-                        <>
-                            <div>
-                                <QuickInput
-                                    name="name"
-                                    label="Featured Product Title"
-                                    field={name}
-                                    isSubmitting={isSubmitting}
-                                    attrs={attrs}
-                                />
-                            </div>
+                        {!!id_product.value && (
+                            <>
+                                <div>
+                                    <QuickInput
+                                        name="name"
+                                        label="Featured Product Title"
+                                        field={name}
+                                        isSubmitting={isSubmitting}
+                                        attrs={attrs}
+                                    />
+                                </div>
 
-                            <div>
-                                <QuickInput
-                                    as={Textarea}
-                                    name="description"
-                                    label="Description"
-                                    field={description}
-                                    isSubmitting={isSubmitting}
-                                    attrs={attrs}
-                                    rows={8}
-                                />
-                            </div>
+                                <div>
+                                    <QuickInput
+                                        as={Textarea}
+                                        name="description"
+                                        label="Description"
+                                        field={description}
+                                        isSubmitting={isSubmitting}
+                                        attrs={attrs}
+                                        rows={8}
+                                    />
+                                </div>
 
-                            <div className="images-grid gap-4 grid grid-cols-4 auto-cols-max bg-gray-100 p-4 rounded">
-                                {selectedProduct?.images?.map((img) => {
-                                    const isSelected = img.path === image.value;
+                                <div className="images-grid gap-4 grid grid-cols-4 auto-cols-max bg-gray-100 p-4 rounded">
+                                    {selectedProduct?.images?.map((img) => {
+                                        const isSelected =
+                                            img.path === image.value;
 
-                                    return (
-                                        <div key={img.id_image}>
-                                            <div
-                                                onClick={() =>
-                                                    handleSelectImage(img.path)
-                                                }
-                                                className={`border-4 inline-flex cursor-pointer ${
-                                                    isSelected
-                                                        ? "border-purple-500"
-                                                        : "border-gray-100"
-                                                }`}
-                                            >
-                                                <img
-                                                    className="w-[150px] object-cover aspect-video"
-                                                    src={uploadedAsset(
-                                                        img.path
-                                                    )}
-                                                />
+                                        return (
+                                            <div key={img.id_image}>
+                                                <div
+                                                    onClick={() =>
+                                                        handleSelectImage(
+                                                            img.path
+                                                        )
+                                                    }
+                                                    className={`border-4 inline-flex cursor-pointer ${
+                                                        isSelected
+                                                            ? "border-purple-500"
+                                                            : "border-gray-100"
+                                                    }`}
+                                                >
+                                                    <img
+                                                        className="w-[150px] object-cover aspect-video"
+                                                        src={uploadedAsset(
+                                                            img.path
+                                                        )}
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </>
-                    )}
+                                        );
+                                    })}
+                                </div>
+                            </>
+                        )}
 
-                    <div>
-                        <Button
-                            type="submit"
-                            color="blue"
-                            disabled={!isValid || isSubmitting}
-                            isProcessing={isSubmitting}
-                        >
-                            Save
-                        </Button>
-                    </div>
-                </form>
+                        <div>
+                            <Button
+                                type="submit"
+                                color="blue"
+                                disabled={!isValid || isSubmitting}
+                                isProcessing={isSubmitting}
+                            >
+                                Save
+                            </Button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        </Accordion>
     );
 }
