@@ -122,7 +122,7 @@ export default class AdminController extends BaseController {
             this.route(this.deleteProductImage)
         );
 
-        this.router.put(
+        this.router.post(
             "/site/setting/:key",
             middleware,
             this.route(this.saveSiteSetting)

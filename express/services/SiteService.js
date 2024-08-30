@@ -15,6 +15,7 @@ export default class SiteService {
                 value,
             },
             create: {
+                key,
                 value,
             },
         });

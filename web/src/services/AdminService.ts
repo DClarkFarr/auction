@@ -168,6 +168,8 @@ export default class AdminService {
     }
 
     static saveSetting(key: string, value: object) {
-        return apiClient.post(`/admin/site/setting/${key}`, { value });
+        return apiClient
+            .post(`/admin/site/setting/${key}`, { value })
+            .then((res) => res.data);
     }
 }

@@ -12,7 +12,9 @@ export default class SiteService {
     }
 
     static async getSetting<D>(key: string) {
-        return apiClient.get<D>(`/site/setting/${key}`).then((res) => res.data);
+        return apiClient
+            .get<{ value: D }>(`/site/setting/${key}`)
+            .then((res) => res.data.value);
     }
 
     static async getSettings(keys: string[]) {

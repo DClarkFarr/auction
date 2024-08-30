@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Label, Popover, TextInput, TextInputProps } from "flowbite-react";
 import { FormEvent, ReactNode } from "react";
 import QuestionIcon from "~icons/ic/baseline-contact-support";
 
-type QuickInputProps<Component> = {
+type BaseInputProps = {
     name: string;
     field: {
         focus: boolean;
@@ -11,14 +12,14 @@ type QuickInputProps<Component> = {
         error: string;
         value: string | number;
     };
-    as?: Component | ((props: QuickInputBoundProps) => ReactNode);
+
     isSubmitting: boolean;
     label?: string | ReactNode;
-    placeholder?: string;
     disabled?: boolean;
-    type?: TextInputProps["type"];
     tooltip?: string | ReactNode;
     showInitialError?: boolean;
+    placeholder?: string;
+    type?: TextInputProps["type"];
     attrs: Partial<{
         onChange: (e: FormEvent<HTMLInputElement>) => void;
         onInput: (e: FormEvent<HTMLInputElement>) => void;
@@ -27,17 +28,15 @@ type QuickInputProps<Component> = {
     }>;
 };
 
-type QuickInputBoundProps = {
-    id: string;
-    name: string;
-    type: TextInputProps["type"];
-    placeholder?: string;
-    disabled: TextInputProps["disabled"];
-    color: TextInputProps["color"];
-    value: TextInputProps["value"];
-    helperText: TextInputProps["helperText"];
-};
-export default function QuickInput<Component extends () => ReactNode>({
+type QuickInputProps<Component extends (props: BaseInputProps) => any> = Record<
+    string,
+    any
+> &
+    BaseInputProps & {
+        as?: Component | ((props: Parameters<Component>[0]) => ReactNode);
+    };
+
+export default function QuickInput<Component extends (args: any) => ReactNode>({
     as,
     isSubmitting,
     name,
@@ -49,6 +48,7 @@ export default function QuickInput<Component extends () => ReactNode>({
     tooltip,
     type = "text",
     showInitialError = true,
+    ...rest
 }: QuickInputProps<Component>) {
     const Component = as || TextInput;
 
@@ -103,6 +103,7 @@ export default function QuickInput<Component extends () => ReactNode>({
                     !field.focus && field.dirty && !field.valid && field.error
                 }
                 {...attrs}
+                {...rest}
             />
         </div>
     );

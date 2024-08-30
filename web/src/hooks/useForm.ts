@@ -42,8 +42,9 @@ export default function useForm<IS extends object>(config: {
     initialState: IS;
     validate: Validators<IS>;
     onSubmit: (data: IS) => Promise<void>;
+    resetOnSubmit?: boolean;
 }) {
-    const { initialState, validate, onSubmit } = config;
+    const { initialState, validate, onSubmit, resetOnSubmit = true } = config;
 
     const [form, setForm] = useState(initialState);
 
@@ -103,7 +104,10 @@ export default function useForm<IS extends object>(config: {
             try {
                 setIsSubmitting(true);
                 await onSubmit(form);
-                resetForm();
+
+                if (resetOnSubmit) {
+                    resetForm();
+                }
             } catch (e) {
                 if (e instanceof AxiosError) {
                     setErrorMessage(e.response?.data?.message || e.message);
@@ -176,6 +180,7 @@ export default function useForm<IS extends object>(config: {
             e: FormEvent<T>
         ) => {
             const target = e.currentTarget;
+
             setField(target.name as keyof IS, { focus: true });
         },
         []
@@ -186,6 +191,7 @@ export default function useForm<IS extends object>(config: {
             e: FormEvent<T>
         ) => {
             const target = e.currentTarget;
+
             setField(target.name as keyof IS, { focus: false });
         },
         []
