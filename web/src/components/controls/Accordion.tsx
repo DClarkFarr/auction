@@ -12,6 +12,7 @@ type AccordionSlot =
 export type AccordionProps = React.PropsWithChildren<{
     heading: AccordionSlot;
     initialOpen?: boolean;
+    locked?: boolean;
 }>;
 
 export type AccordionHeadingProps = React.PropsWithChildren<{
@@ -34,7 +35,7 @@ function AccordionHeading({
     className,
     style,
 }: AccordionHeadingProps) {
-    const { isOpen, setOpen } = useAccordionContext();
+    const { isOpen, setOpen, locked } = useAccordionContext();
 
     return (
         <div
@@ -43,9 +44,11 @@ function AccordionHeading({
             }
             style={style}
         >
-            {typeof icon === "function" ? icon({ isOpen, setOpen }) : icon}
+            {typeof icon === "function"
+                ? icon({ isOpen, setOpen, locked })
+                : icon}
             <div
-                onClick={() => setOpen(!isOpen)}
+                onClick={() => !locked && setOpen(!isOpen)}
                 className="cursor-pointer w-full"
             >
                 <h3 className="text-lg font-semibold">{children}</h3>
@@ -58,14 +61,14 @@ function AccordionDrawer({
     heading,
     children,
 }: Omit<AccordionProps, "initialOpen">) {
-    const { isOpen, setOpen } = useAccordionContext();
+    const { isOpen, setOpen, locked } = useAccordionContext();
 
     return (
         <div className="accordion">
             {typeof heading === "string" ? (
                 <AccordionHeading>{heading}</AccordionHeading>
             ) : typeof heading === "function" ? (
-                heading({ isOpen, setOpen })
+                heading({ isOpen, setOpen, locked })
             ) : (
                 heading
             )}
@@ -78,6 +81,7 @@ function AccordionDrawer({
 function AccordionProvider({
     children,
     initialOpen,
+    locked,
 }: Omit<AccordionProps, "heading">) {
     const [isOpen, setOpen] = useState(initialOpen || false);
 
@@ -85,16 +89,29 @@ function AccordionProvider({
         setOpen(initialOpen || false);
     }, [initialOpen]);
 
+    useEffect(() => {
+        if (locked) {
+            setOpen(initialOpen || false);
+        }
+    }, [locked, initialOpen]);
+
     return (
-        <AccordionContext.Provider value={{ isOpen, setOpen }}>
+        <AccordionContext.Provider
+            value={{ isOpen, setOpen, locked: locked || false }}
+        >
             {children}
         </AccordionContext.Provider>
     );
 }
 
-function AccordionMain({ children, initialOpen, heading }: AccordionProps) {
+function AccordionMain({
+    children,
+    initialOpen,
+    heading,
+    locked,
+}: AccordionProps) {
     return (
-        <AccordionProvider initialOpen={initialOpen}>
+        <AccordionProvider initialOpen={initialOpen} locked={locked}>
             <AccordionDrawer heading={heading}>{children}</AccordionDrawer>
         </AccordionProvider>
     );

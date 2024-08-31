@@ -13,14 +13,10 @@ import QuickInput from "../controls/QuickInput";
 import { uploadedAsset } from "../../utils/asset";
 import { useMutateSetting } from "../../hooks/admin/useMutateSetting";
 import Accordion from "../controls/Accordion";
+import { ToggleSwitch } from "flowbite-react";
+import ReorderList from "../controls/ReorderList";
 
-export default function SettingsFeaturedProducts() {
-    return (
-        <ScopedSetting setting="featuredProducts">
-            <ManageFeaturedProducts />
-        </ScopedSetting>
-    );
-}
+type ProductForm = Omit<FeaturedProduct, "order">;
 
 const defaultFeaturedProducts: FeaturedProduct[] = [];
 
@@ -79,6 +75,7 @@ function validateFeaturedProduct(fp: ProductForm) {
 }
 
 function ManageFeaturedProducts() {
+    const [reorder, setReorder] = useState(false);
     const { setting, isLoading, isSuccess, error } =
         useSettingContext<"featuredProducts">();
 
@@ -134,6 +131,12 @@ function ManageFeaturedProducts() {
 
         setFeaturedProducts((prev) => [...prev, toAdd]);
     };
+
+    const handleReorder = (fp: FeaturedProduct[]) => {
+        setFeaturedProducts(fp);
+        saveSetting(fp);
+    };
+
     if (isLoading) {
         return (
             <div className="p-6">
@@ -161,15 +164,36 @@ function ManageFeaturedProducts() {
                         <Alert color="info">No Featured Products yet.</Alert>
                     </>
                 )}
-                {featuredProducts.map((p) => (
-                    <ProductRow
-                        products={products}
-                        featuredProduct={p}
-                        key={p.uuid}
-                        onSave={handleSaveProduct}
-                        onRemove={handleRemoveProduct}
-                    />
-                ))}
+                {featuredProducts.length && (
+                    <div className="flex justify-end">
+                        <ToggleSwitch
+                            checked={reorder}
+                            label={reorder ? "Reorder on" : "reorder off"}
+                            onChange={() => setReorder(!reorder)}
+                        />
+                    </div>
+                )}
+                {
+                    <ReorderList
+                        active={reorder}
+                        getKey={(v) => v.uuid}
+                        rows={featuredProducts}
+                        onChange={handleReorder}
+                    >
+                        {featuredProducts.map((fp) => {
+                            return (
+                                <ProductRow
+                                    products={products}
+                                    featuredProduct={fp}
+                                    key={fp.uuid}
+                                    open={!reorder}
+                                    onSave={handleSaveProduct}
+                                    onRemove={handleRemoveProduct}
+                                />
+                            );
+                        })}
+                    </ReorderList>
+                }
             </div>
             <div>
                 <Button onClick={onAddProduct}>Add Product</Button>
@@ -178,14 +202,22 @@ function ManageFeaturedProducts() {
     );
 }
 
-type ProductForm = Omit<FeaturedProduct, "order">;
+export default function SettingsFeaturedProducts() {
+    return (
+        <ScopedSetting setting="featuredProducts">
+            <ManageFeaturedProducts />
+        </ScopedSetting>
+    );
+}
 
 function ProductRow({
     products,
     featuredProduct,
+    open,
     onSave,
     onRemove,
 }: {
+    open?: boolean;
     products: WithCategory<WithImages<Product>>[];
     featuredProduct: FeaturedProduct;
     onSave: (featuredProduct: FeaturedProduct) => Promise<void>;
@@ -292,7 +324,8 @@ function ProductRow({
 
     return (
         <Accordion
-            initialOpen={true}
+            initialOpen={open}
+            locked={!open}
             heading={
                 <Accordion.Heading className="bg-gray-300 p-1">
                     <div className="product__header flex items-center gap-4 w-full">
