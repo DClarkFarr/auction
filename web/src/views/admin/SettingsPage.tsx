@@ -1,13 +1,16 @@
 import { Tabs } from "flowbite-react";
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useMemo } from "react";
 import SettingsFeaturedProducts from "../../components/settings/FeaturedProducts";
 import SettingsFeaturedCategories from "../../components/settings/FeaturedCategories";
+import { useSearchParams } from "react-router-dom";
 
 type SettingTabs = "featured-products" | "featured-categories";
 
 export default function SettingsPage() {
-    const [activeTab, setActiveTab] =
-        useState<SettingTabs>("featured-products");
+    const [search, setSearch] = useSearchParams();
+
+    const activeTab: SettingTabs =
+        (search.get("tab") as SettingTabs) || "featured-products";
 
     const tabs = useMemo<
         {
@@ -35,14 +38,19 @@ export default function SettingsPage() {
             <div>
                 <h1 className="text-2xl font-semibol mb-8">Site Config</h1>
 
-                <Tabs aria-label="Product Tabs" variant="default">
+                <Tabs
+                    aria-label="Product Tabs"
+                    variant="default"
+                    onActiveTabChange={(index) => {
+                        setSearch({ tab: tabs[index].key });
+                    }}
+                >
                     {tabs.map((tab) => {
                         return (
                             <Tabs.Item
                                 key={tab.key}
                                 active={tab.key === activeTab}
                                 title={tab.title}
-                                onClick={() => setActiveTab(tab.key)}
                             >
                                 {tab.body}
                             </Tabs.Item>

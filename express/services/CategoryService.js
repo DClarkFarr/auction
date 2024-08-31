@@ -32,14 +32,20 @@ export default class CategoryService {
 
         return category;
     }
-    static async getCategories() {
+    static async getCategories({ withImages = false }) {
         const categoryModel = new CategoryModel();
 
-        return categoryModel.table.findMany({
+        let categories = await categoryModel.table.findMany({
             orderBy: {
                 label: "asc",
             },
         });
+
+        if (!withImages) {
+            categories = await this.applyImageToCategories(categories);
+        }
+
+        return categories;
     }
 
     /**

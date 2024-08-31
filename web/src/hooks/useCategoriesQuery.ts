@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import SiteService from "../services/SiteService";
 
-export default function useCategoriesQuery() {
+export default function useCategoriesQuery<I extends boolean>(withImage: I) {
     const {
         data: categories,
         isLoading,
@@ -9,7 +9,7 @@ export default function useCategoriesQuery() {
         error,
     } = useQuery({
         queryKey: ["categories"],
-        queryFn: () => SiteService.getCategories(),
+        queryFn: () => SiteService.getCategories({ withImage }),
     });
 
     return {
