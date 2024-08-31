@@ -9,6 +9,7 @@ import UserError from "../../errors/UserError.js";
 import { hasUser } from "../../middleware/auth.middleware.js";
 import UserModel from "../../models/UserModel.js";
 import { hasRecaptcha } from "../../middleware/recaptcha.middleware.js";
+import StripeService from "../../services/StripeService.js";
 
 class UserController extends BaseController {
     base = "/user";
@@ -48,9 +49,17 @@ class UserController extends BaseController {
     }
 
     async getUser(req, res) {
-        const user = req.user;
+        try {
+            const user = req.user;
 
-        return res.json(user);
+            const paymentMethod =
+                await StripeService.getUserDefaultPaymentMethod(user);
+
+            res.json({ user, paymentMethod });
+        } catch (err) {
+            console.warn("Error getting session user", err);
+            res.status(400).json({ message: "Error getting session user" });
+        }
     }
 
     async userLogout(req, res) {
@@ -91,13 +100,22 @@ class UserController extends BaseController {
             });
         }
 
-        session.user = userModel.toObject(user);
+        try {
+            session.user = userModel.toObject(user);
 
-        res.json({
-            user: userModel.toObject(user),
-            status: "success",
-            message: "You've been successfully logged in",
-        });
+            const paymentMethod =
+                await StripeService.getUserDefaultPaymentMethod(user);
+
+            res.json({
+                user: userModel.toObject(user),
+                paymentMethod,
+                status: "success",
+                message: "You've been successfully logged in",
+            });
+        } catch (err) {
+            console.warn("Error logging user in: ", err.message);
+            res.status(400).json({ message: "Error logging user in" });
+        }
     }
 
     async userRegister(req, res) {

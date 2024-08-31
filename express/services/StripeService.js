@@ -118,7 +118,7 @@ export default class StripeService {
 
         const response = await stripe.customers.listPaymentMethods(customerId);
 
-        return response.data;
+        return response.data.map((pm) => this.paymentMethodToObject(pm));
     }
 
     /**
@@ -147,18 +147,28 @@ export default class StripeService {
             const methods = await this.getUserPaymentMethods(user);
 
             if (methods?.length) {
+                stripeUser.id_card = methods[0].id;
                 await getPrisma().stripeUser.update({
                     where: {
-                        id_stripe_user: stripUser.id_stripe_user,
+                        id_stripe_user: stripeUser.id_stripe_user,
                     },
                     data: {
-                        id_card: methods[0].id,
+                        id_card: stripeUser.id_card,
                     },
                 });
             }
         }
 
-        return stripe.customers.retrievePaymentMethod(customerId);
+        if (!stripeUser.id_card) {
+            return null;
+        }
+
+        const pm = await stripe.customers.retrievePaymentMethod(
+            customerId,
+            stripeUser.id_card
+        );
+
+        return this.paymentMethodToObject(pm);
     }
 
     /**
@@ -168,5 +178,61 @@ export default class StripeService {
         const customer = await this.findOrCreateCustomer(user);
 
         return this.getCustomerPaymentMethod(user, customer.id);
+    }
+
+    /**
+     *
+     * @param {UserDocument} user
+     * @param {string} paymentMethodId
+     */
+    static async savePaymentMethod(user, paymentMethodId) {
+        const stripeUser = await this.getStripeUser(user);
+        if (!stripeUser) {
+            throw new Error("Save payment method: Stripe user not found");
+        }
+
+        const stripe = this.getStripe();
+
+        const paymentMethod = await stripe.paymentMethods.attach(
+            paymentMethodId,
+            {
+                customer: stripeUser.id_external,
+            }
+        );
+
+        await getPrisma().stripeUser.update({
+            where: {
+                id_stripe_user: stripeUser.id_stripe_user,
+            },
+            data: {
+                id_card: paymentMethod.id,
+            },
+        });
+
+        return this.paymentMethodToObject(paymentMethod);
+    }
+
+    /**
+     * @param {Stripe.PaymentMethod} paymentMethod
+     */
+    static paymentMethodToObject(paymentMethod) {
+        if (!paymentMethod) {
+            return false;
+        }
+
+        if (paymentMethod.type === "card") {
+            const { display_brand, exp_month, exp_year, last4 } =
+                paymentMethod.card;
+
+            return {
+                display_brand,
+                exp_month,
+                exp_year,
+                last4,
+                id: paymentMethod.id,
+            };
+        }
+
+        throw new Error("Unrecognized payment type: " + paymentMethod.type);
     }
 }

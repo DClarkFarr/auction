@@ -19,6 +19,29 @@ export default class StripeController extends BaseController {
             middleware,
             this.route(this.createSetupIntent)
         );
+
+        this.router.post(
+            "/payment-method",
+            middleware,
+            this.route(this.savePaymentMethod)
+        );
+    }
+
+    async savePaymentMethod(req, res) {
+        const paymentMethod = req.body.paymentMethod;
+        if (!paymentMethod || typeof paymentMethod !== "string") {
+            return res.status(400).json({ message: "Payment method required" });
+        }
+        try {
+            const pm = await StripeService.savePaymentMethod(
+                req.user,
+                paymentMethod
+            );
+            res.json(pm);
+        } catch (err) {
+            console.warn("Error saving payment method", err);
+            res.status(400).json({ message: "Error saving payment method" });
+        }
     }
 
     async createSetupIntent(req, res) {

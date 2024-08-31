@@ -3,45 +3,24 @@ import {
     useElements,
     useStripe,
 } from "@stripe/react-stripe-js";
-import {
-    StripeElementStyle,
-    StripePaymentElement,
-    StripePaymentElementChangeEvent,
-} from "@stripe/stripe-js";
+import { StripePaymentElementChangeEvent } from "@stripe/stripe-js";
 import { Alert, Button, Label, Spinner } from "flowbite-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import useStripeSetupIntent from "../../hooks/useStripeSetupIntent";
 import { useStripeContext } from "../../providers/StripeProvider";
+import StripeService from "../../services/StripeService";
+import useUserStore from "../../stores/useUserStore";
 
-/**
- * Should be inside <StripeProvider>
- */
-
-const style: StripeElementStyle = {
-    base: {
-        iconColor: "#555",
-        color: "#555",
-        fontWeight: "500",
-        fontFamily: "Roboto, Open Sans, Segoe UI, sans-serif",
-        fontSize: "18px",
-        fontSmoothing: "antialiased",
-        padding: "12px",
-        ":-webkit-autofill": {
-            color: "#555",
-        },
-        "::placeholder": {
-            color: "#797979",
-        },
-    },
-    invalid: {
-        iconColor: "#991b1b",
-        color: "#991b1b",
-    },
-};
-export default function StripeCardForm() {
-    const [isSubmitting, setIsSubmitting] = useState(false);
+export default function StripeCardForm({
+    onSuccess,
+}: {
+    onSuccess?: () => void;
+}) {
     const [isReady, setIsReady] = useState(false);
     const [isValid, setIsValid] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const { setPaymentMethod } = useUserStore();
 
     const stripe = useStripe();
     const elements = useElements();
@@ -49,15 +28,11 @@ export default function StripeCardForm() {
     const { hasClientSecret, loadSetupIntent, isLoadingSetupIntent } =
         useStripeContext();
 
-    const onReady = (e: StripePaymentElement) => {
-        console.log("ready event was", e);
-
+    const onReady = (/*e: StripePaymentElement*/) => {
         setIsReady(true);
     };
 
     const onChange = (e: StripePaymentElementChangeEvent) => {
-        console.log("change event was", e);
-
         setIsValid(e.complete);
     };
 
@@ -77,20 +52,49 @@ export default function StripeCardForm() {
             return;
         }
 
-        const { setupIntent } = await stripe.confirmSetup({
-            //`Elements` instance that was used to create the Payment Element
-            elements,
-            confirmParams: {
-                return_url:
-                    window.location.origin +
-                    window.location.pathname +
-                    "?status=complete",
-            },
-            redirect: "if_required",
-        });
+        setIsSubmitting(true);
+        try {
+            const { setupIntent, error } = await stripe.confirmSetup({
+                //`Elements` instance that was used to create the Payment Element
+                elements,
+                confirmParams: {
+                    return_url:
+                        window.location.origin +
+                        window.location.pathname +
+                        "?status=complete",
+                },
+                redirect: "if_required",
+            });
 
-        if (setupIntent) {
-            const paymentMethod = setupIntent.payment_method;
+            if (error) {
+                console.error("Error saving intent", error);
+                setErrorMessage(
+                    error.message || "Payment information could not be saved"
+                );
+                return;
+            }
+
+            if (setupIntent && setupIntent.payment_method) {
+                const paymentMethod =
+                    typeof setupIntent.payment_method === "object"
+                        ? setupIntent.payment_method?.id
+                        : setupIntent.payment_method;
+
+                const pm = await StripeService.savePaymentMethod(paymentMethod);
+
+                setPaymentMethod(pm || null);
+            }
+            if (typeof onSuccess === "function") {
+                onSuccess();
+            }
+        } catch (err) {
+            console.warn("got error", err);
+            if (err instanceof Error) {
+                setErrorMessage(err.message);
+            }
+        } finally {
+            setIsSubmitting(false);
+            loadSetupIntent();
         }
     };
 
@@ -142,13 +146,21 @@ export default function StripeCardForm() {
                                 }}
                             />
                         </div>
+                        {errorMessage && (
+                            <Alert color="failure" className="mb-4">
+                                <div className="font-semibold">
+                                    Error saving payment method
+                                </div>
+                                <div>{errorMessage}</div>
+                            </Alert>
+                        )}
                         <div>
                             <Button
                                 size="sm"
                                 className="btn-block w-full text-center"
                                 type="submit"
-                                disabled={!isReady}
-                                isProcessing={!isReady}
+                                disabled={!isReady || isSubmitting}
+                                isProcessing={isSubmitting}
                             >
                                 Save Default Card
                             </Button>

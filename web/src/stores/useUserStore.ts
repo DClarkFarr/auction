@@ -5,10 +5,22 @@ import { RegisterPayload, User } from "../types/User";
 import UserService from "../services/UserService";
 import { AxiosError } from "axios";
 import { useEffect, useMemo } from "react";
+import StripeService from "../services/StripeService";
+
+export type PaymentMethod = {
+    id: string;
+    exp_year: number;
+    exp_month: number;
+    last4: string;
+    display_brand: string;
+};
 
 export type UserStore = {
     user: null | User;
+    paymentMethod: PaymentMethod | null;
     isLoading: boolean;
+    setPaymentMethod: (pm: PaymentMethod | null) => void;
+    getPaymentMethod: () => Promise<void>;
     login: (email: string, password: string) => Promise<void>;
     register: (data: RegisterPayload) => Promise<void>;
     logout: () => Promise<void>;
@@ -17,69 +29,87 @@ export type UserStore = {
 const useUserStore = create(
     persist<UserStore>(
         (set) => {
-            return {
-                user: null,
-                isLoading: false,
-                login: async (email: string, password: string) => {
-                    try {
-                        const user = await UserService.login(email, password);
-                        set({ user });
-                    } catch (err) {
-                        if (err instanceof AxiosError) {
-                            console.error(err.response?.data || err.message);
-                        }
-
-                        set({ user: null });
-
-                        throw err;
+            const login = async (email: string, password: string) => {
+                try {
+                    const { user, paymentMethod } = await UserService.login(
+                        email,
+                        password
+                    );
+                    set({ user, paymentMethod });
+                } catch (err) {
+                    if (err instanceof AxiosError) {
+                        console.error(err.response?.data || err.message);
                     }
-                },
-                register: async (data: RegisterPayload) => {
-                    try {
-                        const user = await UserService.register(data);
-                        set({ user });
-                    } catch (err) {
-                        if (err instanceof AxiosError) {
-                            console.error(err.response?.data || err.message);
-                        }
 
-                        set({ user: null });
-
-                        throw err;
-                    }
-                },
-                logout: async () => {
                     set({ user: null });
 
-                    try {
-                        await UserService.logout();
-                    } catch (err) {
-                        if (err instanceof AxiosError) {
-                            console.error(err.response?.data || err.message);
-                        }
-
-                        throw err;
+                    throw err;
+                }
+            };
+            const register = async (data: RegisterPayload) => {
+                try {
+                    const user = await UserService.register(data);
+                    set({ user });
+                } catch (err) {
+                    if (err instanceof AxiosError) {
+                        console.error(err.response?.data || err.message);
                     }
-                },
-                refresh: async () => {
-                    set({ isLoading: true });
 
-                    try {
-                        const user = await UserService.me();
-                        set({ user });
+                    set({ user: null });
 
-                        return user;
-                    } catch (err) {
-                        if (err instanceof AxiosError) {
-                            console.error(err.response?.data || err.message);
-                        }
-                        set({ user: null });
+                    throw err;
+                }
+            };
+            const logout = async () => {
+                set({ user: null, paymentMethod: null });
 
-                        return null;
-                    } finally {
-                        set({ isLoading: false });
+                try {
+                    await UserService.logout();
+                } catch (err) {
+                    if (err instanceof AxiosError) {
+                        console.error(err.response?.data || err.message);
                     }
-                },
+
+                    throw err;
+                }
+            };
+            const refresh = async () => {
+                set({ isLoading: true });
+
+                try {
+                    const { user, paymentMethod } = await UserService.me();
+                    set({ user, paymentMethod });
+
+                    return user;
+                } catch (err) {
+                    if (err instanceof AxiosError) {
+                        console.error(err.response?.data || err.message);
+                    }
+                    set({ user: null });
+
+                    return null;
+                } finally {
+                    set({ isLoading: false });
+                }
+            };
+            const setPaymentMethod = (paymentMethod: PaymentMethod | null) => {
+                set({ paymentMethod });
+            };
+            const getPaymentMethod = async () => {
+                const paymentMethod = await StripeService.getPaymentMethod();
+                set({ paymentMethod });
+            };
+
+            return {
+                user: null,
+                paymentMethod: null,
+                isLoading: false,
+                login,
+                register,
+                logout,
+                refresh,
+                setPaymentMethod,
+                getPaymentMethod,
             } satisfies UserStore;
         },
         {
