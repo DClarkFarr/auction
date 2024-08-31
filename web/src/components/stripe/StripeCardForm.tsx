@@ -77,7 +77,7 @@ export default function StripeCardForm() {
             return;
         }
 
-        const result = await stripe.confirmSetup({
+        const { setupIntent } = await stripe.confirmSetup({
             //`Elements` instance that was used to create the Payment Element
             elements,
             confirmParams: {
@@ -86,9 +86,12 @@ export default function StripeCardForm() {
                     window.location.pathname +
                     "?status=complete",
             },
+            redirect: "if_required",
         });
 
-        console.log("got result");
+        if (setupIntent) {
+            const paymentMethod = setupIntent.payment_method;
+        }
     };
 
     const isLoading = useMemo(() => {

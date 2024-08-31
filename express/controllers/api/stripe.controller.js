@@ -28,7 +28,7 @@ export default class StripeController extends BaseController {
             return res.json(setupIntent);
         } catch (err) {
             console.warn("error getting stripe customer", err);
-            res.status(400).json({ message: "Failed to get stripe customer " });
+            res.status(400).json({ message: "Error creating setup intent" });
         }
     }
 

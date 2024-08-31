@@ -27,7 +27,7 @@ export default class StripeService {
     static async getStripeUser(user) {
         const stripeUser = await getPrisma().stripeUser.findFirst({
             where: {
-                id_user: user.id_user,
+                id_user: user.id,
             },
         });
 
@@ -53,7 +53,6 @@ export default class StripeService {
         const { lastResponse, ...customer } = await stripe.customers.create({
             email: user.email,
             name: user.name,
-            source: user.id_user,
         });
 
         if (!stripeUser) {
@@ -90,6 +89,7 @@ export default class StripeService {
         }
 
         let customer = await this.getStripeCustomer(stripeUser);
+
         if (!customer) {
             customer = await this.createStripeCustomer(stripeUser);
         }
@@ -169,6 +169,4 @@ export default class StripeService {
 
         return this.getCustomerPaymentMethod(user, customer.id);
     }
-
-    retrievePaymentMethod;
 }
