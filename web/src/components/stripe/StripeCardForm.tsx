@@ -25,7 +25,7 @@ export default function StripeCardForm({
     const stripe = useStripe();
     const elements = useElements();
 
-    const { hasClientSecret, loadSetupIntent, isLoadingSetupIntent } =
+    const { loadSetupIntent, clientSecret, isLoadingSetupIntent } =
         useStripeContext();
 
     const onReady = (/*e: StripePaymentElement*/) => {
@@ -99,11 +99,11 @@ export default function StripeCardForm({
     };
 
     const isLoading = useMemo(() => {
-        return !hasClientSecret || isLoadingSetupIntent;
-    }, [hasClientSecret, isLoadingSetupIntent]);
+        return !clientSecret || isLoadingSetupIntent;
+    }, [clientSecret, isLoadingSetupIntent]);
 
     useEffect(() => {
-        if (!hasClientSecret) {
+        if (!clientSecret) {
             loadSetupIntent();
         }
     }, []);
@@ -116,14 +116,14 @@ export default function StripeCardForm({
                         <Spinner />
                     </div>
                 )}
-                {!isLoading && !hasClientSecret && (
+                {!isLoading && !clientSecret && (
                     <>
                         <Alert color="failure">
                             Error loading payment form. Please inform support.
                         </Alert>
                     </>
                 )}
-                {!isLoading && hasClientSecret && (
+                {!isLoading && !!clientSecret && (
                     <>
                         <div className="bg-gray-100 p-1 rounded-lg border-1 border-gray-200 mb-4">
                             <PaymentElement

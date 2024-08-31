@@ -24,7 +24,6 @@ export default function StripeProvider({ children }: { children: ReactNode }) {
     const loadSetupIntent = async () => {
         setIsloadingSetupIntent(true);
         const setupIntent = await StripeService.createSetupIntent();
-
         setClientSecret(setupIntent.client_secret);
         setIsloadingSetupIntent(false);
     };

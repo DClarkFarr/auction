@@ -1,30 +1,23 @@
 import { Alert, Button } from "flowbite-react";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useCallback, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import StripeCardForm from "./StripeCardForm";
 import CardDetails from "./CardDetails";
 import useUserStore from "../../stores/useUserStore";
 
 type WizardView = "login" | "form" | "success" | "card";
-export default function PaymentMethodWizard() {
-    const [view, setViewRaw] = useState<WizardView>("login");
-    const [initialLoad, setInitialLoad] = useState(true);
+function PaymentMethodWizardComponent() {
+    const [search, setSearch] = useSearchParams();
 
-    console.log("rendered view was", view, "and", initialLoad);
+    const view = search.get("payment-wizard-view") || "login";
 
     const setView = (v: WizardView) => {
-        console.log("setting view", v);
-        setViewRaw(v);
+        setSearch({ "payment-wizard-view": v });
     };
 
     const { paymentMethod, user } = useUserStore();
 
     useEffect(() => {
-        if (!initialLoad) {
-            console.log("abort because, initial load");
-            return;
-        }
-        setInitialLoad(false);
         if (!user && view !== "login") {
             setView("login");
             return;
@@ -34,15 +27,15 @@ export default function PaymentMethodWizard() {
             setView(paymentMethod ? "card" : "form");
             return;
         }
-    }, [user, view, paymentMethod, initialLoad]);
+    }, [user, view, paymentMethod]);
 
-    const onCardSaved = () => {
+    const onCardSaved = useCallback(() => {
         setView("success");
 
         setTimeout(() => {
             setView("card");
         }, 4000);
-    };
+    }, []);
 
     return (
         <div className="border border-gray-800 p-4 rounded-lg max-w-[450px]">
@@ -113,6 +106,10 @@ export default function PaymentMethodWizard() {
         </div>
     );
 }
+
+const PaymentMethodWizard = React.memo(PaymentMethodWizardComponent);
+
+export default PaymentMethodWizard;
 
 function SuccessView() {
     return (
