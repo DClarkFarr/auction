@@ -1,3 +1,11 @@
+import { HomeCarousel } from "../components/home/HomeCarousel";
+
 export default function HomePage() {
-    return <div>This is the home page</div>;
+    return (
+        <section className="section">
+            <div className="container">
+                <HomeCarousel />
+            </div>
+        </section>
+    );
 }
