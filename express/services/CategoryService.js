@@ -2,11 +2,50 @@ import { keyBy } from "lodash-es";
 import CategoryModel from "../models/CategoryModel.js";
 import TagModel from "../models/TagModel.js";
 import ImageModel from "../models/ImageModel.js";
+import SiteService from "./SiteService.js";
 
 /**
  * @typedef {import("../models/CategoryModel.js").CategoryDocument} CategoryDocument
  */
 export default class CategoryService {
+    static async getFeaturedCategories() {
+        const categoryModel = new CategoryModel();
+        const imageModel = new ImageModel();
+        const setting = await SiteService.getSetting("featuredCategories");
+
+        const { value: featuredCategories } = setting || {};
+
+        const populatedWithCategories = await Promise.all(
+            (featuredCategories || []).map(async (fc) => {
+                if (fc.id_category) {
+                    const category = await categoryModel.table.findFirst({
+                        where: {
+                            id_category: fc.id_category,
+                        },
+                    });
+
+                    if (category) {
+                        fc.category = category;
+                        fc.name = fc.name || c.label;
+                        const [image] =
+                            (await imageModel.findByResource(
+                                "category",
+                                category.id
+                            )) || [];
+
+                        if (image) {
+                            fc.image = fc.image || image.path;
+                            category.image = image;
+                        }
+                    }
+                }
+
+                return fc;
+            })
+        );
+
+        return populatedWithCategories.filter((pc) => !!pc.category);
+    }
     static async deleteCategoryImage(idCategory) {
         const categoryModel = new CategoryModel();
         const imageModel = new ImageModel();

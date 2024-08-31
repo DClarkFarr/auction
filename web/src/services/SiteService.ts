@@ -1,7 +1,12 @@
 import { Category, Tag, WithImage } from "../types/Product";
+import { FeaturedCategory } from "../types/SiteSetting";
 import apiClient from "./apiClient";
 
 type CategoriesResponse<I> = I extends true ? WithImage<Category> : Category;
+
+export type FullFeaturedCategory = FeaturedCategory & {
+    category: WithImage<Category>;
+};
 export default class SiteService {
     static async getTags() {
         return apiClient.get<Tag[]>("/site/tags").then((res) => res.data);
@@ -15,6 +20,12 @@ export default class SiteService {
             .get<CategoriesResponse<I>[]>("/site/categories", {
                 params: { withImage },
             })
+            .then((res) => res.data);
+    }
+
+    static async getFeaturedCategories() {
+        return apiClient
+            .get<FullFeaturedCategory[]>("/site/categories/featured")
             .then((res) => res.data);
     }
 

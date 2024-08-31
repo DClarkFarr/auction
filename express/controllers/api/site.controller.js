@@ -15,6 +15,10 @@ export default class SiteController extends BaseController {
     }
     initRoutes() {
         this.router.get("/categories", this.route(this.getCategories));
+        this.router.get(
+            "/categories/featured",
+            this.route(this.getFeaturedCategories)
+        );
 
         this.router.get("/tags", this.route(this.getTags));
 
@@ -35,6 +39,20 @@ export default class SiteController extends BaseController {
         } catch (err) {
             console.warn("caught error getting site setting", err.message);
             res.status(400).json({ message: err.message });
+        }
+    }
+
+    async getFeaturedCategories(req, res) {
+        try {
+            const featuredCategores =
+                await CategoryService.getFeaturedCategories();
+
+            res.json(featuredCategores);
+        } catch (err) {
+            console.warn("Error getting featured categories", err.message);
+            res.status(400).json({
+                message: "Error getting featured categories",
+            });
         }
     }
 

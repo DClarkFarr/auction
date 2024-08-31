@@ -19,6 +19,7 @@ import SettingsPage from "./views/admin/SettingsPage";
 import ShopPage from "./views/ShopPage";
 import ShopSinglePage from "./views/Shop/ShopSinglePage";
 import ShopCategoriesPage from "./views/CategoriesPage";
+import CategoriesSinglePage from "./views/Categories/CategoriesSinglePage";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -56,6 +57,12 @@ const router = createBrowserRouter([
             {
                 path: "categories",
                 element: <ShopCategoriesPage />,
+                children: [
+                    {
+                        path: ":categorySlug",
+                        element: <CategoriesSinglePage />,
+                    },
+                ],
             },
             {
                 path: "login",
