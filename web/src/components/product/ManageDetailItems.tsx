@@ -79,7 +79,6 @@ function DetailItem({
     useEffect(() => {
         const serialized = JSON.stringify(item);
         if (prevValue.current && prevValue.current !== serialized) {
-            console.log("item changed!");
             setState({ ...item });
             setDirty({ label: false, description: false });
         }
@@ -130,7 +129,6 @@ function DetailItem({
 
     const handleInputBlur = () => {
         onChangeDebounced(() => {
-            console.log("in debounce");
             if (valid.label && valid.description) {
                 onChange(index, { label, description });
             }

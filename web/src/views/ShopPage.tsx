@@ -1,9 +1,9 @@
-import StripeCardForm from "../components/stripe/StripeCardForm";
+import PaymentMethodWizard from "../components/stripe/PaymentMethodWizard";
 
 export default function ShopPage() {
     return (
         <div className="container">
-            <StripeCardForm />
+            <PaymentMethodWizard />
         </div>
     );
 }

@@ -4,7 +4,7 @@ import {
     useStripe,
 } from "@stripe/react-stripe-js";
 import { StripePaymentElementChangeEvent } from "@stripe/stripe-js";
-import { Alert, Button, Label, Spinner } from "flowbite-react";
+import { Alert, Button, Spinner } from "flowbite-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useStripeContext } from "../../providers/StripeProvider";
 import StripeService from "../../services/StripeService";
@@ -109,17 +109,8 @@ export default function StripeCardForm({
     }, []);
 
     return (
-        <div className="border border-gray-800 p-4 rounded-lg max-w-[450px]">
+        <div className="">
             <form onSubmit={handleSubmit}>
-                <h3 className="mb-2 text-xl font-semibold">
-                    Default Payment Method
-                </h3>
-                <p className="mb-10">
-                    You will not be charged now. After you have won your bids,
-                    you select winning bids and complete the purchase with the
-                    card on file.
-                </p>
-                <Label>Credit Card</Label>
                 {isLoading && (
                     <div className="p-10 flex justify-center items-center bg-gray-100">
                         <Spinner />

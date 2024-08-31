@@ -30,7 +30,6 @@ export default function StripeProvider({ children }: { children: ReactNode }) {
     };
 
     const options = useMemo(() => {
-        console.log("computing client setcret, from", clientSecret);
         if (clientSecret) {
             return {
                 clientSecret,
