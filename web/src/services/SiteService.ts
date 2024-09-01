@@ -1,4 +1,5 @@
-import { Category, Tag, WithImage } from "../types/Product";
+import { PaginatedResults } from "../types/Paginate";
+import { Category, FullProductItem, Tag, WithImage } from "../types/Product";
 import { FeaturedCategory } from "../types/SiteSetting";
 import apiClient from "./apiClient";
 
@@ -8,16 +9,16 @@ export type FullFeaturedCategory = FeaturedCategory & {
     category: WithImage<Category>;
 };
 
-export type PaginatedProductParams = Partial<{
-    sortBy: "active" | "inactive" | "scheduled" | "archived" | "sold";
-    categoryIds: number[];
-    page: number;
-    limit: number;
-    quality: number;
-    priceMin: number;
-    priceMax: number;
-    productIds: number[];
-}>;
+export type PaginatedProductParams = {
+    sortBy: "active" | "inactive" | "scheduled" | "archived" | "sold" | null;
+    categoryIds: number[] | null;
+    page: number | null;
+    limit: number | null;
+    quality: number | null;
+    priceMin: number | null;
+    priceMax: number | null;
+    productIds: number[] | null;
+};
 export default class SiteService {
     static async getTags() {
         return apiClient.get<Tag[]>("/site/tags").then((res) => res.data);
@@ -52,7 +53,14 @@ export default class SiteService {
             .then((res) => res.data);
     }
 
-    static async getPaginatedActiveItems(params: PaginatedProductParams = {}) {
-        return apiClient.get("/site/products/paginated", { params });
+    static async getPaginatedActiveItems(
+        params: Partial<PaginatedProductParams> = {}
+    ) {
+        return apiClient
+            .get<PaginatedResults<FullProductItem>>(
+                "/site/products/paginated",
+                { params }
+            )
+            .then((res) => res.data);
     }
 }
