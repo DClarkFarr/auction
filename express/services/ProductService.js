@@ -629,8 +629,10 @@ export default class ProductService {
             },
         });
 
-        products = await this.applyProductsCategory(products);
-        products = await this.applyProductsImages(products);
+        if (products.length) {
+            products = await this.applyProductsCategory(products);
+            products = await this.applyProductsImages(products);
+        }
 
         /**
          * @type {Record<number, ProductDocument>}
@@ -676,8 +678,12 @@ export default class ProductService {
         const { items, total, formattedParams } =
             await this.queryPaginatedActiveProducts(params);
 
-        let populatedItems = await this.applyItemsProducts(items);
-        populatedItems = await this.applyItemsHighestBids(populatedItems);
+        let populatedItems = [];
+
+        if (items.length) {
+            populatedItems = await this.applyItemsProducts(items);
+            populatedItems = await this.applyItemsHighestBids(populatedItems);
+        }
 
         const final = {
             total,

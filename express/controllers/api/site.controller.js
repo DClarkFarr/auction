@@ -49,7 +49,6 @@ export default class SiteController extends BaseController {
                 params
             );
 
-            console.log("results was", results);
             res.json(results);
         } catch (err) {
             console.warn(

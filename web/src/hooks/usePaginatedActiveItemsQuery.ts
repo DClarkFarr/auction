@@ -49,7 +49,10 @@ export default function usePaginatedActiveItemsQuery(
         error,
     } = useQuery({
         queryKey: makePaginatedActiveItemsKey(params),
-        queryFn: () => SiteService.getPaginatedActiveItems(params),
+        queryFn: () =>
+            SiteService.getPaginatedActiveItems(
+                filterDefaultProductParams(params)
+            ),
         placeholderData: keepPreviousData,
         staleTime: 5000,
         retry: false,

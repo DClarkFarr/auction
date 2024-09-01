@@ -68,83 +68,95 @@ export default function HomeHeader() {
 
     return (
         <div className="container">
-            <Navbar>
-                <Navbar.Brand as={Link} to={homeRoutes.home.to}>
-                    <img
-                        src="https://placehold.co/150x80"
-                        className="mr-3 h-6 sm:h-9"
-                        alt="Auction Logo"
-                    />
-                    <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-                        Auction
-                    </span>
-                </Navbar.Brand>
-                <div className="ml-auto"></div>
-                <div className="flex md:order-2">
-                    {user && (
-                        <Dropdown
-                            arrowIcon={false}
-                            inline
-                            label={
-                                <Avatar
-                                    alt="User settings"
-                                    placeholderInitials={userInitials || ""}
-                                    rounded
-                                />
-                            }
-                        >
-                            <Dropdown.Header>
-                                <span className="block text-sm">
-                                    {user.name}
-                                </span>
-                                <span className="block truncate text-sm font-medium">
-                                    {user.email}
-                                </span>
-                            </Dropdown.Header>
-                            <Dropdown.Item>Dashboard</Dropdown.Item>
-                            <Dropdown.Item>Settings</Dropdown.Item>
-                            <Dropdown.Item>Earnings</Dropdown.Item>
-                            <Dropdown.Divider />
-                            <Dropdown.Item onClick={onClickLogout}>
-                                Sign out
-                            </Dropdown.Item>
-                        </Dropdown>
-                    )}
+            <div className="-mx-2 sm:-mx-6">
+                <Navbar>
+                    <Navbar.Brand as={Link} to={homeRoutes.home.to}>
+                        <img
+                            src="https://placehold.co/150x80"
+                            className="mr-3 h-6 sm:h-9"
+                            alt="Auction Logo"
+                        />
+                        <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+                            Auction
+                        </span>
+                    </Navbar.Brand>
+                    <div className="ml-auto"></div>
+                    <div className="flex md:order-2">
+                        {user && (
+                            <Dropdown
+                                arrowIcon={false}
+                                inline
+                                label={
+                                    <Avatar
+                                        alt="User settings"
+                                        placeholderInitials={userInitials || ""}
+                                        rounded
+                                    />
+                                }
+                            >
+                                <Dropdown.Header>
+                                    <span className="block text-sm">
+                                        {user.name}
+                                    </span>
+                                    <span className="block truncate text-sm font-medium">
+                                        {user.email}
+                                    </span>
+                                </Dropdown.Header>
+                                <Dropdown.Item>Dashboard</Dropdown.Item>
+                                <Dropdown.Item>Settings</Dropdown.Item>
+                                <Dropdown.Item>Earnings</Dropdown.Item>
+                                <Dropdown.Divider />
+                                <Dropdown.Item onClick={onClickLogout}>
+                                    Sign out
+                                </Dropdown.Item>
+                            </Dropdown>
+                        )}
 
-                    <Navbar.Toggle />
-                </div>
-                <Navbar.Collapse className="md:mr-4">
-                    <Navbar.Link as="span" active={activeRouteName === "home"}>
-                        <Link to={homeRoutes.home.to}>Home</Link>
-                    </Navbar.Link>
-                    <Navbar.Link as="span" active={activeRouteName === "shop"}>
-                        <Link to={homeRoutes.shop.to}>Shop</Link>
-                    </Navbar.Link>
-                    <Navbar.Link
-                        as="span"
-                        active={activeRouteName === "categories"}
-                    >
-                        <Link to={homeRoutes.categories.to}>Categories</Link>
-                    </Navbar.Link>
-                    {!user && (
-                        <>
-                            <Navbar.Link
-                                as="span"
-                                className="ml-4"
-                                active={activeRouteName === "login"}
-                            >
-                                <Link to={homeRoutes.login.to}>Log in</Link>
-                            </Navbar.Link>
-                            <Navbar.Link
-                                as="span"
-                                active={activeRouteName === "signup"}
-                            >
-                                <Link to={homeRoutes.signUp.to}>Sign up</Link>
-                            </Navbar.Link>
-                        </>
-                    )}
-                </Navbar.Collapse>
-            </Navbar>
+                        <Navbar.Toggle />
+                    </div>
+                    <Navbar.Collapse className="md:mr-4">
+                        <Navbar.Link
+                            as="span"
+                            active={activeRouteName === "home"}
+                        >
+                            <Link to={homeRoutes.home.to}>Home</Link>
+                        </Navbar.Link>
+                        <Navbar.Link
+                            as="span"
+                            active={activeRouteName === "shop"}
+                        >
+                            <Link to={homeRoutes.shop.to}>Shop</Link>
+                        </Navbar.Link>
+                        <Navbar.Link
+                            as="span"
+                            active={activeRouteName === "categories"}
+                        >
+                            <Link to={homeRoutes.categories.to}>
+                                Categories
+                            </Link>
+                        </Navbar.Link>
+                        {!user && (
+                            <>
+                                <Navbar.Link
+                                    as="span"
+                                    className="ml-4"
+                                    active={activeRouteName === "login"}
+                                >
+                                    <Link to={homeRoutes.login.to}>Log in</Link>
+                                </Navbar.Link>
+                                <Navbar.Link
+                                    as="span"
+                                    active={activeRouteName === "signup"}
+                                >
+                                    <Link to={homeRoutes.signUp.to}>
+                                        Sign up
+                                    </Link>
+                                </Navbar.Link>
+                            </>
+                        )}
+                    </Navbar.Collapse>
+                </Navbar>
+            </div>
         </div>
     );
 }

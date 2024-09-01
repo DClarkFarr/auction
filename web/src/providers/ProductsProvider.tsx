@@ -1,20 +1,14 @@
 import React, { useCallback, useState } from "react";
 import { ProductsContext } from "./useProductsContext";
 import usePaginatedActiveItemsQuery from "../hooks/usePaginatedActiveItemsQuery";
+import { defaultProductParams } from "../utils/productParams";
 
 export default function ProductsProvider({
     children,
-    params: initialParams,
-}: React.PropsWithChildren<{ params: Partial<ProductsContext["params"]> }>) {
+    params: initialParams = {},
+}: React.PropsWithChildren<{ params?: Partial<ProductsContext["params"]> }>) {
     const [params, setParamsState] = useState<ProductsContext["params"]>({
-        page: 1,
-        limit: 20,
-        sortBy: null,
-        categoryIds: [],
-        productIds: [],
-        quality: null,
-        priceMin: null,
-        priceMax: null,
+        ...defaultProductParams,
         ...initialParams,
     });
 
