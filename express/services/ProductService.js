@@ -11,10 +11,15 @@ import { Prisma } from "@prisma/client";
 import fs from "fs";
 import path from "path";
 import ProductItemModel from "../models/ProductItemModel.js";
+import { keyBy } from "lodash-es";
 
 /**
  * @typedef {import('../models/ProductModel.js').ProductDocument} ProductDocument
  * @typedef {import('../models/ProductItemModel.js').ProductItemDocument} ProductItemDocument
+ * @typedef {import("@prisma/client").ProductItem} ProductItem
+ * @typedef {import("@prisma/client").Category} CategoryDocument
+ * @typedef {import("../models/ImageModel.js").ImageDocument} ImageDocument
+ * @typedef {import("@prisma/client").Bid} BidDocument
  * @typedef {ProductDocument['status']} ProductStatus
  */
 
@@ -28,6 +33,14 @@ const PRODUCT_STATUSES = [
     "archived",
     "sold",
 ];
+
+const SORT_OPTIONS = {
+    expiring: ["i.expiresAt", "desc"],
+    name: ["p.name", "asc"],
+    quality: ["p.quality", "desc"],
+    lowStock: ["p.remainingQuantity", "asc"],
+    lowPrice: ["COALESCE(b.amount, p.priceInitial)", "asc"],
+};
 export default class ProductService {
     /**
      * @param {ProductStatus} status
@@ -526,5 +539,244 @@ export default class ProductService {
         await this.applyProductImages(product);
 
         return product;
+    }
+
+    static getValidSortBy(sortBy, fallback) {
+        let tuple = SORT_OPTIONS[sortBy];
+        if (!tuple) {
+            tuple = fallback;
+        }
+
+        return `${tuple[0]} ${tuple[1].toUpperCase()}`;
+    }
+
+    static getSafeNumber(num) {
+        return isNaN(num) ? null : Number(num);
+    }
+
+    /**
+     *
+     * @param {ProductDocument[]} products
+     */
+    static async applyProductsCategory(products) {
+        const prisma = getPrisma();
+        const productIds = products.map((p) => p.id_product);
+
+        /**
+         * @type {CategoryDocument[]}
+         */
+
+        const categories =
+            await prisma.$queryRaw`SELECT c.*, pc.productId AS id_product 
+            FROM Category c 
+            JOIN ProductCategories pc ON pc.categoryId = c.id_category
+            WHERE pc.productId IN(${Prisma.join(productIds)})`;
+        /**
+         * @type {Record<number, CategoryDocument>}
+         */
+        const categoriesKeyed = keyBy(categories, "id_product");
+
+        return products.map((p) => {
+            return { ...p, category: categoriesKeyed[p.id_product] || null };
+        });
+    }
+
+    /**
+     * @param {ProductDocument[]} products
+     */
+    static async applyProductsImages(products) {
+        const prisma = getPrisma();
+        const productIds = products.map((p) => p.id_product);
+
+        const images = await prisma.image.findMany({
+            where: {
+                resourceType: "product",
+                resourceId: {
+                    in: productIds,
+                },
+            },
+        });
+
+        /**
+         * @type {Record<number, ImageDocument>}
+         */
+        const imageskeyed = images.reduce((acc, image) => {
+            if (!acc[image.resourceId]) {
+                acc[image.resourceId] = [];
+            }
+            acc[image.resourceId].push(image);
+
+            return acc;
+        }, {});
+
+        return products.map((p) => {
+            return { ...p, images: imageskeyed[p.id_product] || [] };
+        });
+    }
+
+    /**
+     * @param {ProductItem[]} items
+     */
+    static async applyItemsProducts(items) {
+        const prisma = getPrisma();
+        const productIds = items.map((i) => i.id_product);
+
+        let products = await prisma.product.findMany({
+            where: {
+                id_product: {
+                    in: productIds,
+                },
+            },
+        });
+
+        products = await this.applyProductsCategory(products);
+        products = await this.applyProductsImages(products);
+
+        /**
+         * @type {Record<number, ProductDocument>}
+         */
+        const productsKeyed = keyBy(products, "id_product");
+
+        return items.map((i) => {
+            return { ...i, product: productsKeyed[i.id_product] || null };
+        });
+    }
+
+    /**
+     * @param {ProductItem[]} items
+     */
+    static async applyItemsHighestBids(items) {
+        const prisma = getPrisma();
+        const itemIds = items.map((i) => i.id_item);
+
+        /**
+         * @type {Record<number, BidDocument>}
+         */
+        const bidsKeyed = keyBy(
+            await prisma.$queryRaw`SELECT * FROM Bid b
+                INNER JOIN (
+                    SELECT id_item, MAX(amount) AS amount
+                    FROM Bid
+                    WHERE id_item IN(${Prisma.join(itemIds)})
+                    AND status = 'active'
+                    GROUP BY id_item
+                ) max ON b.id_item = max.id_item AND b.amount >= max.amount
+                WHERE b.id_item IN(${Prisma.join(itemIds)})
+                AND b.status = 'active'
+                `,
+            "id_item"
+        );
+
+        return items.map((i) => {
+            return { ...i, bid: bidsKeyed[i.id_item] || null };
+        });
+    }
+
+    static async getPaginatedActiveProducts(params) {
+        const { items, total, formattedParams } =
+            await this.queryPaginatedActiveProducts(params);
+
+        let populatedItems = await this.applyItemsProducts(items);
+        populatedItems = await this.applyItemsHighestBids(populatedItems);
+
+        const final = {
+            total,
+            rows: populatedItems,
+            page: formattedParams.page,
+            pages: Math.ceil(total / formattedParams.limit),
+            limit: formattedParams.limit,
+        };
+
+        return final;
+    }
+    static async queryPaginatedActiveProducts({
+        sortBy: sortByRaw = SORT_OPTIONS.expiring,
+        categoryIds: categoryIdsRaw = [],
+        page: pageRaw = 1,
+        limit: limitRaw = 20,
+        quality: qualityRaw = null,
+        priceMin: priceMinRaw = null,
+        priceMax: priceMaxRaw = null,
+        productIds: productIdsRaw = [],
+    } = {}) {
+        const sortBy = this.getValidSortBy(sortByRaw, SORT_OPTIONS.expiring);
+
+        const categoryIds = categoryIdsRaw.map(Number).filter(Boolean);
+        const productIds = productIdsRaw.map(Number).filter(Boolean);
+
+        const page = this.getSafeNumber(pageRaw);
+        const limit = this.getSafeNumber(limitRaw);
+        const quality = this.getSafeNumber(qualityRaw);
+        const priceMin = this.getSafeNumber(priceMinRaw);
+        const priceMax = this.getSafeNumber(priceMaxRaw);
+
+        const parts = {
+            selectTotal: "SELECT COUNT(*) as total ",
+            selectFields:
+                "SELECT i.*, COALESCE(b.amount, p.priceInitial) AS currentPrice ",
+            from: `FROM Product p 
+            JOIN ProductItem i ON p.id_product = i.id_product 
+            LEFT JOIN (
+                SELECT b.id_item, MAX(b.amount) AS amount, MAX(b.createdAt) as createdAt FROM Bid AS b
+                WHERE b.status = 'active'
+                GROUP BY b.id_item 
+                ORDER BY MAX(b.createdAt) DESC
+            ) as b ON b.id_item = i.id_item `,
+            where: `WHERE i.status = 'active' 
+            AND i.expiredAt IS NULL
+            AND i.expiresAt > NOW() `,
+            order: `ORDER BY ${sortBy} `,
+            limit: `LIMIT ${limit * page - limit}, ${limit} `,
+        };
+
+        if (categoryIds.length) {
+            parts.where += `
+            AND EXISTS (
+                SELECT * from ProductCategories pc 
+                WHERE pc.productId = p.id_product
+                AND pc.categoryId IN(${categoryIds.join(",")})
+            )`;
+        }
+
+        if (productIds.length) {
+            parts.where += `
+            AND p.id_product IN(${categoryIds.join(",")})`;
+        }
+
+        if (quality > 0) {
+            parts.where += `
+            AND p.quality >= ${quality}`;
+        }
+
+        if (priceMin > 0) {
+            parts.where += `
+            AND COALESCE(b.amount, p.priceInitial) >= ${priceMin}`;
+        }
+
+        if (priceMax > 0) {
+            parts.where += `
+            AND COALESCE(b.amount, p.priceInitial) <= ${priceMax}`;
+        }
+
+        const prisma = getPrisma();
+
+        const query = `${parts.selectFields} ${parts.from} ${parts.where} ${parts.order} ${parts.limit}`;
+        const totalQuery = `${parts.selectTotal} ${parts.from} ${parts.where}`;
+
+        const items = await prisma.$queryRawUnsafe(query);
+        const [{ total: bigIntTotal }] = await prisma.$queryRawUnsafe(
+            totalQuery
+        );
+
+        const formattedParams = {
+            categoryIds,
+            productIds,
+            page,
+            limit,
+            quality,
+            priceMin,
+            priceMax,
+        };
+        return { items, total: Number(bigIntTotal), formattedParams };
     }
 }

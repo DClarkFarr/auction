@@ -15,15 +15,49 @@ export default class SiteController extends BaseController {
     }
     initRoutes() {
         this.router.get("/categories", this.route(this.getCategories));
+
         this.router.get(
             "/categories/featured",
             this.route(this.getFeaturedCategories)
+        );
+
+        this.router.get(
+            "/products/paginated",
+            this.route(this.getPaginatedActiveItems)
         );
 
         this.router.get("/tags", this.route(this.getTags));
 
         this.router.get("/setting/:key", this.route(this.getSetting));
         this.router.get("/settings", this.route(this.getSettings));
+    }
+
+    async getPaginatedActiveItems(req, res) {
+        const params = pick(req.query, [
+            "sortBy",
+            "categoryIds",
+            "page",
+            "limit",
+            "quality",
+            "priceMin",
+            "priceMax",
+            "productIds",
+        ]);
+
+        try {
+            const results = await ProductService.getPaginatedActiveProducts(
+                params
+            );
+
+            console.log("results was", results);
+            res.json(results);
+        } catch (err) {
+            console.warn(
+                "caught error getting active paginated products/items",
+                err
+            );
+            res.status(400).json({ message: err.message });
+        }
     }
 
     async getSetting(req, res) {

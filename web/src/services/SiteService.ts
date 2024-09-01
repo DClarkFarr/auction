@@ -7,6 +7,17 @@ type CategoriesResponse<I> = I extends true ? WithImage<Category> : Category;
 export type FullFeaturedCategory = FeaturedCategory & {
     category: WithImage<Category>;
 };
+
+export type PaginatedProductParams = Partial<{
+    sortBy: "active" | "inactive" | "scheduled" | "archived" | "sold";
+    categoryIds: number[];
+    page: number;
+    limit: number;
+    quality: number;
+    priceMin: number;
+    priceMax: number;
+    productIds: number[];
+}>;
 export default class SiteService {
     static async getTags() {
         return apiClient.get<Tag[]>("/site/tags").then((res) => res.data);
@@ -39,5 +50,9 @@ export default class SiteService {
         return apiClient
             .get("/site/settings", { params: { keys } })
             .then((res) => res.data);
+    }
+
+    static async getPaginatedActiveItems(params: PaginatedProductParams = {}) {
+        return apiClient.get("/site/products/paginated", { params });
     }
 }

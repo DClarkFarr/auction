@@ -1,3 +1,5 @@
+import { WithBid } from "./Bid";
+
 export type ProductDetailItem = {
     label: string;
     description: string;
@@ -60,3 +62,23 @@ export type WithImage<T> = T & { image: Image };
 
 export type FullProduct = WithCategory<WithTags<WithImages<Product>>>;
 export type FullCategory = WithImage<Category>;
+
+export type ProductItemStatus = "active" | "inactive";
+
+export type ProductItem = {
+    id_item: number;
+    id_product: number;
+    id_purchase: number | null;
+    expiresAt: string;
+    createdAt: string;
+    expiredAt: string;
+    purchasedAt: string;
+    rejectsAt: string;
+    rejectedAt: string;
+    canceledAt: string;
+    status: ProductItemStatus;
+};
+
+export type FullProductItem = WithBid<ProductItem> & {
+    product: WithCategory<WithImages<Product>>;
+};
