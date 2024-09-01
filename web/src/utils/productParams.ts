@@ -106,3 +106,34 @@ export function filterDefaultProductParams(params: PaginatedProductParams) {
         return acc;
     }, {});
 }
+
+export function makePaginatedActiveItemsKey({
+    page,
+    ...params
+}: PaginatedProductParams) {
+    const arr = ["paginatedActiveItems"];
+
+    const joinValues = (
+        key: string,
+        value: string | null | number | number[]
+    ) => {
+        let str = key + ":";
+        if (Array.isArray(value)) {
+            str += value.join("|");
+        } else if (value) {
+            str += String(value);
+        } else {
+            str += "default";
+        }
+
+        return str;
+    };
+
+    Object.entries(params).forEach(([key, value]) => {
+        arr.push(joinValues(key, value));
+    });
+
+    arr.push(`page:${page}`);
+
+    return arr;
+}
