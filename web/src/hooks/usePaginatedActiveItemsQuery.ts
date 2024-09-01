@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 import SiteService, { PaginatedProductParams } from "../services/SiteService";
 import { useEffect } from "react";
+import { filterDefaultProductParams } from "../utils/productParams";
 
 function makePaginatedActiveItemsKey({
     page,
@@ -49,10 +50,10 @@ export default function usePaginatedActiveItemsQuery(
         error,
     } = useQuery({
         queryKey: makePaginatedActiveItemsKey(params),
-        queryFn: () =>
-            SiteService.getPaginatedActiveItems(
-                filterDefaultProductParams(params)
-            ),
+        queryFn: () => {
+            const data = filterDefaultProductParams(params);
+            return SiteService.getPaginatedActiveItems(data);
+        },
         placeholderData: keepPreviousData,
         staleTime: 5000,
         retry: false,

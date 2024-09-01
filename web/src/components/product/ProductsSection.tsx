@@ -6,6 +6,7 @@ import {
     getProductQueryParams,
     setProductQueryParams,
 } from "../../utils/productParams";
+
 import { PaginatedProductParams } from "../../services/SiteService";
 
 function ProductsSectionWrapper({

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { ProductsContext } from "./useProductsContext";
 import usePaginatedActiveItemsQuery from "../hooks/usePaginatedActiveItemsQuery";
 import { defaultProductParams } from "../utils/productParams";
@@ -46,19 +46,21 @@ export default function ProductsProvider({
         [setParams]
     );
 
+    const value = useMemo(() => {
+        return {
+            params,
+            pagination,
+            isLoading,
+            isSuccess,
+            error,
+            setPage,
+            setParams,
+            toggleCategory,
+        };
+    }, [params, pagination, isLoading, isSuccess, error]);
+
     return (
-        <ProductsContext.Provider
-            value={{
-                params,
-                pagination,
-                isLoading,
-                isSuccess,
-                error,
-                setPage,
-                setParams,
-                toggleCategory,
-            }}
-        >
+        <ProductsContext.Provider value={value}>
             {children}
         </ProductsContext.Provider>
     );
