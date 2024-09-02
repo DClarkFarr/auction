@@ -7,7 +7,7 @@ export default function CategoriesPage() {
 
     const categorySlug = params.categorySlug || "";
 
-    const { categories } = useCategoriesQuery(true);
+    const { categories } = useCategoriesQuery(true, true);
 
     if (categorySlug) {
         return <Outlet />;

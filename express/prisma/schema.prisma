@@ -58,8 +58,9 @@ model ProductItem {
     canceledAt  DateTime?
     status      PRODUCT_ITEM_STATUS @default(active)
 
-    product Product @relation(fields: [id_product], references: [id_product])
-    bids    Bid[]
+    product           Product             @relation(fields: [id_product], references: [id_product])
+    bids              Bid[]
+    ProductCategories ProductCategories[]
 
     @@index([id_product])
 }
@@ -119,11 +120,13 @@ model ProductTags {
 }
 
 model ProductCategories {
-    relId      Int      @id @default(autoincrement())
-    productId  Int
-    categoryId Int
-    category   Category @relation(fields: [categoryId], references: [id_category])
-    product    Product  @relation(fields: [productId], references: [id_product])
+    relId              Int          @id @default(autoincrement())
+    productId          Int
+    categoryId         Int
+    category           Category     @relation(fields: [categoryId], references: [id_category])
+    product            Product      @relation(fields: [productId], references: [id_product])
+    ProductItem        ProductItem? @relation(fields: [productItemId_item], references: [id_item])
+    productItemId_item Int?
 
     @@index([categoryId], map: "ProductCategories_categoryId_fkey")
     @@index([productId])

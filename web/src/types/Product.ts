@@ -59,6 +59,7 @@ export type WithCategory<T> = T & { category: Category | null };
 export type WithTags<T> = T & { tags: Tag[] };
 export type WithImages<T> = T & { images: Image[] };
 export type WithImage<T> = T & { image: Image };
+export type WithProductCount<T> = T & { productCount: number };
 
 export type FullProduct = WithCategory<WithTags<WithImages<Product>>>;
 export type FullCategory = WithImage<Category>;

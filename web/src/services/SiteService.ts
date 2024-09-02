@@ -3,7 +3,11 @@ import { Category, FullProductItem, Tag, WithImage } from "../types/Product";
 import { FeaturedCategory } from "../types/SiteSetting";
 import apiClient from "./apiClient";
 
-type CategoriesResponse<I> = I extends true ? WithImage<Category> : Category;
+type WithProductCount<T, P> = P extends true ? T & { productCount: number } : T;
+type CategoriesResponse<I, P> = WithProductCount<
+    I extends true ? WithImage<Category> : Category,
+    P
+>;
 
 export type FullFeaturedCategory = FeaturedCategory & {
     category: WithImage<Category>;
@@ -23,14 +27,16 @@ export default class SiteService {
     static async getTags() {
         return apiClient.get<Tag[]>("/site/tags").then((res) => res.data);
     }
-    static async getCategories<I extends boolean>({
+    static async getCategories<I extends boolean, P extends boolean>({
         withImage,
+        withProductCount,
     }: {
         withImage: I;
+        withProductCount: P;
     }) {
         return apiClient
-            .get<CategoriesResponse<I>[]>("/site/categories", {
-                params: { withImage },
+            .get<CategoriesResponse<I, P>[]>("/site/categories", {
+                params: { withImage, withProductCount },
             })
             .then((res) => res.data);
     }

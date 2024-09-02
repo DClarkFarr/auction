@@ -107,9 +107,11 @@ export default class SiteController extends BaseController {
 
     async getCategories(req, res) {
         const withImages = req.query.withImages === "true";
+        const withProductCount = req.query.withProductCount === "true";
         try {
             const categories = await CategoryService.getCategories({
                 withImages,
+                withProductCount,
             });
 
             res.json(categories);

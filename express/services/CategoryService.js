@@ -3,6 +3,8 @@ import CategoryModel from "../models/CategoryModel.js";
 import TagModel from "../models/TagModel.js";
 import ImageModel from "../models/ImageModel.js";
 import SiteService from "./SiteService.js";
+import { getPrisma } from "../prisma/client.js";
+import { Prisma } from "@prisma/client";
 
 /**
  * @typedef {import("../models/CategoryModel.js").CategoryDocument} CategoryDocument
@@ -46,6 +48,36 @@ export default class CategoryService {
 
         return populatedWithCategories.filter((pc) => !!pc.category);
     }
+
+    /**
+     *
+     * @param {CategoryDocument[]} categories
+     */
+    static async applyProductCountToCategories(categories) {
+        const categoryIds = categories.map((c) => c.id_category);
+        const prisma = getPrisma();
+
+        const rows = (
+            await prisma.$queryRaw`SELECT pc.categoryId as id_category, COUNT(*) AS total 
+                FROM ProductCategories pc 
+                JOIN ProductItem pi ON pi.id_product = pc.productId 
+                WHERE pi.status = 'active'
+                AND pi.expiresAt > DATE_SUB(NOW(), INTERVAL 6 HOUR)
+                AND pc.categoryId IN(${Prisma.join(categoryIds)})
+                GROUP BY pc.categoryId
+            `
+        ).map(({ id_category, total }) => ({
+            id_category,
+            total: Number(total),
+        }));
+
+        const keyedCounts = keyBy(rows, "id_category");
+
+        return categories.map((c) => {
+            c.productCount = keyedCounts[c.id_category]?.total || 0;
+            return c;
+        });
+    }
     static async deleteCategoryImage(idCategory) {
         const categoryModel = new CategoryModel();
         const imageModel = new ImageModel();
@@ -71,7 +103,10 @@ export default class CategoryService {
 
         return category;
     }
-    static async getCategories({ withImages = false }) {
+    static async getCategories({
+        withImages = false,
+        withProductCount = false,
+    }) {
         const categoryModel = new CategoryModel();
 
         let categories = await categoryModel.table.findMany({
@@ -80,8 +115,12 @@ export default class CategoryService {
             },
         });
 
-        if (!withImages) {
+        if (!withImages && categories.length) {
             categories = await this.applyImageToCategories(categories);
+        }
+
+        if (withProductCount && categories.length) {
+            categories = await this.applyProductCountToCategories(categories);
         }
 
         return categories;
