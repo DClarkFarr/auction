@@ -92,6 +92,8 @@ export function setProductQueryParams(
         return acc;
     }, {} as Record<string, string | string[]>);
 
+    delete paramsToSet.page;
+
     return { ...otherKeys, ...paramsToSet };
 }
 

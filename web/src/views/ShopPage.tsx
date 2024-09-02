@@ -11,6 +11,7 @@ export default function ShopPage() {
                     </ProductsSection.DesktopSidebar>
                     <div className="shop__grid grow">
                         <ProductsSection.Grid />
+                        <ProductsSection.EndlessScroller />
                     </div>
                 </div>
             </div>

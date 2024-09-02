@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useMemo, useState } from "react";
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import ProductsProvider from "../../providers/ProductsProvider";
 import { useSearchParams } from "react-router-dom";
 import { useProductsContext } from "../../providers/useProductsContext";
@@ -19,6 +19,7 @@ import IconUnliked from "~icons/ic/baseline-favorite-border";
 import { formatCurrency } from "../../utils/currency";
 import Stars from "../controls/Stars";
 import { DateTime } from "luxon";
+import { useWindowScroll } from "@uidotdev/usehooks";
 
 const timeCompareMulti = (
     timeBefore: DateTime,
@@ -305,8 +306,8 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
                             <div className="item__countdown text-red-800 p-3 text-center">
                                 <div className="">Expires In</div>
                                 <div className="font-bold text-lg flex justify-center items-center gap-2">
-                                    {timeUntilExpired.map((segment) => {
-                                        return <div>{segment}</div>;
+                                    {timeUntilExpired.map((segment, i) => {
+                                        return <div key={i}>{segment}</div>;
                                     })}
                                 </div>
                             </div>
@@ -364,8 +365,13 @@ function ProductsGrid({
                 children({ products })}
             {hasChildren && typeof children !== "function" && children}
             {!hasChildren &&
-                products.map((product) => {
-                    return <Item product={product} key={product.id_item} />;
+                products.map((product, i) => {
+                    return (
+                        <Item
+                            product={product}
+                            key={`${product.id_item}-${i}`}
+                        />
+                    );
                 })}
         </div>
     );
@@ -381,11 +387,81 @@ function ProductsDesktopSidebar({ children }: { children: ReactNode }) {
     return <div className="products-sidebar w-[300px] shrink">{children}</div>;
 }
 
+function ProductsEndlessScroller() {
+    const [{ y }] = useWindowScroll();
+    const ref = useRef<HTMLDivElement>(null);
+
+    const { pagination, setPage } = useProductsContext();
+
+    const { page, pages } = pagination || { page: 1 };
+
+    const [nextPage, setNextPage] = useState(1);
+
+    useEffect(() => {
+        /**
+         * IF page gets reset, reset next page too
+         */
+        if (page === 1 && nextPage > 2) {
+            setNextPage(1);
+        }
+
+        const current = ref.current;
+        if (current) {
+            const rect = current.getBoundingClientRect();
+
+            // Calculate the distance from the bottom of the viewport
+            const distanceToBottom = window.innerHeight - rect.bottom;
+
+            // If the div is within 200px of the viewport's bottom
+            if (distanceToBottom >= -200) {
+                // Load the next page or do something else
+
+                // if page = 0 then it hasn't loaded yet
+                if (page > 0) {
+                    /**
+                     * If both pages are the same, we can increment
+                     * And if the next page is less than pages
+                     */
+                    if (page === nextPage && page + 1 <= pages) {
+                        setNextPage(page + 1);
+                        setPage(page + 1);
+                    }
+                }
+            }
+        }
+    }, [y]);
+
+    return (
+        <div ref={ref}>
+            {page >= pages && (
+                <div className="pt-4">
+                    <Banner>
+                        <div className="flex w-full justify-between border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-700">
+                            <div className="mx-auto flex items-center">
+                                <p className="flex gap-3 items-center text-sm font-normal text-gray-500 dark:text-gray-400">
+                                    <span>
+                                        <EmptyIcon />
+                                    </span>
+                                    <span>
+                                        No more products availabe. Check back
+                                        soon.
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </Banner>
+                </div>
+            )}
+        </div>
+    );
+}
+
 const ProductsSection = Object.assign(ProductsSectionWrapper, {
     UrlParamsSync,
     Item: ProductsItem,
     Grid: ProductsGrid,
     DesktopSidebar: ProductsDesktopSidebar,
+    EndlessScroller: ProductsEndlessScroller,
 });
 
 export default ProductsSection;

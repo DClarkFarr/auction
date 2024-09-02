@@ -730,7 +730,7 @@ export default class ProductService {
             ) as b ON b.id_item = i.id_item `,
             where: `WHERE i.status = 'active' 
             AND i.expiredAt IS NULL `,
-            whereRecentlyExpired: `AND i.expiresAt > DATE_SUB(NOW(), INTERVAL 6 HOUR) `,
+            whereRecentlyExpired: `AND (i.expiresAt > DATE_SUB(NOW(), INTERVAL 6 HOUR) AND i.expiresAt < NOW()) `,
             whereNotExpired: `AND i.expiresAt > NOW() `,
             order: (sb) => `ORDER BY ${sb} `,
             limit: (skip, take) => `LIMIT ${skip}, ${take} `,
@@ -773,7 +773,13 @@ export default class ProductService {
             inactivesTotalQuery
         );
 
+        const activesTotalQuery = `${parts.selectTotal} ${parts.from} ${parts.where} ${parts.whereNotExpired}`;
+        const [{ total: bigIntActiveTotal }] = await prisma.$queryRawUnsafe(
+            activesTotalQuery
+        );
+
         const inactivesTotal = Number(bigIntInactiveTotal);
+        const activesTotal = Number(bigIntActiveTotal);
 
         const inactivesPerPage = 3;
         const maxPagesWithInactives = Math.floor(
@@ -782,40 +788,56 @@ export default class ProductService {
 
         const totalSubtractedUntilNow =
             Math.min(page - 1, maxPagesWithInactives) * inactivesPerPage;
+        const activesOffset = page * limit - limit - totalSubtractedUntilNow;
 
         let inactives = [];
+        let items = [];
 
-        if (page <= maxPagesWithInactives) {
+        const activePages = Math.ceil(activesTotal / limit);
+
+        if (activesTotal > activesOffset) {
+            /**
+             * There are more products, so query them and splice in inactives
+             */
+            if (page <= maxPagesWithInactives) {
+                const inactivesQuery = `${parts.selectFields} ${parts.from} ${
+                    parts.where
+                } ${parts.whereRecentlyExpired} ${parts.order(
+                    this.getValidSortBy("invalid", SORT_OPTIONS.expiring)
+                )} ${parts.limit(
+                    page * inactivesPerPage - inactivesPerPage,
+                    inactivesPerPage
+                )}`;
+
+                inactives = await prisma.$queryRawUnsafe(inactivesQuery);
+            }
+
+            const activesQuery = `${parts.selectFields} ${parts.from} ${
+                parts.where
+            } ${parts.whereNotExpired} ${parts.order(sortBy)} ${parts.limit(
+                activesOffset,
+                limit - (page <= maxPagesWithInactives ? inactivesPerPage : 0)
+            )}`;
+
+            console.log(activesQuery);
+
+            items = await prisma.$queryRawUnsafe(activesQuery);
+
+            if (inactives.length) {
+                items = this.spliceInactivesIntoActivesArray(items, inactives);
+            }
+        } else if (page <= maxPagesWithInactives) {
+            // how many did we lose on product pages?
+            const baseOffset = activePages * inactivesPerPage;
+
             const inactivesQuery = `${parts.selectFields} ${parts.from} ${
                 parts.where
             } ${parts.whereRecentlyExpired} ${parts.order(
                 this.getValidSortBy("invalid", SORT_OPTIONS.expiring)
-            )} ${parts.limit(
-                page * inactivesPerPage - inactivesPerPage,
-                inactivesPerPage
-            )}`;
+            )} ${parts.limit(page * limit - limit - baseOffset, limit)}`;
 
-            inactives = await prisma.$queryRawUnsafe(inactivesQuery);
+            items = await prisma.$queryRawUnsafe(inactivesQuery);
         }
-
-        const activesQuery = `${parts.selectFields} ${parts.from} ${
-            parts.where
-        } ${parts.whereNotExpired} ${parts.order(sortBy)} ${parts.limit(
-            page * limit - limit - totalSubtractedUntilNow,
-            limit - (page <= maxPagesWithInactives ? inactivesPerPage : 0)
-        )}`;
-
-        const activesTotalQuery = `${parts.selectTotal} ${parts.from} ${parts.where} ${parts.whereNotExpired}`;
-
-        let items = await prisma.$queryRawUnsafe(activesQuery);
-
-        if (inactives.length) {
-            items = this.spliceInactivesIntoActivesArray(items, inactives);
-        }
-
-        const [{ total: bigIntTotal }] = await prisma.$queryRawUnsafe(
-            activesTotalQuery
-        );
 
         const formattedParams = {
             categoryIds,
@@ -826,7 +848,11 @@ export default class ProductService {
             priceMin,
             priceMax,
         };
-        return { items, total: Number(bigIntTotal), formattedParams };
+        return {
+            items,
+            total: activesTotal + inactivesTotal,
+            formattedParams,
+        };
     }
 
     static spliceInactivesIntoActivesArray(actives, inactives) {
