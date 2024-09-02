@@ -33,6 +33,22 @@ export default class SiteService {
     static async getTags() {
         return apiClient.get<Tag[]>("/site/tags").then((res) => res.data);
     }
+
+    static async getCategory<I extends boolean, P extends boolean>(props: {
+        slug: string;
+        withImage?: I;
+        withProductCount?: P;
+    }) {
+        return apiClient
+            .get<CategoriesResponse<I, P>>("/site/categories/" + props.slug, {
+                params: {
+                    withImage: props.withImage,
+                    withProductCount: props.withProductCount,
+                },
+            })
+            .then((res) => res.data);
+    }
+
     static async getCategories<I extends boolean, P extends boolean>({
         withImage,
         withProductCount,

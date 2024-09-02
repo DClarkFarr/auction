@@ -21,6 +21,8 @@ export default class SiteController extends BaseController {
             this.route(this.getFeaturedCategories)
         );
 
+        this.router.get("/categories/:slug", this.route(this.getCategory));
+
         this.router.get(
             "/products/paginated",
             this.route(this.getPaginatedActiveItems)
@@ -30,6 +32,29 @@ export default class SiteController extends BaseController {
 
         this.router.get("/setting/:key", this.route(this.getSetting));
         this.router.get("/settings", this.route(this.getSettings));
+    }
+
+    async getCategory(req, res) {
+        const categorySlug = req.params.slug?.trim();
+        const withImages = req.query.withImages === "true";
+        const withProductCount = req.query.withProductCount === "true";
+
+        if (!categorySlug) {
+            return res.status(400).json({ message: "Invalid category slug" });
+        }
+
+        try {
+            const [category] = await CategoryService.getCategories({
+                slugs: [categorySlug],
+                withImages,
+                withProductCount,
+            });
+
+            res.json(category);
+        } catch (err) {
+            console.warn("error fetching categories", err);
+            res.status(400).json({ message: err.message });
+        }
     }
 
     async getPaginatedActiveItems(req, res) {

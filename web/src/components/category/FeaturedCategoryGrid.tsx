@@ -38,6 +38,7 @@ export default function FeaturedCategoryGrid({
 
                     return (
                         <div
+                            key={fc.uuid}
                             onClick={() => handleClick(fc)}
                             className="category h-[200px] cursor-pointer overflow-hidden relative min-h-full w-full h-full flex flex-col mx-auto justify-center items-center max-w-[350px] lg:max-w-full"
                         >

@@ -104,6 +104,8 @@ export default class CategoryService {
         return category;
     }
     static async getCategories({
+        categoryIds,
+        slugs,
         withImages = false,
         withProductCount = false,
     }) {
@@ -112,6 +114,18 @@ export default class CategoryService {
         let categories = await categoryModel.table.findMany({
             orderBy: {
                 label: "asc",
+            },
+            where: {
+                categoryIds: categoryIds?.length
+                    ? {
+                          in: categoryIds,
+                      }
+                    : undefined,
+                slug: slugs?.length
+                    ? {
+                          in: slugs,
+                      }
+                    : undefined,
             },
         });
 

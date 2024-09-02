@@ -2,11 +2,11 @@ import { Footer } from "flowbite-react";
 
 export default function HomeFooter() {
     return (
-        <div className="container py-2">
+        <div className="container">
             <Footer
                 theme={{
                     root: {
-                        base: "w-full rounded-lg bg-white shadow dark:bg-gray-900 md:flex md:items-center md:justify-between",
+                        base: "w-full rounded-lg bg-white shadow dark:bg-gray-900 md:flex md:items-center md:justify-between mt-4",
                         container: "w-full p-6",
                         bgDark: "bg-gray-900",
                     },
