@@ -1,7 +1,8 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ProductsContext } from "./useProductsContext";
 import usePaginatedActiveItemsQuery from "../hooks/usePaginatedActiveItemsQuery";
 import { defaultProductParams } from "../utils/productParams";
+import { FullProductItem } from "../types/Product";
 
 export default function ProductsProvider({
     children,
@@ -12,8 +13,27 @@ export default function ProductsProvider({
         ...initialParams,
     });
 
-    const { pagination, isLoading, isSuccess, error } =
-        usePaginatedActiveItemsQuery(params);
+    const {
+        pagination: queriedPagination,
+        isLoading,
+        isSuccess,
+        error,
+    } = usePaginatedActiveItemsQuery(params);
+
+    const rows = useMemo(() => {
+        return queriedPagination ? queriedPagination.rows : [];
+    }, [queriedPagination]);
+
+    const pagination = useMemo(() => {
+        return {
+            total: queriedPagination?.total || 0,
+            limit: queriedPagination?.limit || 0,
+            page: queriedPagination?.page || 0,
+            pages: queriedPagination?.pages || 0,
+        };
+    }, [queriedPagination]);
+
+    const [products, setProducts] = useState<FullProductItem[]>([]);
 
     const setParams: ProductsContext["setParams"] = useCallback((toSet) => {
         setParamsState((prev) => ({ ...prev, ...toSet }));
@@ -46,9 +66,30 @@ export default function ProductsProvider({
         [setParams]
     );
 
+    useEffect(() => {
+        const { page, limit } = pagination;
+        const offset = page * limit - limit;
+        setProducts((prevProducts) => {
+            const ps = [...prevProducts];
+            ps.splice(offset, limit, ...rows);
+            console.log(
+                "splicing page",
+                page,
+                "offset",
+                offset,
+                "for limit",
+                limit,
+                "rows.length",
+                rows.length
+            );
+            return ps;
+        });
+    }, [rows, pagination]);
+
     const value = useMemo(() => {
         return {
             params,
+            products,
             pagination,
             isLoading,
             isSuccess,
@@ -57,7 +98,7 @@ export default function ProductsProvider({
             setParams,
             toggleCategory,
         };
-    }, [params, pagination, isLoading, isSuccess, error]);
+    }, [params, pagination, products, isLoading, isSuccess, error]);
 
     return (
         <ProductsContext.Provider value={value}>

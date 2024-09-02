@@ -1,11 +1,11 @@
-import SiteService, { PaginatedProductParams } from "../services/SiteService";
+import { PaginatedProductParams } from "../services/SiteService";
+import { FullProductItem } from "../types/Product";
 import { contextFactory } from "../utils/context";
 
 export type ProductsContext = {
     params: PaginatedProductParams;
-    pagination:
-        | Awaited<ReturnType<typeof SiteService.getPaginatedActiveItems>>
-        | undefined;
+    pagination: { limit: number; total: number; pages: number; page: number };
+    products: FullProductItem[];
     isLoading: boolean;
     isSuccess: boolean;
     error: Error | null;

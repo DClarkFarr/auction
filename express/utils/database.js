@@ -20,6 +20,8 @@ export default function createDBUrl(config) {
         url += `?socket=${config.socket}`;
     }
 
+    url += (url.indexOf("?") > -1 ? "&" : "?") + "timezone=Z";
+
     return url.toString();
 }
 

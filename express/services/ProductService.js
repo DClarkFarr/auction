@@ -11,7 +11,7 @@ import { Prisma } from "@prisma/client";
 import fs from "fs";
 import path from "path";
 import ProductItemModel from "../models/ProductItemModel.js";
-import { keyBy } from "lodash-es";
+import { keyBy, random } from "lodash-es";
 
 /**
  * @typedef {import('../models/ProductModel.js').ProductDocument} ProductDocument
@@ -35,7 +35,7 @@ const PRODUCT_STATUSES = [
 ];
 
 const SORT_OPTIONS = {
-    expiring: ["i.expiresAt", "desc"],
+    expiring: ["i.expiresAt", "asc"],
     name: ["p.name", "asc"],
     quality: ["p.quality", "desc"],
     lowStock: ["p.remainingQuantity", "asc"],
@@ -729,10 +729,11 @@ export default class ProductService {
                 ORDER BY MAX(b.createdAt) DESC
             ) as b ON b.id_item = i.id_item `,
             where: `WHERE i.status = 'active' 
-            AND i.expiredAt IS NULL
-            AND i.expiresAt > NOW() `,
-            order: `ORDER BY ${sortBy} `,
-            limit: `LIMIT ${limit * page - limit}, ${limit} `,
+            AND i.expiredAt IS NULL `,
+            whereRecentlyExpired: `AND i.expiresAt > DATE_SUB(NOW(), INTERVAL 6 HOUR) `,
+            whereNotExpired: `AND i.expiresAt > NOW() `,
+            order: (sb) => `ORDER BY ${sb} `,
+            limit: (skip, take) => `LIMIT ${skip}, ${take} `,
         };
 
         if (categoryIds.length) {
@@ -766,12 +767,54 @@ export default class ProductService {
 
         const prisma = getPrisma();
 
-        const query = `${parts.selectFields} ${parts.from} ${parts.where} ${parts.order} ${parts.limit}`;
-        const totalQuery = `${parts.selectTotal} ${parts.from} ${parts.where}`;
+        const inactivesTotalQuery = `${parts.selectTotal} ${parts.from} ${parts.where} ${parts.whereRecentlyExpired}`;
 
-        const items = await prisma.$queryRawUnsafe(query);
+        const [{ total: bigIntInactiveTotal }] = await prisma.$queryRawUnsafe(
+            inactivesTotalQuery
+        );
+
+        const inactivesTotal = Number(bigIntInactiveTotal);
+
+        const inactivesPerPage = 3;
+        const maxPagesWithInactives = Math.floor(
+            inactivesTotal / inactivesPerPage
+        );
+
+        const totalSubtractedUntilNow =
+            Math.min(page - 1, maxPagesWithInactives) * inactivesPerPage;
+
+        let inactives = [];
+
+        if (page <= maxPagesWithInactives) {
+            const inactivesQuery = `${parts.selectFields} ${parts.from} ${
+                parts.where
+            } ${parts.whereRecentlyExpired} ${parts.order(
+                this.getValidSortBy("invalid", SORT_OPTIONS.expiring)
+            )} ${parts.limit(
+                page * inactivesPerPage - inactivesPerPage,
+                inactivesPerPage
+            )}`;
+
+            inactives = await prisma.$queryRawUnsafe(inactivesQuery);
+        }
+
+        const activesQuery = `${parts.selectFields} ${parts.from} ${
+            parts.where
+        } ${parts.whereNotExpired} ${parts.order(sortBy)} ${parts.limit(
+            page * limit - limit - totalSubtractedUntilNow,
+            limit - (page <= maxPagesWithInactives ? inactivesPerPage : 0)
+        )}`;
+
+        const activesTotalQuery = `${parts.selectTotal} ${parts.from} ${parts.where} ${parts.whereNotExpired}`;
+
+        let items = await prisma.$queryRawUnsafe(activesQuery);
+
+        if (inactives.length) {
+            items = this.spliceInactivesIntoActivesArray(items, inactives);
+        }
+
         const [{ total: bigIntTotal }] = await prisma.$queryRawUnsafe(
-            totalQuery
+            activesTotalQuery
         );
 
         const formattedParams = {
@@ -784,5 +827,15 @@ export default class ProductService {
             priceMax,
         };
         return { items, total: Number(bigIntTotal), formattedParams };
+    }
+
+    static spliceInactivesIntoActivesArray(actives, inactives) {
+        const inserted = [...actives];
+        for (let i = 0; i < inactives.length; i++) {
+            const insertIndex = random(3, inserted.length - 2);
+            inserted.splice(insertIndex, 0, inactives[i]);
+        }
+
+        return inserted;
     }
 }
