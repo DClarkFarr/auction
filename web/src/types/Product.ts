@@ -33,6 +33,13 @@ export type Product = {
     createdAt: string;
 };
 
+export type ProductSortBy =
+    | "expiring"
+    | "name"
+    | "quality"
+    | "lowStock"
+    | "lowPrice";
+
 export type Category = {
     id_category: number;
     label: string;

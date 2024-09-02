@@ -12,6 +12,7 @@ export default function ShopPage() {
                         <ProductsSection.SidebarPrices />
                     </ProductsSection.DesktopSidebar>
                     <div className="shop__grid grow">
+                        <ProductsSection.Heading />
                         <ProductsSection.Grid />
                         <ProductsSection.EndlessScroller />
                     </div>

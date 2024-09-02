@@ -14,6 +14,8 @@ import ProductsDesktopSidebar, {
 import UrlParamsSync from "./ProductsSection/UrlParamsSync";
 import ProductsGrid from "./ProductsSection/ProductsGrid";
 import ProductsItem from "./ProductsSection/ProductsItem";
+import ProductsHeading from "./ProductsSection/ProductsHeading";
+import ProductsSortBy from "./ProductsSection/ProductsSortBy";
 
 function ProductsSectionWrapper({
     children,
@@ -44,6 +46,8 @@ const ProductsSection = Object.assign(ProductsSectionWrapper, {
     SidebarCategories: ProductsSidebarCategories,
     SidebarQualities: ProductsSidebarQualities,
     SidebarPrices: ProductSidebarPrices,
+    Heading: ProductsHeading,
+    SortBy: ProductsSortBy,
 });
 
 export default ProductsSection;

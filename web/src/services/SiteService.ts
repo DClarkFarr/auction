@@ -1,5 +1,11 @@
 import { PaginatedResults } from "../types/Paginate";
-import { Category, FullProductItem, Tag, WithImage } from "../types/Product";
+import {
+    Category,
+    FullProductItem,
+    ProductSortBy,
+    Tag,
+    WithImage,
+} from "../types/Product";
 import { FeaturedCategory } from "../types/SiteSetting";
 import apiClient from "./apiClient";
 
@@ -14,7 +20,7 @@ export type FullFeaturedCategory = FeaturedCategory & {
 };
 
 export type PaginatedProductParams = {
-    sortBy: "active" | "inactive" | "scheduled" | "archived" | "sold" | null;
+    sortBy: ProductSortBy | null;
     categoryIds: number[] | null;
     page: number | null;
     limit: number | null;

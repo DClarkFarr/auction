@@ -14,7 +14,7 @@ export default function ManageCategory({
     onSelectCategory: (idCategory: number) => Promise<void>;
     onCreateCategory: (categoryLabel: string) => Promise<void>;
 }) {
-    const { categories, isLoading } = useCategoriesQuery(false);
+    const { categories, isLoading } = useCategoriesQuery(false, false);
 
     const ref = useRef<SelectInstance>(null);
 
