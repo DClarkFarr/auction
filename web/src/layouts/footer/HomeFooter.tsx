@@ -1,6 +1,17 @@
 import { Footer } from "flowbite-react";
+import { useNavigate } from "react-router-dom";
 
 export default function HomeFooter() {
+    const navigate = useNavigate();
+
+    const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        const target = e.nativeEvent.target as HTMLAnchorElement;
+        if (target) {
+            e.preventDefault();
+            const href = target.getAttribute("href")!;
+            navigate(href);
+        }
+    };
     return (
         <div className="container">
             <Footer
@@ -16,10 +27,18 @@ export default function HomeFooter() {
             >
                 <Footer.Copyright href="#" by="Auction" year={2024} />
                 <Footer.LinkGroup>
-                    <Footer.Link href="#">About</Footer.Link>
-                    <Footer.Link href="#">Privacy Policy</Footer.Link>
-                    <Footer.Link href="#">Licensing</Footer.Link>
-                    <Footer.Link href="#">Contact</Footer.Link>
+                    <Footer.Link href="/" onClick={handleLinkClick}>
+                        Home
+                    </Footer.Link>
+                    <Footer.Link href="/shop" onClick={handleLinkClick}>
+                        Shop
+                    </Footer.Link>
+                    <Footer.Link href="/categories" onClick={handleLinkClick}>
+                        Categories
+                    </Footer.Link>
+                    <Footer.Link href="#" onClick={handleLinkClick}>
+                        Contact
+                    </Footer.Link>
                 </Footer.LinkGroup>
             </Footer>
         </div>
