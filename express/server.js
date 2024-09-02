@@ -9,6 +9,8 @@ import { createEnvironment, env } from "./utils/environment.js";
 
 import WebController from "./controllers/web.controller.js";
 import ApiController from "./controllers/api.controller.js";
+import CronService from "./services/CronService.js";
+import QueueService from "./services/QueueService.js";
 
 createEnvironment({
     PORT: process.env.PORT,
@@ -37,21 +39,25 @@ createEnvironment({
             .then(async (port) => {
                 console.log("listening to port", port);
 
-                setTimeout(() => {
-                    if (env("env") == "production") {
-                        console.log("scheduling cron");
+                const queueService = new QueueService();
 
-                        // schedule to run at 10PM every 5 days
-                        cron.schedule("0 22 */5 * *", async () => {
-                            queueService.add(async () => {
-                                try {
-                                    console.log("log result here");
-                                } catch (err) {
-                                    console.log("log error here");
-                                }
-                            });
+                setTimeout(() => {
+                    console.log("scheduling cron");
+
+                    if (env("env") === "production") {
+                        queueService.add(async () => {
+                            console.log("syncing active products");
+                            const res = await CronService.syncActiveProducts();
+                            console.log("active products synced", res);
                         });
                     }
+                    cron.schedule("0,30 * * * *", async () => {
+                        queueService.add(async () => {
+                            console.log("syncing active products");
+                            const res = await CronService.syncActiveProducts();
+                            console.log("active products synced", res);
+                        });
+                    });
                 }, 2000);
             });
     });

@@ -21,6 +21,7 @@ import { keyBy, random } from "lodash-es";
  * @typedef {import("../models/ImageModel.js").ImageDocument} ImageDocument
  * @typedef {import("@prisma/client").Bid} BidDocument
  * @typedef {ProductDocument['status']} ProductStatus
+ * @typedef {ProductItemDocument['status']} ProductItemStatus
  */
 
 /**
@@ -42,6 +43,86 @@ const SORT_OPTIONS = {
     lowPrice: ["COALESCE(b.amount, p.priceInitial)", "asc"],
 };
 export default class ProductService {
+    /**
+     *
+     * @param {ProductDocument} product
+     * @param {ProductItemDocument} item
+     * @param {ProductItemStatus} status
+     * @param {Partial<ProductItemDocument>} extra - set user info when purchasing
+     */
+    static async publishProductItemStatus(product, item, status, extra = {}) {
+        if (status === "active") {
+            throw new Error('Cannot publish product item status "active"');
+        }
+
+        const prisma = getPrisma();
+
+        const wasActive = item.status === "active";
+        const needsRefund = ["canceled", "expired", "rejected"].includes(
+            status
+        );
+
+        /**
+         * @type {Partial<ProductItemDocument>}
+         */
+        const toSet = { ...extra, status };
+        if (status === "canceled") {
+            toSet.canceledAt = new Date();
+        } else if (status === "expired") {
+            toSet.expiredAt = new Date();
+        } else if (status === "rejected") {
+            const highestBid = await this.getProductItemHighestBid(item);
+            if (!highestBid) {
+                throw new Error(
+                    "how can product be rejected and not have a bid?"
+                );
+            }
+            toSet.rejectedAt = new Date();
+        } else if (status === "purchased") {
+            toSet.purchasedAt = new Date();
+        }
+
+        let updatedItem = await prisma.productItem.update({
+            where: {
+                id_item: item.id_item,
+            },
+            data: toSet,
+        });
+
+        let publishedItems = [];
+        if (product.status === "active" && needsRefund) {
+            await this.adjustRemainingQuantity(product, 1);
+
+            publishedItems.push(
+                ...(await ProductService.publishNextBatch(product, 1))
+            );
+        }
+
+        return {
+            publishedItems,
+            product: {
+                ...product,
+                remainingQuantity: product.remainingQuantity + 1,
+            },
+        };
+    }
+
+    /**
+     *
+     * @param {ProductItemDocument} item
+     */
+    getProductItemHighestBid(item) {
+        const prisma = getPrisma();
+        return prisma.bid.findFirst({
+            where: {
+                id_item: item.id_item,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+        });
+    }
+
     /**
      * @param {ProductStatus} status
      */
@@ -201,14 +282,17 @@ export default class ProductService {
     /**
      * @param {ProductDocument} product
      */
-    static async publishNextBatch(product) {
+    static async publishNextBatch(product, overrideBatchSize = null) {
         if (product.remainingQuantity < 1) {
             throw new Error(
                 "Product currently has no quantity remaining. Update, then attempt activation."
             );
         }
         // get product batch count. "available quantity" - "batch count"
-        const toCreate = this.getNextPublishBatchCount(product);
+        const toCreate = this.getNextPublishBatchCount(
+            product,
+            overrideBatchSize
+        );
 
         // create items
         const items = await this.createAndPublishProductItems(
@@ -266,8 +350,8 @@ export default class ProductService {
     /**
      * @param {ProductDocument} product
      */
-    static getNextPublishBatchCount(product) {
-        const batchSize = product.auctionBatchCount;
+    static getNextPublishBatchCount(product, overrideBatchSize = null) {
+        const batchSize = overrideBatchSize || product.auctionBatchCount;
         const remainingQuantity = product.remainingQuantity;
 
         const toCreate =
@@ -728,10 +812,9 @@ export default class ProductService {
                 GROUP BY b.id_item 
                 ORDER BY MAX(b.createdAt) DESC
             ) as b ON b.id_item = i.id_item `,
-            where: `WHERE i.status = 'active' 
-            AND i.expiredAt IS NULL `,
+            where: `WHERE 1 `,
             whereRecentlyExpired: `AND (i.expiresAt > DATE_SUB(NOW(), INTERVAL 6 HOUR) AND i.expiresAt < NOW()) `,
-            whereNotExpired: `AND i.expiresAt > NOW() `,
+            whereNotExpired: ` AND i.status = 'active' AND i.expiresAt > NOW() `,
             order: (sb) => `ORDER BY ${sb} `,
             limit: (skip, take) => `LIMIT ${skip}, ${take} `,
         };
@@ -782,9 +865,9 @@ export default class ProductService {
         const activesTotal = Number(bigIntActiveTotal);
 
         const inactivesPerPage = 3;
-        const maxPagesWithInactives = Math.floor(
-            inactivesTotal / inactivesPerPage
-        );
+        const maxPagesWithInactives =
+            Math.floor(inactivesTotal / inactivesPerPage) ||
+            (inactivesTotal ? 1 : 0);
 
         const totalSubtractedUntilNow =
             Math.min(page - 1, maxPagesWithInactives) * inactivesPerPage;
