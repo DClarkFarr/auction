@@ -391,7 +391,7 @@ function ProductsEndlessScroller() {
     const [{ y }] = useWindowScroll();
     const ref = useRef<HTMLDivElement>(null);
 
-    const { pagination, setPage } = useProductsContext();
+    const { pagination, setPage, products, isLoading } = useProductsContext();
 
     const { page, pages } = pagination || { page: 1 };
 
@@ -433,7 +433,7 @@ function ProductsEndlessScroller() {
 
     return (
         <div ref={ref}>
-            {page >= pages && (
+            {page >= pages && products.length > 1 && !isLoading && (
                 <div className="pt-4">
                     <Banner>
                         <div className="flex w-full justify-between border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-700">
