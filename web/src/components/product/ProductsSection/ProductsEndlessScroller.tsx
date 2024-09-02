@@ -5,7 +5,7 @@ import EmptyIcon from "~icons/ic/baseline-help";
 import { useProductsContext } from "../../../providers/useProductsContext";
 
 export default function ProductsEndlessScroller() {
-    const [{ y }] = useWindowScroll();
+    const [{ y }, scrollTo] = useWindowScroll();
     const ref = React.useRef<HTMLDivElement>(null);
 
     const { pagination, setPage, products, isLoading } = useProductsContext();
@@ -20,6 +20,7 @@ export default function ProductsEndlessScroller() {
          */
         if (page === 1 && nextPage > 2) {
             setNextPage(1);
+            scrollTo({ top: 0, behavior: "smooth" });
         }
 
         const current = ref.current;

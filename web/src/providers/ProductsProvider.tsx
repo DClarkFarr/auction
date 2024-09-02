@@ -44,12 +44,14 @@ export default function ProductsProvider({
             const index = (params.categoryIds || []).indexOf(idCategory);
             if (index > -1 && params.categoryIds) {
                 setParams({
+                    page: 1,
                     categoryIds: params.categoryIds.filter(
                         (c) => c !== idCategory
                     ),
                 });
             } else {
                 setParams({
+                    page: 1,
                     categoryIds: [...(params.categoryIds || []), idCategory],
                 });
             }

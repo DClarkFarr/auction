@@ -68,7 +68,7 @@ export default function Stars({
                 return (
                     <div
                         className={cls(
-                            "star p-1 rounded",
+                            "star py-1 px-[2px] rounded",
                             readOnly ? "" : "cursor-pointer"
                         )}
                         onClick={handleClick(val)}

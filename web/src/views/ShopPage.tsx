@@ -5,9 +5,11 @@ export default function ShopPage() {
     return (
         <ProductsSection>
             <div className="container">
-                <div className="shop lg:flex">
+                <div className="shop lg:flex gap-x-4">
                     <ProductsSection.DesktopSidebar>
-                        sidebar here
+                        <ProductsSection.SidebarCategories multiple />
+                        <ProductsSection.SidebarQualities />
+                        <ProductsSection.SidebarPrices />
                     </ProductsSection.DesktopSidebar>
                     <div className="shop__grid grow">
                         <ProductsSection.Grid />

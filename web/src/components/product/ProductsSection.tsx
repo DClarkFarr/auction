@@ -6,7 +6,11 @@ import { getProductQueryParams } from "../../utils/productParams";
 import { PaginatedProductParams } from "../../services/SiteService";
 
 import ProductsEndlessScroller from "./ProductsSection/ProductsEndlessScroller";
-import ProductsDesktopSidebar from "./ProductsSection/ProductsDesktopSidebar";
+import ProductsDesktopSidebar, {
+    ProductSidebarPrices,
+    ProductsSidebarCategories,
+    ProductsSidebarQualities,
+} from "./ProductsSection/ProductsDesktopSidebar";
 import UrlParamsSync from "./ProductsSection/UrlParamsSync";
 import ProductsGrid from "./ProductsSection/ProductsGrid";
 import ProductsItem from "./ProductsSection/ProductsItem";
@@ -37,6 +41,9 @@ const ProductsSection = Object.assign(ProductsSectionWrapper, {
     Grid: ProductsGrid,
     DesktopSidebar: ProductsDesktopSidebar,
     EndlessScroller: ProductsEndlessScroller,
+    SidebarCategories: ProductsSidebarCategories,
+    SidebarQualities: ProductsSidebarQualities,
+    SidebarPrices: ProductSidebarPrices,
 });
 
 export default ProductsSection;
