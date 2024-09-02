@@ -819,8 +819,6 @@ export default class ProductService {
                 limit - (page <= maxPagesWithInactives ? inactivesPerPage : 0)
             )}`;
 
-            console.log(activesQuery);
-
             items = await prisma.$queryRawUnsafe(activesQuery);
 
             if (inactives.length) {
