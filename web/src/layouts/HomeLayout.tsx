@@ -18,7 +18,7 @@ export default function HomeLayout({ children }: { children?: ReactNode }) {
                     <HomeHeader />
                 </header>
                 <main className="layout__main">{body}</main>
-                <footer className="layout__footer py-5">
+                <footer>
                     <HomeFooter />
                 </footer>
             </div>

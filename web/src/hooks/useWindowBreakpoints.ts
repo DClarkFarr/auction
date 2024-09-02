@@ -41,6 +41,8 @@ export function useWindowBreakpoints() {
         };
         window.addEventListener("resize", handler);
 
+        handler();
+
         return () => window.removeEventListener("resize", handler);
     }, []);
 
@@ -55,4 +57,14 @@ export function useIsMinBreakpoint(breakpoint: keyof typeof sizes) {
     }, [breakpoint, currentBreakpoint]);
 
     return isMinBreakpoint;
+}
+
+export function useIsMaxBreakpoint(breakpoint: keyof typeof sizes) {
+    const currentBreakpoint = useWindowBreakpoints();
+
+    const isMaxBreakpoint = useMemo(() => {
+        return sizes[currentBreakpoint] <= sizes[breakpoint];
+    }, [breakpoint, currentBreakpoint]);
+
+    return isMaxBreakpoint;
 }

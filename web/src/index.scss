@@ -80,3 +80,7 @@ body,
 .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
+
+.max-w-screen {
+    max-width: 100vw;
+}

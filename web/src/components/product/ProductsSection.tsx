@@ -16,6 +16,7 @@ import ProductsGrid from "./ProductsSection/ProductsGrid";
 import ProductsItem from "./ProductsSection/ProductsItem";
 import ProductsHeading from "./ProductsSection/ProductsHeading";
 import ProductsSortBy from "./ProductsSection/ProductsSortBy";
+import ProductsToggleMobileFilters from "./ProductsSection/ProductsToggleMobileFilters";
 
 function ProductsSectionWrapper({
     children,
@@ -48,6 +49,7 @@ const ProductsSection = Object.assign(ProductsSectionWrapper, {
     SidebarPrices: ProductSidebarPrices,
     Heading: ProductsHeading,
     SortBy: ProductsSortBy,
+    ToggleMobileFilters: ProductsToggleMobileFilters,
 });
 
 export default ProductsSection;

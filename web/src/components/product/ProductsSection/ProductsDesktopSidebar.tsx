@@ -10,15 +10,21 @@ import Stars from "../../controls/Stars";
 import { ProductQuality } from "../../../types/Product";
 import MoneyIcon from "~icons/ic/baseline-attach-money";
 import { formatCurrency } from "../../../utils/currency";
+import { createPortal } from "react-dom";
 
 export default function ProductsDesktopSidebar({
     children,
+    teleportMobile,
 }: {
     children: React.ReactNode;
+    teleportMobile?: React.RefObject<HTMLDivElement>;
 }) {
     const isDesktop = useIsMinBreakpoint("lg");
 
     if (!isDesktop) {
+        if (teleportMobile?.current) {
+            return createPortal(<>{children}</>, teleportMobile.current);
+        }
         return null;
     }
 

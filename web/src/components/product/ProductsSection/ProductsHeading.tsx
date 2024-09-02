@@ -29,7 +29,7 @@ export default function ProductsHeading({
 
     return (
         <div className="border-b border-b-gray-300 mb-4">
-            <div className="products-heading p-2 bg-gray-200 w-full flex items-center gap-4 justify-end">
+            <div className="products-heading p-2 bg-gray-200 w-full flex flex-wrap md:flex-nowrap items-center gap-4 justify-end">
                 {children}
                 {isLg && (
                     <div className="self-end">
