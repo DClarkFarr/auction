@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function useRedirect(defaultPath = "/") {
     const [searchParams] = useSearchParams();

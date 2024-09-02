@@ -301,6 +301,10 @@ function CategoryRow({
         }
     };
 
+    const handleCategoryRemove = (
+        e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => (onRemove(featuredCategory), e.preventDefault());
+
     useEffect(() => {
         if (
             categories.length &&
@@ -333,10 +337,7 @@ function CategoryRow({
                             <Button
                                 size="xs"
                                 color="failure"
-                                onClick={(e) => (
-                                    onRemove(featuredCategory),
-                                    e.preventDefault()
-                                )}
+                                onClick={handleCategoryRemove}
                             >
                                 <TimesIcon />
                             </Button>

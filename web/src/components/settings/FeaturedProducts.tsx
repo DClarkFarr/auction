@@ -306,6 +306,10 @@ function ProductRow({
         });
     };
 
+    const handleProductRemove = (
+        e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => (onRemove(featuredProduct), e.preventDefault());
+
     useEffect(() => {
         if (
             products.length &&
@@ -338,10 +342,7 @@ function ProductRow({
                             <Button
                                 size="xs"
                                 color="failure"
-                                onClick={(e) => (
-                                    onRemove(featuredProduct),
-                                    e.preventDefault()
-                                )}
+                                onClick={handleProductRemove}
                             >
                                 <TimesIcon />
                             </Button>
