@@ -14,7 +14,7 @@ export default function HomeLayout({ children }: { children?: ReactNode }) {
     return (
         <StripeProvider>
             <div className="layout layout--home">
-                <header className="layout__header">
+                <header className="layout__header mb-4 border-b-2 border-gray-300">
                     <HomeHeader />
                 </header>
                 <main className="layout__main">{body}</main>
