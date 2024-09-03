@@ -102,9 +102,52 @@ export default function HomeHeader() {
                                         {user.email}
                                     </span>
                                 </Dropdown.Header>
-                                <Dropdown.Item>Dashboard</Dropdown.Item>
-                                <Dropdown.Item>Settings</Dropdown.Item>
-                                <Dropdown.Item>Earnings</Dropdown.Item>
+                                {user.role === "admin" && (
+                                    <>
+                                        <Dropdown.Item>
+                                            <Link to="/admin">Dashboard</Link>
+                                        </Dropdown.Item>
+                                        <Dropdown.Item>
+                                            <Link to="/admin/products">
+                                                Manage Products
+                                            </Link>
+                                        </Dropdown.Item>
+                                        <Dropdown.Item>
+                                            <Link to="/admin/settings">
+                                                Site Settings
+                                            </Link>
+                                        </Dropdown.Item>
+                                        <Dropdown.Item>
+                                            <Link to="/account/profile">
+                                                Profile Settings
+                                            </Link>
+                                        </Dropdown.Item>
+                                    </>
+                                )}
+                                {user.role === "user" && (
+                                    <>
+                                        <Dropdown.Item>
+                                            <Link to="/account/profile">
+                                                Profile Settings
+                                            </Link>
+                                        </Dropdown.Item>
+                                        <Dropdown.Item>
+                                            <Link to="/account/purchases">
+                                                Purchase History
+                                            </Link>
+                                        </Dropdown.Item>
+                                        <Dropdown.Item>
+                                            <Link to="/account/favorites">
+                                                My Favorites
+                                            </Link>
+                                        </Dropdown.Item>
+                                        <Dropdown.Item>
+                                            <Link to="/account/bids">
+                                                My Active Bids
+                                            </Link>
+                                        </Dropdown.Item>
+                                    </>
+                                )}
                                 <Dropdown.Divider />
                                 <Dropdown.Item onClick={onClickLogout}>
                                     Sign out
