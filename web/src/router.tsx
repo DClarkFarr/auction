@@ -20,6 +20,7 @@ import ShopPage from "./views/ShopPage";
 import ShopSinglePage from "./views/Shop/ShopSinglePage";
 import ShopCategoriesPage from "./views/CategoriesPage";
 import CategoriesSinglePage from "./views/Categories/CategoriesSinglePage";
+import TestPage from "./views/TestPage";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -41,6 +42,10 @@ function ErrorPage() {
 }
 
 const router = createBrowserRouter([
+    {
+        path: "/test",
+        element: <TestPage />,
+    },
     {
         path: "/",
         element: <HomeLayout />,
