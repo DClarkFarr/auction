@@ -6,7 +6,7 @@ import {
     Tag,
     WithImage,
 } from "../types/Product";
-import { FeaturedCategory } from "../types/SiteSetting";
+import { FeaturedCategory, FeaturedProduct } from "../types/SiteSetting";
 import apiClient from "./apiClient";
 
 type WithProductCount<T, P> = P extends true ? T & { productCount: number } : T;
@@ -17,6 +17,10 @@ type CategoriesResponse<I, P> = WithProductCount<
 
 export type FullFeaturedCategory = FeaturedCategory & {
     category: WithImage<Category>;
+};
+
+export type FullFeaturedProduct = FeaturedProduct & {
+    item: FullProductItem;
 };
 
 export type PaginatedProductParams = {
@@ -66,6 +70,12 @@ export default class SiteService {
     static async getFeaturedCategories() {
         return apiClient
             .get<FullFeaturedCategory[]>("/site/categories/featured")
+            .then((res) => res.data);
+    }
+
+    static async getFeaturedProducts() {
+        return apiClient
+            .get<FullFeaturedProduct[]>("/site/products/featured")
             .then((res) => res.data);
     }
 

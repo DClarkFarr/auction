@@ -28,6 +28,11 @@ export default class SiteController extends BaseController {
             this.route(this.getPaginatedActiveItems)
         );
 
+        this.router.get(
+            "/products/featured",
+            this.route(this.getFeaturedProducts)
+        );
+
         this.router.get("/tags", this.route(this.getTags));
 
         this.router.get("/setting/:key", this.route(this.getSetting));
@@ -95,8 +100,21 @@ export default class SiteController extends BaseController {
 
             res.json(setting);
         } catch (err) {
-            console.warn("caught error getting site setting", err.message);
+            console.warn("caught error getting site setting", err);
             res.status(400).json({ message: err.message });
+        }
+    }
+
+    async getFeaturedProducts(req, res) {
+        try {
+            const featuredProducts = await ProductService.getFeaturedProducts();
+
+            res.json(featuredProducts);
+        } catch (err) {
+            console.warn("Error getting featured products", err);
+            res.status(400).json({
+                message: "Error getting featured products",
+            });
         }
     }
 
@@ -107,7 +125,7 @@ export default class SiteController extends BaseController {
 
             res.json(featuredCategores);
         } catch (err) {
-            console.warn("Error getting featured categories", err.message);
+            console.warn("Error getting featured categories", err);
             res.status(400).json({
                 message: "Error getting featured categories",
             });
@@ -125,7 +143,7 @@ export default class SiteController extends BaseController {
             const settings = await SiteService.getSettings(keys);
             res.json(settings);
         } catch (err) {
-            console.warn("caught error getting site setting", err.message);
+            console.warn("caught error getting site setting", err);
             res.status(400).json({ message: err.message });
         }
     }

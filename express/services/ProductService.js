@@ -12,6 +12,7 @@ import fs from "fs";
 import path from "path";
 import ProductItemModel from "../models/ProductItemModel.js";
 import { keyBy, random } from "lodash-es";
+import SiteService from "./SiteService.js";
 
 /**
  * @typedef {import('../models/ProductModel.js').ProductDocument} ProductDocument
@@ -946,5 +947,68 @@ export default class ProductService {
         }
 
         return inserted;
+    }
+
+    static async getFeaturedProducts() {
+        const setting = await SiteService.getSetting("featuredProducts");
+
+        /**
+         * @type {{
+         *  name: string,
+         *  uuid: string,
+         *  image: string,
+         *  order: number,
+         *  description: string,
+         *  id_product: number
+         *  }[]}
+         */
+        const featuredProducts = setting?.value || {};
+
+        const populated = (
+            await Promise.all(
+                featuredProducts.map(async (fp) => {
+                    const product = await this.getProductById(fp.id_product);
+
+                    if (product.status !== "active") {
+                        return null;
+                    }
+
+                    const possiblyActiveItems =
+                        await this.getActiveProductItems(product);
+
+                    const now = DateTime.now();
+
+                    const firstForSureActiveItem = possiblyActiveItems.find(
+                        (i) => {
+                            const expiresAt = DateTime.fromJSDate(i.expiresAt);
+
+                            if (!i.claimedAt && expiresAt > now) {
+                                return true;
+                            }
+                            return false;
+                        }
+                    );
+
+                    if (!firstForSureActiveItem) {
+                        return null;
+                    }
+
+                    const highestBid = await this.getProductItemHighestBid(
+                        firstForSureActiveItem
+                    );
+
+                    return {
+                        ...fp,
+                        item: {
+                            ...firstForSureActiveItem,
+                            bid: highestBid,
+                            product: product,
+                        },
+                    };
+                })
+            )
+        ).filter((p) => !!p);
+
+        return populated;
     }
 }

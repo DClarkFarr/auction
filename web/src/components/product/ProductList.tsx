@@ -60,7 +60,7 @@ function ProductListTable({
                     {!pagination?.rows.length && !message && (
                         <Table.Row>
                             <Table.Cell colSpan={6}>
-                                <Alert color="info">No prodcuts selected</Alert>
+                                <Alert color="info">No products selected</Alert>
                             </Table.Cell>
                         </Table.Row>
                     )}

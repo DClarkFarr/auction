@@ -312,6 +312,7 @@ export default function UpdateProductForm({
                             attrs={attrs}
                             label="Store Cost"
                             type="number"
+                            step=".01"
                             isSubmitting={isSubmitting}
                         />
                     </div>
@@ -322,6 +323,7 @@ export default function UpdateProductForm({
                             attrs={attrs}
                             label="Starting Bid Price"
                             type="number"
+                            step=".01"
                             isSubmitting={isSubmitting}
                         />
                     </div>
@@ -332,6 +334,7 @@ export default function UpdateProductForm({
                             attrs={attrs}
                             label="Retail Compare Price"
                             type="number"
+                            step=".01"
                             isSubmitting={isSubmitting}
                         />
                     </div>
