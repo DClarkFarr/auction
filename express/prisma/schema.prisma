@@ -16,8 +16,9 @@ model User {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    Bid        Bid[]
-    stripeUser StripeUser?
+    Bid         Bid[]
+    stripeUser  StripeUser?
+    ProductItem ProductItem[]
 }
 
 model Product {
@@ -49,9 +50,11 @@ model ProductItem {
     id_item     Int                 @id @default(autoincrement())
     id_product  Int
     id_purchase Int?
+    id_user     Int?
     expiresAt   DateTime
     createdAt   DateTime?           @default(now())
     expiredAt   DateTime?
+    claimedAt   DateTime?
     purchasedAt DateTime?
     rejectsAt   DateTime?
     rejectedAt  DateTime?
@@ -59,10 +62,12 @@ model ProductItem {
     status      PRODUCT_ITEM_STATUS @default(active)
 
     product           Product             @relation(fields: [id_product], references: [id_product])
+    user              User?               @relation(fields: [id_user], references: [id])
     bids              Bid[]
     ProductCategories ProductCategories[]
 
     @@index([id_product])
+    @@index([id_user])
 }
 
 model Bid {
@@ -181,8 +186,9 @@ enum BID_STATUS {
 
 enum PRODUCT_ITEM_STATUS {
     active // auction still ongoing
-    purchased // was bought
-    rejected // somebody bid, but didn't pay
-    expired // nobody bid
     canceled // when product is changed to inactive
+    claimed // bidder won it, but hasn't paid yet
+    expired // nobody bid
+    purchased // was bought
+    rejected // somebody bid, but didn't pay, or decided to cancel
 }

@@ -26,21 +26,37 @@ export default class CronService {
                 const productItems = await prisma.productItem.findMany({
                     where: {
                         id_product: product.id_product,
-                        status: "active",
+                        status: {
+                            in: ["active", "claimed"],
+                        },
                     },
                 });
 
                 if (!productItems.length) {
-                    /**
-                     * No active products, set product to status = sold
-                     */
-                    await ProductService.markSoldProduct(product);
+                    if (product.remainingQuantity > 0) {
+                        items.push(
+                            ...(await ProductService.publishNextBatch(product))
+                        );
 
-                    status = "sold";
+                        status = "next-batch'";
+                    } else {
+                        /**
+                         * No active products or remaining inventory, set product to status = sold
+                         */
+                        await ProductService.markSoldProduct(product);
+
+                        status = "sold";
+                    }
                 } else {
                     await Promise.all(
                         productItems.map(async (item) => {
                             const now = DateTime.now();
+
+                            if (item.claimedAt) {
+                                throw new Error(
+                                    "Why is claimed item still active?"
+                                );
+                            }
 
                             if (item.purchasedAt) {
                                 throw new Error(
@@ -85,12 +101,36 @@ export default class CronService {
                                     item.expiresAt
                                 );
                                 if (now > expiresAt) {
-                                    const result =
-                                        await ProductService.publishProductItemStatus(
-                                            product,
-                                            item,
-                                            "expired"
+                                    const highestBid =
+                                        await ProductService.getProductItemHighestBid(
+                                            item
                                         );
+
+                                    /**
+                                     * @type {ReturnType<ProductService.publishProductItemStatus>}
+                                     */
+                                    let result;
+                                    if (highestBid) {
+                                        result =
+                                            await ProductService.publishProductItemStatus(
+                                                product,
+                                                item,
+                                                "claimed",
+                                                {
+                                                    rejectsAt: DateTime.now()
+                                                        .plus({ day: 1 })
+                                                        .toJSDate(),
+                                                    id_user: bid.id_user,
+                                                }
+                                            );
+                                    } else {
+                                        result =
+                                            await ProductService.publishProductItemStatus(
+                                                product,
+                                                item,
+                                                "expired"
+                                            );
+                                    }
 
                                     product = result.product;
 

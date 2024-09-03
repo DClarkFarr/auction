@@ -77,9 +77,11 @@ export type ProductItem = {
     id_item: number;
     id_product: number;
     id_purchase: number | null;
+    id_user: number | null;
     expiresAt: string;
     createdAt: string;
     expiredAt: string;
+    claimedAt: string;
     purchasedAt: string;
     rejectsAt: string;
     rejectedAt: string;

@@ -70,6 +70,8 @@ export default class ProductService {
             toSet.canceledAt = new Date();
         } else if (status === "expired") {
             toSet.expiredAt = new Date();
+        } else if (status === "claimed") {
+            toSet.claimedAt = new Date();
         } else if (status === "rejected") {
             const highestBid = await this.getProductItemHighestBid(item);
             if (!highestBid) {
@@ -111,7 +113,7 @@ export default class ProductService {
      *
      * @param {ProductItemDocument} item
      */
-    getProductItemHighestBid(item) {
+    static async getProductItemHighestBid(item) {
         const prisma = getPrisma();
         return prisma.bid.findFirst({
             where: {

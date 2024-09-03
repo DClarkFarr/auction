@@ -38,7 +38,11 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
             : (false as const);
 
         const isInactive =
-            p.canceledAt || p.purchasedAt || p.status !== "active";
+            p.canceledAt ||
+            p.purchasedAt ||
+            p.claimedAt ||
+            p.rejectedAt ||
+            p.status !== "active";
 
         const borderColor = isExpired
             ? "border-red-600"
