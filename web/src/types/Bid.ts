@@ -11,3 +11,4 @@ export type Bid = {
 };
 
 export type WithBid<T> = T & { bid: Bid };
+export type WithBids<T> = T & { bids: Bid[] };

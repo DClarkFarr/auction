@@ -1,6 +1,7 @@
 import { UpdateCategoryFormState } from "../components/category/UpdateCategoryForm";
 import { CreateProductFormState } from "../components/product/CreateProductForm";
 import { UpdateProductFormState } from "../components/product/UpdateProductForm";
+import { WithBids } from "../types/Bid";
 import { PaginatedResults } from "../types/Paginate";
 import {
     Category,
@@ -9,6 +10,7 @@ import {
     Image,
     Product,
     ProductDetailItem,
+    ProductItem,
     ProductStatus,
     Tag,
     WithCategory,
@@ -72,6 +74,14 @@ export default class AdminService {
     static getProduct(idProduct: number) {
         return apiClient
             .get<FullProduct>(`/admin/products/${idProduct}`)
+            .then((res) => res.data);
+    }
+
+    static getProductInventory(idProduct: number) {
+        return apiClient
+            .get<WithBids<ProductItem>[]>(
+                `/admin/products/${idProduct}/inventory`
+            )
             .then((res) => res.data);
     }
 

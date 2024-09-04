@@ -12,6 +12,7 @@ import ImageModel from "../../models/ImageModel.js";
 import CategoryService from "../../services/CategoryService.js";
 import CategoryModel from "../../models/CategoryModel.js";
 import SiteService from "../../services/SiteService.js";
+import ProductItemModel from "../../models/ProductItemModel.js";
 
 export default class AdminController extends BaseController {
     base = "/admin";
@@ -66,6 +67,12 @@ export default class AdminController extends BaseController {
             "/products/:id",
             middleware,
             this.route(this.queryProduct)
+        );
+
+        this.router.get(
+            "/products/:id/inventory",
+            middleware,
+            this.route(this.getProductInventory)
         );
 
         this.router.put(
@@ -127,6 +134,30 @@ export default class AdminController extends BaseController {
             middleware,
             this.route(this.saveSiteSetting)
         );
+    }
+
+    async getProductInventory(req, res) {
+        const productId = req.params.id;
+        const productItemModel = new ProductItemModel();
+
+        try {
+            const items = await productItemModel.table.findMany({
+                where: {
+                    id_product: Number(productId),
+                },
+                include: {
+                    bids: true,
+                },
+                orderBy: {
+                    createdAt: "desc",
+                },
+            });
+
+            res.json(items);
+        } catch (err) {
+            console.warn("error saving site setting", err.message);
+            res.status(400).json({ message: err.message });
+        }
     }
 
     async saveSiteSetting(req, res) {

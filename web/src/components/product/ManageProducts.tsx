@@ -14,6 +14,7 @@ import ViewIcon from "~icons/ic/round-remove-red-eye";
 import { Link, useNavigate } from "react-router-dom";
 import { ProductStatusButtons } from "./ManageStatusBar";
 import { useProductStatus } from "../../hooks/admin/useProductQuery";
+import InventoryIcon from "~icons/ic/baseline-production-quantity-limits";
 
 type ProductTabs = "active" | "archived" | "sold";
 
@@ -156,6 +157,16 @@ function ProductActions({
 }) {
     return (
         <div className="flex gap-x-3">
+            <div>
+                <Button
+                    color="dark"
+                    as={Link}
+                    size="xs"
+                    to={`/admin/products/${product.id_product}/inventory`}
+                >
+                    <InventoryIcon />
+                </Button>
+            </div>
             <div>
                 {edit && (
                     <Tooltip style="dark" content="Edit Product">

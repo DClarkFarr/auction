@@ -71,7 +71,12 @@ export type WithProductCount<T> = T & { productCount: number };
 export type FullProduct = WithCategory<WithTags<WithImages<Product>>>;
 export type FullCategory = WithImage<Category>;
 
-export type ProductItemStatus = "active" | "inactive";
+export type ProductItemStatus =
+    | "canceled"
+    | "claimed"
+    | "expired"
+    | "purchased"
+    | "rejected";
 
 export type ProductItem = {
     id_item: number;

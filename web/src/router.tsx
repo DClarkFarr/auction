@@ -23,6 +23,7 @@ import CategoriesSinglePage from "./views/Categories/CategoriesSinglePage";
 import TestPage from "./views/TestPage";
 import AccountLayout from "./layouts/AccountLayout";
 import AccountProfile from "./views/account/AccountProfile";
+import ProductInventoryPage from "./views/admin/Products/ProductInventoryPage";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -101,6 +102,10 @@ const router = createBrowserRouter([
                     {
                         path: ":id",
                         element: <ProductSinglePage />,
+                    },
+                    {
+                        path: ":id/inventory",
+                        element: <ProductInventoryPage />,
                     },
                 ],
             },
