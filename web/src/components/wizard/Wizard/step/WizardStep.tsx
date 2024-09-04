@@ -12,7 +12,10 @@ function WizardStepWrapper({ children, ...props }: WizardStepProps) {
 
 function StepBody({ children }: { children: React.ReactNode }) {
     const { isActive } = useWizardStepContext();
-    return <>{isActive ? children : null}</>;
+    if (!isActive) {
+        return null;
+    }
+    return <div className="step-body">{isActive ? children : null}</div>;
 }
 const WizardStep = Object.assign(WizardStepWrapper, {
     Body: StepBody,
