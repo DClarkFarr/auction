@@ -61,9 +61,18 @@ export default function AdminHeader() {
                                 {user.email}
                             </span>
                         </Dropdown.Header>
-                        <Dropdown.Item>Dashboard</Dropdown.Item>
-                        <Dropdown.Item>Settings</Dropdown.Item>
-                        <Dropdown.Item>Earnings</Dropdown.Item>
+                        <Dropdown.Item>
+                            <Link to="/admin">Dashboard</Link>
+                        </Dropdown.Item>
+                        <Dropdown.Item>
+                            <Link to="/admin/products">Manage Products</Link>
+                        </Dropdown.Item>
+                        <Dropdown.Item>
+                            <Link to="/admin/settings">Site Settings</Link>
+                        </Dropdown.Item>
+                        <Dropdown.Item>
+                            <Link to="/account/profile">Profile Settings</Link>
+                        </Dropdown.Item>
                         <Dropdown.Divider />
                         <Dropdown.Item onClick={onClickLogout}>
                             Sign out

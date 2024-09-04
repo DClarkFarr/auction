@@ -1,3 +1,4 @@
+import { ResetPasswordState } from "../components/user/ResetPasswordForm";
 import { PaymentMethod } from "../stores/useUserStore";
 import { RegisterPayload, User } from "../types/User";
 import apiClient from "./apiClient";
@@ -10,6 +11,10 @@ export default class UserService {
                 password,
             })
             .then(({ data }) => data);
+    }
+
+    static changeUserPassword(idUser: number, state: ResetPasswordState) {
+        return apiClient.post(`/user/${idUser}/password`, state).then(() => {});
     }
     static register(data: RegisterPayload) {
         return apiClient

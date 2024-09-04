@@ -21,6 +21,8 @@ import ShopSinglePage from "./views/Shop/ShopSinglePage";
 import ShopCategoriesPage from "./views/CategoriesPage";
 import CategoriesSinglePage from "./views/Categories/CategoriesSinglePage";
 import TestPage from "./views/TestPage";
+import AccountLayout from "./layouts/AccountLayout";
+import AccountProfile from "./views/account/AccountProfile";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -123,6 +125,16 @@ const router = createBrowserRouter([
             {
                 path: "",
                 element: <DashboardPage />,
+            },
+        ],
+    },
+    {
+        path: "/account",
+        element: <AccountLayout />,
+        children: [
+            {
+                path: "profile",
+                element: <AccountProfile />,
             },
         ],
     },

@@ -5,7 +5,7 @@ import UserError from "../errors/UserError.js";
 import { getPrisma } from "../prisma/client.js";
 
 const hashPassword = (val) => bcrypt.hashSync(val, 10);
-const validatePassword = async (text, hash) =>
+const verifyPassword = async (text, hash) =>
     bcrypt.compareSync(text, hash) ? true : false;
 
 /**
@@ -39,7 +39,7 @@ class UserModel {
      * @param {string} password
      */
     validateUserPassword(user, password) {
-        return validatePassword(password, user.password);
+        return verifyPassword(password, user.password);
     }
 
     /**

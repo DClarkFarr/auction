@@ -10,6 +10,7 @@ import { hasUser } from "../../middleware/auth.middleware.js";
 import UserModel from "../../models/UserModel.js";
 import { hasRecaptcha } from "../../middleware/recaptcha.middleware.js";
 import StripeService from "../../services/StripeService.js";
+import { validatePassword } from "../../utils/validators.js";
 
 class UserController extends BaseController {
     base = "/user";
@@ -36,6 +37,13 @@ class UserController extends BaseController {
             this.route(this.userRegister)
         );
 
+        this.router.post(
+            "/:id/password",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.changeUserPassword)
+        );
+
         this.router.get("/test", (req, res) => {
             res.json({ message: "test" });
         });
@@ -46,6 +54,47 @@ class UserController extends BaseController {
             hasUser(),
             this.route(this.getUser)
         );
+    }
+
+    async changeUserPassword(req, res) {
+        const userModel = new UserModel();
+
+        try {
+            const { oldPassword, newPassword, confirmPassword } = req.body;
+
+            const user = await userModel.table.findFirst({
+                where: {
+                    id: req.user.id,
+                },
+            });
+
+            if (!(await userModel.validateUserPassword(user, oldPassword))) {
+                return res
+                    .status(400)
+                    .json({ message: "Current password was invalid" });
+            }
+
+            if (!validatePassword(newPassword)) {
+                return res.status(400).json({
+                    message: "New password doesn't match requirements",
+                });
+            }
+
+            if (newPassword !== confirmPassword) {
+                return res
+                    .status(400)
+                    .json({ message: "New passwords don't match." });
+            }
+
+            await userModel.update(user.id, {
+                password: userModel.hashPassword(newPassword),
+            });
+
+            res.json({ message: "Password updated" });
+        } catch (err) {
+            console.warn("caught error changing user password", err);
+            res.status(400).json({ message: "Error updating user's password" });
+        }
     }
 
     async getUser(req, res) {
