@@ -13,7 +13,7 @@ export default function TestPage() {
                 <div className="max-h-[600px]">
                     <Wizard
                         styles={css(`
-                            max-height: 100%;
+                            max-height: 600px;
                         `)}
                         onCompleteWizard={onCompleteWizard}
                         initialActiveStep="email"
