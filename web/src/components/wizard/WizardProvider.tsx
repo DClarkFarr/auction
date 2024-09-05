@@ -11,6 +11,8 @@ export type WizardProviderProps = WizardProps;
 
 export default function WizardProvider({
     onCompleteWizard,
+    onCancelWizard,
+    showCancelActions: showCancelActionsControl,
     showStepper: showStepperControl,
     onShowStepper: setShowStepperControl,
     initialActiveStep,
@@ -120,7 +122,7 @@ export default function WizardProvider({
     }, [activeStepIndex, steps]);
 
     const showNextStep = React.useCallback(
-        ({ orIndex, orStep }: PrevNextStepProps) => {
+        ({ orIndex, orStep }: PrevNextStepProps = {}) => {
             let nextIndex = activeStepIndex + 1;
             if (typeof orStep === "string") {
                 nextIndex = steps.findIndex((s) => s.id === orStep);
@@ -138,7 +140,7 @@ export default function WizardProvider({
     );
 
     const showPrevStep = React.useCallback(
-        ({ orIndex, orStep }: PrevNextStepProps) => {
+        ({ orIndex, orStep }: PrevNextStepProps = {}) => {
             let prevIndex = Math.max(0, activeStepIndex - 1);
             if (typeof orStep === "string") {
                 prevIndex = steps.findIndex((s) => s.id === orStep);
@@ -151,6 +153,14 @@ export default function WizardProvider({
         [steps, activeStepIndex, setActiveStep]
     );
 
+    const showCancelActions = React.useMemo(() => {
+        if (typeof showCancelActionsControl === "boolean") {
+            return showCancelActionsControl;
+        }
+
+        return typeof onCancelWizard === "function";
+    }, [showCancelActionsControl, onCancelWizard]);
+
     return (
         <WizardContext.Provider
             value={{
@@ -162,9 +172,11 @@ export default function WizardProvider({
                 setShowStepper,
                 activeStepIndex,
                 hasMoreSteps,
+                showCancelActions,
                 showNextStep,
                 showPrevStep,
                 onCompleteWizard,
+                onCancelWizard,
                 setStepData,
             }}
         >
@@ -182,7 +194,6 @@ function EndChildrenHook({
     const { activeStep, setActiveStep, steps } = useWizardContext();
 
     React.useEffect(() => {
-        console.log("end child hook said", activeStep, "and", steps);
         if (activeStep) {
             return;
         }

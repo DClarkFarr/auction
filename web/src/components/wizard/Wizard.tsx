@@ -10,9 +10,11 @@ export type WizardProps = React.PropsWithChildren<{
     initialActiveStep?: string;
     activeStep?: string;
     showStepper?: WizardContext["showStepper"];
+    showCancelActions?: WizardContext["showCancelActions"];
     onShowStepper?: WizardContext["setShowStepper"];
     onChangeStep?: (step: string) => void;
     onCompleteWizard: WizardContext["onCompleteWizard"];
+    onCancelWizard?: WizardContext["onCancelWizard"];
     styles?: SerializedStyles;
     components?: Partial<{
         Stepper: () => React.ReactNode | null;

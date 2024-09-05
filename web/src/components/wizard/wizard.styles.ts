@@ -23,7 +23,7 @@ export type StepperColorProps = {
     maxIndex: number;
 };
 export const wizardStyles = {
-    wizard: (showStepper: boolean) => {
+    wizard: () => {
         return css(`
             padding: ${wizardStyleConfig.size * 4}px;
             box-shadow: 0px 8px 12px 6px rgba(0, 33, 82, 0.15),
@@ -34,28 +34,23 @@ export const wizardStyles = {
             border-radius: ${wizardStyleConfig.radius}px;
             background-color: ${wizardStyleConfig.colors.white};
             max-height: 100%;
-            display: grid;
-            grid-template-areas: ${showStepper ? `'stepper body'` : `'body'`};
-            grid-template-columns: auto 1fr;
-            grid-template-rows: 100%;
+            display: flex;
         `);
     },
     stepperWrapper: css(`
-        grid-area: stepper;
         border-right: solid 1px ${wizardStyleConfig.colors.neutral20};
         padding-right: 32px;
         flex: 0 0 auto;
         max-height: 100%;
         overflow-y: auto;
         overflow-x: visible;
+        max-width: 220px;
+        width: 40%;
     `),
     body: (hasStepper: boolean) =>
         css(`
-            grid-area: body;
             padding-left: ${hasStepper ? 4 * wizardStyleConfig.size : 0}px;
-            flex: 0 0 auto;
-            overflow-x: visible;
-            overflow-y: auto;
+            flex-grow: 1;
         `),
 
     stepper: css(``),
@@ -189,11 +184,20 @@ export const wizardStyles = {
         font-weight: 700;
         color: ${wizardStyleConfig.colors.grayActive};
         flex-shrink: 1;
+        column-gap: ${wizardStyleConfig.size * 2}px;
     `),
     stepBody: css(`
         flex-grow: 1;
     `),
     stepFooter: css(`
         flex-shrink: 1;    
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        width: 100%;
+        column-gap: ${wizardStyleConfig.size * 2}px;
+    `),
+    stepBackButton: css(`
+        margin-right: auto;    
     `),
 };

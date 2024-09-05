@@ -7,6 +7,7 @@ export type WizardStepContext = {
     nextStep: string | null;
     prevStep: string | null;
     isActive: boolean;
+    showCancelAction: boolean;
     setStepData: (sd: StepData) => void;
     setValid: (isValid: boolean) => void;
     setComplete: (isComplete: boolean) => void;

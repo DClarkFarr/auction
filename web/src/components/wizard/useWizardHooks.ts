@@ -16,7 +16,7 @@ export type PrevNextStepProps = {
     orStep?: string;
     orIndex?: number;
 };
-export type PrevNextStepMethod = (props: PrevNextStepProps) => void;
+export type PrevNextStepMethod = (props?: PrevNextStepProps) => void;
 
 export type WizardContext = {
     activeStep: string;
@@ -25,11 +25,13 @@ export type WizardContext = {
     hasMoreSteps: boolean;
     steps: StepData[];
     showStepper: boolean;
+    showCancelActions: boolean;
     setShowStepper: (bool: boolean) => void;
     prevSteps: PrevSteps[];
     showNextStep: PrevNextStepMethod;
     showPrevStep: PrevNextStepMethod;
     onCompleteWizard: () => void;
+    onCancelWizard?: () => void;
     setStepData: (data: StepData) => void;
 };
 

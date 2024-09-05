@@ -5,6 +5,11 @@ export default function TestPage() {
     const onCompleteWizard = () => {
         alert("you complete me");
     };
+
+    const onCancelWizard = () => {
+        alert("you total wimp");
+    };
+
     return (
         <div className="container py-10 bg-gray-200">
             <div className="test-page">
@@ -16,6 +21,7 @@ export default function TestPage() {
                             max-height: 600px;
                         `)}
                         onCompleteWizard={onCompleteWizard}
+                        onCancelWizard={onCancelWizard}
                         initialActiveStep="email"
                     >
                         <Wizard.Step id="name" label="Customer Name">
@@ -36,9 +42,44 @@ export default function TestPage() {
                                 Wizard step wife
                             </Wizard.Step.Body>
                         </Wizard.Step>
-                        <Wizard.Step id="totalData" label="Customer Total Data">
+                        <Wizard.Step
+                            id="totalData"
+                            label="Customer Total Data with too wide a title"
+                        >
                             <Wizard.Step.Body>
                                 Wizard step totalData
+                            </Wizard.Step.Body>
+                        </Wizard.Step>
+                        <Wizard.Step
+                            id="totalData2"
+                            label="Customer Total Data with too wide a title"
+                        >
+                            <Wizard.Step.Body>
+                                Wizard step totalData2
+                            </Wizard.Step.Body>
+                        </Wizard.Step>
+                        <Wizard.Step
+                            id="totalData3"
+                            label="Customer Total Data with too wide a title"
+                        >
+                            <Wizard.Step.Body>
+                                Wizard step totalData3
+                            </Wizard.Step.Body>
+                        </Wizard.Step>
+                        <Wizard.Step
+                            id="totalData4"
+                            label="Customer Total Data with too wide a title"
+                        >
+                            <Wizard.Step.Body>
+                                Wizard step totalData4
+                            </Wizard.Step.Body>
+                        </Wizard.Step>
+                        <Wizard.Step
+                            id="totalData5"
+                            label="Customer Total Data with too wide a title"
+                        >
+                            <Wizard.Step.Body>
+                                Wizard step totalData5
                             </Wizard.Step.Body>
                         </Wizard.Step>
                     </Wizard>

@@ -8,11 +8,13 @@ export default function WizardStepProvider({
     id,
     label,
     children,
+    showCancelAction: showCancelActionControl,
 }: WizardStepProps) {
     const {
         setStepData: registerStepData,
         activeStep,
         steps,
+        showCancelActions,
     } = useWizardContext();
 
     const [stepData, setStepData] = React.useState<StepData>({
@@ -55,6 +57,12 @@ export default function WizardStepProvider({
         return steps[stepIndex - 1]?.id || null;
     }, [stepIndex, steps]);
 
+    const showCancelAction = React.useMemo(() => {
+        return typeof showCancelActionControl === "boolean"
+            ? showCancelActionControl
+            : showCancelActions;
+    }, [showCancelActionControl, showCancelActions]);
+
     return (
         <WizardStepContext.Provider
             value={{
@@ -63,6 +71,7 @@ export default function WizardStepProvider({
                 stepIndex,
                 nextStep,
                 prevStep,
+                showCancelAction,
                 setStepData,
                 setValid,
                 setComplete,
