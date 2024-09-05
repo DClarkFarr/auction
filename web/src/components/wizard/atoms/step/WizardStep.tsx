@@ -10,6 +10,8 @@ export type WizardStepProps = React.PropsWithChildren<{
     id: string;
     label: string;
     showCancelAction?: boolean;
+    headingProps?: StepHeadingProps;
+    footerProps?: StepFooterProps;
     components?: Partial<{
         Heading: (props: StepHeadingProps) => React.ReactNode;
         Footer: (props: StepFooterProps) => React.ReactNode;
@@ -19,15 +21,17 @@ export type WizardStepProps = React.PropsWithChildren<{
 function WizardStepWrapper({
     children,
     components = {},
+    footerProps,
+    headingProps,
     ...props
 }: WizardStepProps) {
     const { Heading = StepHeading, Footer = StepFooter } = components;
     return (
         <WizardStepProvider {...props}>
             <WizardStepVisibilityController>
-                <Heading />
+                <Heading {...headingProps} />
                 {children}
-                <Footer />
+                <Footer {...footerProps} />
             </WizardStepVisibilityController>
         </WizardStepProvider>
     );
@@ -151,6 +155,7 @@ function StepFooter({
     onClickPrimary: onClickPrimaryDefault,
     onClickSecondary: onClickSecondaryDefault,
     onClickBack: onClickBackDefault,
+    helpText,
 }: StepFooterProps) {
     const { showPrevStep, showNextStep, onCompleteWizard } = useWizardContext();
     const { nextStep, prevStep } = useWizardStepContext();
@@ -231,6 +236,7 @@ function StepFooter({
                     <Back onClick={onClickBack} />
                 </div>
             )}
+            {helpText && <div css={wizardStyles.helpText}>{helpText}</div>}
             {Secondary && (
                 <div>
                     <Secondary onClick={onClickSecondary} />

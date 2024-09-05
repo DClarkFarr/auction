@@ -5,6 +5,7 @@ export const wizardStyleConfig = {
     radius: 8,
     colors: {
         primary: "#146EF5",
+        tertiary: "#6F7780",
         white: "#FFFFFF",
         neutral20: "#CED3DA",
         gray: "#8E959E",
@@ -203,5 +204,8 @@ export const wizardStyles = {
     `),
     stepBackButton: css(`
         margin-right: auto;    
+    `),
+    helpText: css(`
+        color: ${wizardStyleConfig.colors.tertiary}
     `),
 };

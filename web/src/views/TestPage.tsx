@@ -29,7 +29,19 @@ export default function TestPage() {
                                 Wizard step name
                             </Wizard.Step.Body>
                         </Wizard.Step>
-                        <Wizard.Step id="email" label="Customer Email">
+                        <Wizard.Step
+                            id="email"
+                            label="Customer Email"
+                            footerProps={{ helpText: "Click the button" }}
+                            components={{
+                                Footer: (props) => (
+                                    <Wizard.Step.Footer
+                                        {...props}
+                                        helpText={`${props.helpText}!!!`}
+                                    />
+                                ),
+                            }}
+                        >
                             <Wizard.Step.Body>
                                 <div className="text-xl flex flex-col gap-y-5">
                                     <div>Wizard step email</div>
