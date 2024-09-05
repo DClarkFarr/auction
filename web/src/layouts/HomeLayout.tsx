@@ -1,16 +1,30 @@
-import { ReactNode, useMemo } from "react";
+import React from "react";
 import { Outlet } from "react-router-dom";
-import { useWatchUserSession } from "../stores/useUserStore";
+import useUserStore, { useWatchUserSession } from "../stores/useUserStore";
 import HomeHeader from "./header/HomeHeader";
 import HomeFooter from "./footer/HomeFooter";
 import StripeProvider from "../providers/StripeProvider";
 
-export default function HomeLayout({ children }: { children?: ReactNode }) {
+export default function HomeLayout({
+    children,
+}: {
+    children?: React.ReactNode;
+}) {
     useWatchUserSession();
 
-    const body = useMemo(() => {
+    const { user, hasLoadedFavorites, isLoadingFavorites, loadFavorites } =
+        useUserStore();
+
+    const body = React.useMemo(() => {
         return children || <Outlet />;
     }, [children]);
+
+    React.useEffect(() => {
+        if (!!user && !hasLoadedFavorites && !isLoadingFavorites) {
+            loadFavorites();
+        }
+    }, [user, hasLoadedFavorites, isLoadingFavorites]);
+
     return (
         <StripeProvider>
             <div className="layout layout--home">
