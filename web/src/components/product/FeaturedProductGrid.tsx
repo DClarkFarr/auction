@@ -2,6 +2,7 @@ import React from "react";
 import useFeaturedProducts from "../../hooks/useFeaturedProducts";
 import { FullProductItem } from "../../types/Product";
 import ProductCard from "./ProductCard";
+import useFavorite from "../../hooks/useFavorite";
 
 export type FeaturedProductsGridProps = {
     maxCols?: number;
@@ -10,6 +11,19 @@ export default function FeaturedProductGrid({
     maxCols = 3,
 }: FeaturedProductsGridProps) {
     const { featuredProducts } = useFeaturedProducts();
+
+    const { addFavorite, removeFavorite, itemIsFavorite } = useFavorite();
+
+    const toggleFavorite = React.useCallback(
+        async (id_item: number) => {
+            if (itemIsFavorite(id_item)) {
+                await removeFavorite(id_item);
+            } else {
+                await addFavorite(id_item);
+            }
+        },
+        [itemIsFavorite, addFavorite, removeFavorite]
+    );
 
     const items: FullProductItem[] = React.useMemo(() => {
         return featuredProducts
@@ -46,6 +60,8 @@ export default function FeaturedProductGrid({
                     <ProductCard
                         key={item.id_item + "-" + i}
                         product={item}
+                        onToggleFavorite={toggleFavorite}
+                        isFavorite={itemIsFavorite(item.id_item)}
                         onClickBid={onClickBid}
                     />
                 );

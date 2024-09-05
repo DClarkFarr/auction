@@ -28,7 +28,7 @@ export default class UserService {
      */
     static addFavorite(user, id_item) {
         const favoriteModel = new FavoriteModel();
-        return favoriteModel.upsertByItemId(user.id, item_id);
+        return favoriteModel.upsertByItemId(user.id, id_item);
     }
 
     /**

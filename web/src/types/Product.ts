@@ -72,6 +72,7 @@ export type FullProduct = WithCategory<WithTags<WithImages<Product>>>;
 export type FullCategory = WithImage<Category>;
 
 export type ProductItemStatus =
+    | "active"
     | "canceled"
     | "claimed"
     | "expired"

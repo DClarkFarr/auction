@@ -89,7 +89,7 @@ class UserController extends BaseController {
         const user = req.user;
         const id_item = Number(req.body.id_item);
 
-        if (!isNaN(id_item)) {
+        if (isNaN(id_item)) {
             return res.status(400).json({ message: "Invalid item id" });
         }
         try {
@@ -105,12 +105,13 @@ class UserController extends BaseController {
         const user = req.user;
         const id_item = Number(req.body.id_item);
 
-        if (!isNaN(id_item)) {
+        if (isNaN(id_item)) {
             return res.status(400).json({ message: "Invalid item id" });
         }
 
         try {
             await UserService.removeFavorite(user, id_item);
+            res.json({ message: "Favorite removed " });
         } catch (err) {
             console.warn("Error removing favorite", err);
             res.status(400).json({ message: "Error removing favorite" });

@@ -58,8 +58,14 @@ class FavoriteModel {
      */
     async upsertByItemId(id_user, id_item) {
         const updated = await this.table.upsert({
-            where: { id_user, id_item },
-            data: { id_item, id_user },
+            where: {
+                id_user_id_item: {
+                    id_item,
+                    id_user,
+                },
+            },
+            update: { id_item, id_user },
+            create: { id_item, id_user },
         });
 
         return updated;

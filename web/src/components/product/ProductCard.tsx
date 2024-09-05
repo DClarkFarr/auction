@@ -11,16 +11,23 @@ import React from "react";
 import { FullProductItem } from "../../types/Product";
 
 export type ProductCardProps = {
+    isFavorite?: boolean;
+    onToggleFavorite?: (idItem: number) => Promise<void> | void;
     product: FullProductItem;
     onClickBid: (product: FullProductItem) => Promise<void> | void;
 };
-export default function ProductCard({ product, onClickBid }: ProductCardProps) {
-    const isLiked = false;
-
+export default function ProductCard({
+    isFavorite = false,
+    onToggleFavorite,
+    product,
+    onClickBid,
+}: ProductCardProps) {
     const retailPrice = product.product.priceRetail;
     const currentPrice = product.bid
         ? product.bid.amount
         : product.product.priceInitial;
+
+    const canToggleFavorite = typeof onToggleFavorite === "function";
 
     const savingsPercent = parseFloat(
         ((1 - currentPrice / retailPrice) * 100).toFixed(1)
@@ -150,14 +157,38 @@ export default function ProductCard({ product, onClickBid }: ProductCardProps) {
                     )}
                 </div>
                 <div className="likes absolute top-2 right-2">
-                    <Tooltip
-                        className="whitespace-nowrap"
-                        content={isLiked ? "Remove favorite" : "Add Favorite"}
-                    >
-                        <Button size="sm" color={isLiked ? "#a21caf" : "light"}>
-                            {isLiked ? <IconLiked /> : <IconUnliked />}
-                        </Button>
-                    </Tooltip>
+                    {canToggleFavorite && (
+                        <Tooltip
+                            className="whitespace-nowrap"
+                            content={
+                                isFavorite ? "Remove favorite" : "Add Favorite"
+                            }
+                        >
+                            <Button
+                                theme={{
+                                    color: {
+                                        pink: "border border-transparent bg-fuchsia-700 text-white focus:ring-4 focus:ring-fuchsia-300 enabled:hover:bg-fuchsia-800 dark:bg-fuchsia-600 dark:focus:ring-fuchsia-900 dark:enabled:hover:bg-fuchsia-700",
+                                    },
+                                }}
+                                size="sm"
+                                color={isFavorite ? "pink" : "light"}
+                                onClick={() =>
+                                    onToggleFavorite(product.id_item)
+                                }
+                            >
+                                {isFavorite ? <IconLiked /> : <IconUnliked />}
+                            </Button>
+                        </Tooltip>
+                    )}
+                    {!canToggleFavorite && (
+                        <div
+                            className={`rounded leading-none py-2 px-3 ${
+                                isFavorite ? `bg-[#a21caf]` : "bg-gray-100"
+                            }`}
+                        >
+                            {isFavorite ? <IconLiked /> : <IconUnliked />}
+                        </div>
+                    )}
                 </div>
             </div>
 
