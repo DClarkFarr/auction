@@ -31,7 +31,23 @@ export default function TestPage() {
                         </Wizard.Step>
                         <Wizard.Step id="email" label="Customer Email">
                             <Wizard.Step.Body>
-                                Wizard step email
+                                <div className="text-xl flex flex-col gap-y-5">
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                    <div>Wizard step email</div>
+                                </div>
                             </Wizard.Step.Body>
                         </Wizard.Step>
                         <Wizard.Step id="age" label="Customer Age">

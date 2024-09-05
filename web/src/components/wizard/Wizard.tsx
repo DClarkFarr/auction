@@ -31,10 +31,7 @@ function WizardWrapper({
 
     return (
         <WizardProvider showStepper={showStepper} {...props}>
-            <div
-                className="wizard"
-                css={[wizardStyles.wizard(showStepper), customStyles]}
-            >
+            <div className="wizard" css={[wizardStyles.wizard(), customStyles]}>
                 {showStepper && (
                     <div
                         css={wizardStyles.stepperWrapper}

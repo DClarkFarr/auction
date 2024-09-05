@@ -35,6 +35,7 @@ export const wizardStyles = {
             background-color: ${wizardStyleConfig.colors.white};
             max-height: 100%;
             display: flex;
+            align-items: stretch;
         `);
     },
     stepperWrapper: css(`
@@ -188,6 +189,9 @@ export const wizardStyles = {
     `),
     stepBody: css(`
         flex-grow: 1;
+        max-height: 100%;
+        overflow-y: auto;
+        overflow-x: visible;
     `),
     stepFooter: css(`
         flex-shrink: 1;    
