@@ -19,6 +19,7 @@ model User {
     Bid         Bid[]
     stripeUser  StripeUser?
     ProductItem ProductItem[]
+    Favorite    Favorite[]
 }
 
 model Product {
@@ -86,6 +87,19 @@ model Bid {
     @@index([id_product])
     @@index([id_item])
     @@index([id_user])
+}
+
+model Favorite {
+    id_favorite Int       @id @default(autoincrement())
+    id_item     Int
+    id_user     Int
+    createdAt   DateTime? @default(now())
+
+    user User @relation(fields: [id_user], references: [id])
+
+    @@unique([id_user, id_item])
+    @@index([id_user])
+    @@index([id_item])
 }
 
 model Tag {

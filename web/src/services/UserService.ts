@@ -1,6 +1,6 @@
 import { ResetPasswordState } from "../components/user/ResetPasswordForm";
 import { PaymentMethod } from "../stores/useUserStore";
-import { RegisterPayload, User } from "../types/User";
+import { RegisterPayload, User, UserFavorite } from "../types/User";
 import apiClient from "./apiClient";
 
 export default class UserService {
@@ -29,5 +29,23 @@ export default class UserService {
         return apiClient
             .get<{ user: User; paymentMethod: PaymentMethod }>("/user")
             .then((res) => res.data);
+    }
+
+    static getUserFavorites() {
+        return apiClient
+            .get<UserFavorite[]>("/user/favorites")
+            .then((res) => res.data);
+    }
+
+    static addFavorite(id_item: number) {
+        return apiClient
+            .post<UserFavorite>("/user/favorites", { id_item })
+            .then((res) => res.data);
+    }
+
+    static removeFavorite(id_item: number) {
+        return apiClient
+            .delete(`/user/favorites/`, { data: { id_item } })
+            .then(() => {});
     }
 }

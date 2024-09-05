@@ -1,6 +1,4 @@
 import BaseController from "../_.controller.js";
-import _, { pick } from "lodash-es";
-import moment from "moment";
 import validator from "validator";
 
 import webSessionMiddleware from "../../middleware/webSessionMiddleware.js";
@@ -11,6 +9,7 @@ import UserModel from "../../models/UserModel.js";
 import { hasRecaptcha } from "../../middleware/recaptcha.middleware.js";
 import StripeService from "../../services/StripeService.js";
 import { validatePassword } from "../../utils/validators.js";
+import UserService from "../../services/UserService.js";
 
 class UserController extends BaseController {
     base = "/user";
@@ -44,6 +43,25 @@ class UserController extends BaseController {
             this.route(this.changeUserPassword)
         );
 
+        this.router.get(
+            "/favorites",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.getFavorites)
+        );
+        this.router.post(
+            "/favorites",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.addFavorite)
+        );
+        this.router.delete(
+            "/favorites",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.removeFavorite)
+        );
+
         this.router.get("/test", (req, res) => {
             res.json({ message: "test" });
         });
@@ -54,6 +72,49 @@ class UserController extends BaseController {
             hasUser(),
             this.route(this.getUser)
         );
+    }
+
+    async getFavorites(req, res) {
+        const user = req.user;
+        try {
+            const favorites = await UserService.getFavorites(user);
+            res.json(favorites);
+        } catch (err) {
+            console.warn("Caught error getting favorites", err);
+            res.status(400).json({ message: "Error getting user favorites" });
+        }
+    }
+
+    async addFavorite(req, res) {
+        const user = req.user;
+        const id_item = Number(req.body.id_item);
+
+        if (!isNaN(id_item)) {
+            return res.status(400).json({ message: "Invalid item id" });
+        }
+        try {
+            const favorite = await UserService.addFavorite(user, id_item);
+            res.json(favorite);
+        } catch (err) {
+            console.warn("Error adding favorite", err);
+            res.status(400).json({ message: "Error adding favorite" });
+        }
+    }
+
+    async removeFavorite(req, res) {
+        const user = req.user;
+        const id_item = Number(req.body.id_item);
+
+        if (!isNaN(id_item)) {
+            return res.status(400).json({ message: "Invalid item id" });
+        }
+
+        try {
+            await UserService.removeFavorite(user, id_item);
+        } catch (err) {
+            console.warn("Error removing favorite", err);
+            res.status(400).json({ message: "Error removing favorite" });
+        }
     }
 
     async changeUserPassword(req, res) {

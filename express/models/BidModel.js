@@ -44,7 +44,7 @@ class BidModel {
      */
     async update(id, toSet) {
         const updated = await this.table.update({
-            where: { id_product: id },
+            where: { id_bid: id },
             data: toSet,
         });
 

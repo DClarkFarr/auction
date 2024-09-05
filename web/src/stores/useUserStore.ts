@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-import { RegisterPayload, User } from "../types/User";
+import { RegisterPayload, User, UserFavorite } from "../types/User";
 import UserService from "../services/UserService";
 import { AxiosError } from "axios";
 import { useEffect, useMemo } from "react";
@@ -17,8 +17,14 @@ export type PaymentMethod = {
 
 export type UserStore = {
     user: null | User;
+    favorites: UserFavorite[];
     paymentMethod: PaymentMethod | null;
+    hasLoadedFavorites: boolean;
+    isLoadedFavorites: boolean;
     isLoading: boolean;
+    loadFavorites: () => Promise<void>;
+    addFavorite: (id_item: number) => Promise<void>;
+    removeFavorite: (id_item: number) => Promise<void>;
     setPaymentMethod: (pm: PaymentMethod | null) => void;
     getPaymentMethod: () => Promise<void>;
     login: (email: string, password: string) => Promise<void>;
@@ -28,7 +34,7 @@ export type UserStore = {
 };
 const useUserStore = create(
     persist<UserStore>(
-        (set) => {
+        (set, get) => {
             const login = async (email: string, password: string) => {
                 try {
                     const { user, paymentMethod } = await UserService.login(
@@ -100,6 +106,54 @@ const useUserStore = create(
                 set({ paymentMethod });
             };
 
+            const loadFavorites = async () => {
+                try {
+                    set({ isLoadedFavorites: true });
+                    const favorites = await UserService.getUserFavorites();
+                    set({
+                        favorites,
+                        isLoadedFavorites: false,
+                        hasLoadedFavorites: true,
+                    });
+                } catch (err) {
+                    console.warn("Error loading favorites", err);
+                    set({ isLoadedFavorites: false });
+                }
+            };
+
+            const addFavorite = async (id_item: number) => {
+                try {
+                    const favorite = await UserService.addFavorite(id_item);
+
+                    const fs = [...get().favorites];
+                    const foundIndex = fs.findIndex(
+                        (f) => f.id_favorite === favorite.id_favorite
+                    );
+                    if (foundIndex > -1) {
+                        fs.splice(foundIndex, 1, favorite);
+                    } else {
+                        fs.push(favorite);
+                    }
+
+                    set({ favorites: fs });
+                } catch (err) {
+                    console.warn("Error saving favorite", err);
+                }
+            };
+
+            const removeFavorite = async (id_item: number) => {
+                try {
+                    await UserService.removeFavorite(id_item);
+                    const fs = get().favorites;
+
+                    set({
+                        favorites: fs.filter((f) => f.id_item !== id_item),
+                    });
+                } catch (err) {
+                    console.warn("Error saving favorite", err);
+                }
+            };
+
             return {
                 user: null,
                 paymentMethod: null,
@@ -110,6 +164,12 @@ const useUserStore = create(
                 refresh,
                 setPaymentMethod,
                 getPaymentMethod,
+                favorites: [],
+                isLoadedFavorites: false,
+                hasLoadedFavorites: false,
+                loadFavorites,
+                addFavorite,
+                removeFavorite,
             } satisfies UserStore;
         },
         {

@@ -13,3 +13,10 @@ export type RegisterPayload = {
     password: string;
     token: string;
 };
+
+export type UserFavorite = {
+    id_favorite: number;
+    id_item: number;
+    id_user: number;
+    createdAt: string;
+};
