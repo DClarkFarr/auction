@@ -178,7 +178,7 @@ export const wizardStyles = {
         flex-direction: column;
         row-gap: ${wizardStyleConfig.size * 2}px;    
     `),
-    stepHeading: css(`
+    stepHeader: css(`
         display: flex;
         align-items: center;
         justify-content: space-between;

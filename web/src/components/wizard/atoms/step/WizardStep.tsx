@@ -10,10 +10,10 @@ export type WizardStepProps = React.PropsWithChildren<{
     id: string;
     label: string;
     showCancelAction?: boolean;
-    headingProps?: StepHeadingProps;
+    headerProps?: StepHeaderProps;
     footerProps?: StepFooterProps;
     components?: Partial<{
-        Heading: (props: StepHeadingProps) => React.ReactNode;
+        Header: (props: StepHeaderProps) => React.ReactNode;
         Footer: (props: StepFooterProps) => React.ReactNode;
     }>;
 }>;
@@ -22,14 +22,14 @@ function WizardStepWrapper({
     children,
     components = {},
     footerProps,
-    headingProps,
+    headerProps,
     ...props
 }: WizardStepProps) {
-    const { Heading = StepHeading, Footer = StepFooter } = components;
+    const { Header = StepHeader, Footer = StepFooter } = components;
     return (
         <WizardStepProvider {...props}>
             <WizardStepVisibilityController>
-                <Heading {...headingProps} />
+                <Header {...headerProps} />
                 {children}
                 <Footer {...footerProps} />
             </WizardStepVisibilityController>
@@ -53,7 +53,7 @@ function WizardStepVisibilityController({
     );
 }
 
-export type StepHeadingProps = {
+export type StepHeaderProps = {
     title?: string | React.ReactNode;
     showCancelButton?: boolean;
     onClickCancel?: () => void;
@@ -61,21 +61,14 @@ export type StepHeadingProps = {
         Action?: (props: StepButtonProps) => React.ReactNode;
     }>;
 };
-function StepHeading({
+function StepHeader({
     title,
     showCancelButton: showCancelButtonControl,
     onClickCancel,
     components = {},
-}: StepHeadingProps) {
+}: StepHeaderProps) {
     const { onCancelWizard } = useWizardContext();
     const { stepData, showCancelAction } = useWizardStepContext();
-
-    console.log(
-        "heading looking at",
-        showCancelButtonControl,
-        "vs",
-        showCancelAction
-    );
 
     const { Action = StepCloseButton } = components;
 
@@ -89,7 +82,7 @@ function StepHeading({
         }
 
         console.warn(
-            "Unhandled Step > Heading > Cancel action. Wizard should be provided `onWizardCancel` or Step.Heading should be given onClickCancel"
+            "Unhandled Step > Header > Cancel action. Wizard should be provided `onWizardCancel` or Step.Header should be given onClickCancel"
         );
     };
 
@@ -100,12 +93,12 @@ function StepHeading({
     }, [showCancelButtonControl, showCancelAction]);
 
     return (
-        <div className="step__heading" css={wizardStyles.stepHeading}>
-            <div className="step__heading-title">
+        <div className="step__header" css={wizardStyles.stepHeader}>
+            <div className="step__header-title">
                 {typeof title !== "undefined" ? title : stepData.label}
             </div>
             {showCancelButton && (
-                <div className="step___heading-action">
+                <div className="step___header-action">
                     <Action onClick={handleCancelClick} />
                 </div>
             )}
@@ -253,7 +246,7 @@ function StepFooter({
 
 const WizardStep = Object.assign(WizardStepWrapper, {
     Body: StepBody,
-    Heading: StepHeading,
+    Header: StepHeader,
     Footer: StepFooter,
 });
 
