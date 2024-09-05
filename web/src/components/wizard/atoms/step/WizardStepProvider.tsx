@@ -7,6 +7,8 @@ import { isEqual } from "lodash-es";
 export default function WizardStepProvider({
     id,
     label,
+    isValid = true,
+    isComplete = true,
     children,
     showCancelAction: showCancelActionControl,
 }: WizardStepProps) {
@@ -20,18 +22,28 @@ export default function WizardStepProvider({
     const [stepData, setStepData] = React.useState<StepData>({
         id,
         label,
-        isValid: true,
-        isComplete: true,
+        isValid,
+        isComplete,
     });
 
     const prevStepData = React.useRef<StepData | null>(null);
 
+    /**
+     * Send step data to parent context
+     */
     React.useEffect(() => {
         if (!isEqual(prevStepData.current, stepData)) {
             registerStepData(stepData);
         }
         prevStepData.current = { ...stepData };
     }, [stepData, registerStepData]);
+
+    /**
+     * If valid / complete props are given, use them as source of truth
+     */
+    React.useEffect(() => {
+        setStepData((prev) => ({ ...prev, isValid, isComplete }));
+    }, [isValid, isComplete]);
 
     const setValid = React.useCallback((isValid: boolean) => {
         setStepData((prev) => ({ ...prev, valid: isValid }));

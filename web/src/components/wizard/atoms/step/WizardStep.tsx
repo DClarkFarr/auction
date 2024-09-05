@@ -9,12 +9,15 @@ import React from "react";
 export type WizardStepProps = React.PropsWithChildren<{
     id: string;
     label: string;
+    isValid?: boolean;
+    isComplete?: boolean;
     showCancelAction?: boolean;
     headerProps?: StepHeaderProps;
     footerProps?: StepFooterProps;
     components?: Partial<{
         Header: (props: StepHeaderProps) => React.ReactNode;
         Footer: (props: StepFooterProps) => React.ReactNode;
+        Body: (props: StepBodyProps) => React.ReactNode;
     }>;
 }>;
 
@@ -25,12 +28,16 @@ function WizardStepWrapper({
     headerProps,
     ...props
 }: WizardStepProps) {
-    const { Header = StepHeader, Footer = StepFooter } = components;
+    const {
+        Header = StepHeader,
+        Footer = StepFooter,
+        Body = StepBody,
+    } = components;
     return (
         <WizardStepProvider {...props}>
             <WizardStepVisibilityController>
                 <Header {...headerProps} />
-                {children}
+                <Body>{children}</Body>
                 <Footer {...footerProps} />
             </WizardStepVisibilityController>
         </WizardStepProvider>
@@ -118,7 +125,8 @@ function StepCloseButton({ onClick }: StepButtonProps) {
     );
 }
 
-function StepBody({ children }: { children: React.ReactNode }) {
+export type StepBodyProps = { children: React.ReactNode };
+function StepBody({ children }: StepBodyProps) {
     return (
         <div className="step__body" css={wizardStyles.stepBody}>
             {children}
@@ -127,7 +135,7 @@ function StepBody({ children }: { children: React.ReactNode }) {
 }
 export type ActionButton<
     OnClick extends (...args: unknown[]) => void = (...args: unknown[]) => void
-> = (props: { onClick: OnClick }) => React.ReactNode;
+> = (props: { onClick: OnClick; disabled?: boolean }) => React.ReactNode;
 
 export type StepFooterProps = {
     primaryAction?: string | ActionButton;
@@ -151,7 +159,11 @@ function StepFooter({
     helpText,
 }: StepFooterProps) {
     const { showPrevStep, showNextStep, onCompleteWizard } = useWizardContext();
-    const { nextStep, prevStep } = useWizardStepContext();
+    const {
+        nextStep,
+        prevStep,
+        stepData: { isValid },
+    } = useWizardStepContext();
 
     const Back: ActionButton =
         typeof backAction === "function"
@@ -179,8 +191,8 @@ function StepFooter({
     const Primary: ActionButton =
         typeof primaryAction === "function"
             ? primaryAction
-            : ({ onClick }) => (
-                  <Button color="blue" onClick={onClick}>
+            : ({ onClick, disabled }) => (
+                  <Button disabled={disabled} color="blue" onClick={onClick}>
                       {primaryAction || (nextStep ? "Continue" : "Finish")}
                   </Button>
               );
@@ -219,6 +231,8 @@ function StepFooter({
             onCompleteWizard();
         }
     };
+
+    const canProceed = isValid;
     return (
         <div className="step__footer" css={wizardStyles.stepFooter}>
             {showBackButton && (
@@ -237,7 +251,7 @@ function StepFooter({
             )}
             {Primary && (
                 <div>
-                    <Primary onClick={onClickPrimary} />
+                    <Primary disabled={!canProceed} onClick={onClickPrimary} />
                 </div>
             )}
         </div>
