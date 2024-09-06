@@ -1,7 +1,4 @@
 import { pick } from "lodash-es";
-import { hasAccessLevel, hasUser } from "../../middleware/auth.middleware.js";
-import webSessionMiddleware from "../../middleware/webSessionMiddleware.js";
-import AdminService from "../../services/AdminService.js";
 import BaseController from "../_.controller.js";
 import ProductService from "../../services/ProductService.js";
 import CategoryService from "../../services/CategoryService.js";

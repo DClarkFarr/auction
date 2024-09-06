@@ -28,7 +28,7 @@ export default function FeaturedCategoryGrid({
     return (
         <>
             <div
-                className={`grid featured-category-grid lg:grid-cols-${cols} gap-[1px]`}
+                className={`grid featured-category-grid justify-center md:grid-cols-2 lg:grid-cols-${cols} gap-[1px]`}
             >
                 {categories.map((fc) => {
                     const imgPath = fc.image || fc.category?.image?.path;
@@ -40,7 +40,7 @@ export default function FeaturedCategoryGrid({
                         <div
                             key={fc.uuid}
                             onClick={() => handleClick(fc)}
-                            className="category h-[200px] cursor-pointer overflow-hidden relative min-h-full w-full h-full flex flex-col mx-auto justify-center items-center max-w-[350px] lg:max-w-full"
+                            className="category aspect-[2] cursor-pointer overflow-hidden relative w-full h-full flex flex-col mx-auto justify-center items-center max-w-[450px] lg:max-w-full"
                         >
                             <div className="category__background absolute">
                                 <img

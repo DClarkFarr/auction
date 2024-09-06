@@ -98,7 +98,7 @@ function ManageFeaturedCategories() {
 
     const { saveSetting } = useMutateSetting("featuredCategories");
 
-    const { categories } = useCategoriesQuery(true);
+    const { categories } = useCategoriesQuery(true, false);
 
     const handleSaveCategory = useCallback(
         async (fc: FeaturedCategory) => {
