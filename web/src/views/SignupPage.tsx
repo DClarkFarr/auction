@@ -15,19 +15,27 @@ export default function SignupPage() {
     }, []);
     return (
         <div>
-            <SignupForm
-                onSubmit={onSubmit}
-                footer={
-                    <div className="mt-4 text-center">
-                        <Link
-                            className="text-base text-purple-500 hover:underline"
-                            to="/login"
-                        >
-                            Back to login
-                        </Link>
+            <div className="container">
+                <div className="py-8 lg:py-[150px]">
+                    <div className="flex justify-center">
+                        <div className="w-[450px] max-w-full">
+                            <SignupForm
+                                onSubmit={onSubmit}
+                                footer={
+                                    <div className="mt-4 text-center">
+                                        <Link
+                                            className="text-base text-purple-500 hover:underline"
+                                            to="/login"
+                                        >
+                                            Back to login
+                                        </Link>
+                                    </div>
+                                }
+                            />
+                        </div>
                     </div>
-                }
-            />
+                </div>
+            </div>
         </div>
     );
 }
