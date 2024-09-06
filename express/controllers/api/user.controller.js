@@ -10,6 +10,8 @@ import { hasRecaptcha } from "../../middleware/recaptcha.middleware.js";
 import StripeService from "../../services/StripeService.js";
 import { validatePassword } from "../../utils/validators.js";
 import UserService from "../../services/UserService.js";
+import ProductService from "../../services/ProductService.js";
+import { pick } from "lodash-es";
 
 class UserController extends BaseController {
     base = "/user";
@@ -62,6 +64,20 @@ class UserController extends BaseController {
             this.route(this.removeFavorite)
         );
 
+        this.router.get(
+            "/bids",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.getUserBidProducts)
+        );
+
+        this.router.get(
+            "/favorites/items",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.getUserFavoriteItems)
+        );
+
         this.router.get("/test", (req, res) => {
             res.json({ message: "test" });
         });
@@ -72,6 +88,74 @@ class UserController extends BaseController {
             hasUser(),
             this.route(this.getUser)
         );
+    }
+
+    async getUserBidProducts(req, res) {
+        const user = req.user;
+
+        const params = pick(req.query, [
+            "sortBy",
+            "categoryIds",
+            "page",
+            "limit",
+            "quality",
+            "priceMin",
+            "priceMax",
+            "productIds",
+        ]);
+
+        try {
+            const bids = await UserService.getUserBids(user);
+
+            const itemIds = bids.map((b) => b.id_item);
+
+            const results = await ProductService.getPaginatedProductItems(
+                {
+                    ...params,
+                    itemIds,
+                },
+                false
+            );
+
+            res.json(results);
+        } catch (err) {
+            console.warn("Error getting user bids", err);
+            res.status(400).json({ message: "Error getting user bids" });
+        }
+    }
+
+    async getUserFavoriteItems(req, res) {
+        const user = req.user;
+
+        const params = pick(req.query, [
+            "sortBy",
+            "categoryIds",
+            "page",
+            "limit",
+            "quality",
+            "priceMin",
+            "priceMax",
+            "productIds",
+        ]);
+
+        try {
+            const favorites = await UserService.getFavorites(user);
+
+            const itemIds = favorites.map((f) => f.id_item);
+
+            const results = await ProductService.getPaginatedProductItems(
+                {
+                    ...params,
+                    itemIds,
+                },
+                false
+            );
+
+            res.json(results);
+        } catch (err) {
+            console.warn("Error getting user bids", err);
+            res.status(400).json({ message: "Error getting user bids" });
+        }
     }
 
     async getFavorites(req, res) {

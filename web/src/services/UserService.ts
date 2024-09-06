@@ -1,7 +1,10 @@
 import { ResetPasswordState } from "../components/user/ResetPasswordForm";
 import { PaymentMethod } from "../stores/useUserStore";
+import { PaginatedResults } from "../types/Paginate";
+import { FullProductItem } from "../types/Product";
 import { RegisterPayload, User, UserFavorite } from "../types/User";
 import apiClient from "./apiClient";
+import { PaginatedProductParams } from "./SiteService";
 
 export default class UserService {
     static login(email: string, password: string) {
@@ -47,5 +50,20 @@ export default class UserService {
         return apiClient
             .delete(`/user/favorites/`, { data: { id_item } })
             .then(() => {});
+    }
+
+    static getUserBidItems(params: PaginatedProductParams) {
+        return apiClient
+            .get<PaginatedResults<FullProductItem>>(`/user/bids`, {
+                params,
+            })
+            .then((res) => res.data);
+    }
+    static getUserFavoriteItems(params: PaginatedProductParams) {
+        return apiClient
+            .get<PaginatedResults<FullProductItem>>(`/user/favorites/items`, {
+                params,
+            })
+            .then((res) => res.data);
     }
 }

@@ -9,9 +9,17 @@ import {
     filterDefaultProductParams,
     makePaginatedActiveItemsKey,
 } from "../utils/productParams";
+import { PaginatedResults } from "../types/Paginate";
+import { FullProductItem } from "../types/Product";
+
+export type PaginatedActiveQueryMethod = (
+    params: PaginatedProductParams
+) => Promise<PaginatedResults<FullProductItem>>;
 
 export default function usePaginatedActiveItemsQuery(
-    params: PaginatedProductParams
+    params: PaginatedProductParams,
+    method: PaginatedActiveQueryMethod = SiteService.getPaginatedActiveItems,
+    locationKey: string
 ) {
     const queryClient = useQueryClient();
 
@@ -22,10 +30,10 @@ export default function usePaginatedActiveItemsQuery(
         isSuccess,
         error,
     } = useQuery({
-        queryKey: makePaginatedActiveItemsKey(params),
+        queryKey: makePaginatedActiveItemsKey(locationKey, params),
         queryFn: () => {
             const data = filterDefaultProductParams(params);
-            return SiteService.getPaginatedActiveItems(data);
+            return method(data);
         },
         placeholderData: keepPreviousData,
         staleTime: 5000,
@@ -39,7 +47,10 @@ export default function usePaginatedActiveItemsQuery(
         ) {
             const nextPageParams = { ...params, page: (params.page || 1) + 1 };
             queryClient.prefetchQuery({
-                queryKey: makePaginatedActiveItemsKey(nextPageParams),
+                queryKey: makePaginatedActiveItemsKey(
+                    locationKey,
+                    nextPageParams
+                ),
                 queryFn: () =>
                     SiteService.getPaginatedActiveItems(nextPageParams),
             });

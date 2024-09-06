@@ -17,11 +17,20 @@ import ProductsItem from "./ProductsSection/ProductsItem";
 import ProductsHeading from "./ProductsSection/ProductsHeading";
 import ProductsSortBy from "./ProductsSection/ProductsSortBy";
 import ProductsToggleMobileFilters from "./ProductsSection/ProductsToggleMobileFilters";
+import { PaginatedActiveQueryMethod } from "../../hooks/usePaginatedActiveItemsQuery";
+
+type ProductsSectionWrapperProps = React.PropsWithChildren<{
+    params?: Partial<PaginatedProductParams>;
+    method?: PaginatedActiveQueryMethod;
+    locationKey?: string;
+}>;
 
 function ProductsSectionWrapper({
     children,
     params: overrideParams,
-}: React.PropsWithChildren<{ params?: Partial<PaginatedProductParams> }>) {
+    method,
+    locationKey = "shop",
+}: ProductsSectionWrapperProps) {
     const [search] = useSearchParams();
 
     const params = React.useMemo(() => {
@@ -30,7 +39,11 @@ function ProductsSectionWrapper({
 
     return (
         <div className="products-section">
-            <ProductsProvider params={params}>
+            <ProductsProvider
+                params={params}
+                method={method}
+                locationKey={locationKey}
+            >
                 <UrlParamsSync />
                 {children}
             </ProductsProvider>

@@ -4,6 +4,7 @@
  */
 
 import FavoriteModel from "../models/FavoriteModel.js";
+import BidModel from "../models/BidModel.js";
 
 export default class UserService {
     /**
@@ -41,6 +42,24 @@ export default class UserService {
             where: {
                 id_user: user.id,
                 id_item,
+            },
+        });
+    }
+
+    /**
+     *
+     * @param {UserDocument} user
+     * @returns
+     */
+    static async getUserBids(user) {
+        const bidModel = new BidModel();
+
+        return bidModel.table.findMany({
+            where: {
+                id_user: user.id,
+            },
+            orderBy: {
+                createdAt: "desc",
             },
         });
     }

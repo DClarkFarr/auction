@@ -761,9 +761,22 @@ export default class ProductService {
         });
     }
 
-    static async getPaginatedActiveProducts(params) {
+    /**
+     * @param {{
+     * sortBy: string;
+     * categoryIds: number[];
+     * page: number;
+     * limit: number;
+     * quality: number;
+     * priceMin: number;
+     * priceMax: number;
+     * productIds: number[];
+     * itemIds: number[];
+     * }} params
+     */
+    static async getPaginatedProductItems(params, filterActive = true) {
         const { items, total, formattedParams } =
-            await this.queryPaginatedActiveProducts(params);
+            await this.queryPaginatedProductItems(params, filterActive);
 
         let populatedItems = [];
 
@@ -782,20 +795,40 @@ export default class ProductService {
 
         return final;
     }
-    static async queryPaginatedActiveProducts({
-        sortBy: sortByRaw = SORT_OPTIONS.expiring,
-        categoryIds: categoryIdsRaw = [],
-        page: pageRaw = 1,
-        limit: limitRaw = 20,
-        quality: qualityRaw = null,
-        priceMin: priceMinRaw = null,
-        priceMax: priceMaxRaw = null,
-        productIds: productIdsRaw = [],
-    } = {}) {
+
+    /**
+     * @param {{
+     *   sortBy: string;
+     *   categoryIds: number[];
+     *   page: number;
+     *   limit: number;
+     *   quality: number;
+     *   priceMin: number;
+     *   priceMax: number;
+     *   productIds: number[];
+     *   itemIds: number[];
+     * }} params
+     * @param {boolean} activeOnly
+     */
+    static async queryPaginatedProductItems(
+        {
+            sortBy: sortByRaw = SORT_OPTIONS.expiring,
+            categoryIds: categoryIdsRaw = [],
+            page: pageRaw = 1,
+            limit: limitRaw = 20,
+            quality: qualityRaw = null,
+            priceMin: priceMinRaw = null,
+            priceMax: priceMaxRaw = null,
+            productIds: productIdsRaw = [],
+            itemIds: itemIdsRaw = [],
+        } = {},
+        filterActive = true
+    ) {
         const sortBy = this.getValidSortBy(sortByRaw, SORT_OPTIONS.expiring);
 
         const categoryIds = categoryIdsRaw.map(Number).filter(Boolean);
         const productIds = productIdsRaw.map(Number).filter(Boolean);
+        const itemIds = itemIdsRaw.map(Number).filter(Boolean);
 
         const page = this.getSafeNumber(pageRaw);
         const limit = this.getSafeNumber(limitRaw);
@@ -833,7 +866,13 @@ export default class ProductService {
 
         if (productIds.length) {
             parts.where += `
-            AND p.id_product IN(${categoryIds.join(",")})`;
+            AND p.id_product IN(${productIds.join(",")})`;
+        }
+
+        if (itemIds.length) {
+            parts.where += `
+                AND i.id_item IN(${itemIds.join(",")})
+            `;
         }
 
         if (quality > 0) {
@@ -853,13 +892,24 @@ export default class ProductService {
 
         const prisma = getPrisma();
 
-        const inactivesTotalQuery = `${parts.selectTotal} ${parts.from} ${parts.where} ${parts.whereRecentlyExpired}`;
+        let bigIntInactiveTotal = 0;
 
-        const [{ total: bigIntInactiveTotal }] = await prisma.$queryRawUnsafe(
-            inactivesTotalQuery
-        );
+        if (filterActive) {
+            const inactivesTotalQuery = `${parts.selectTotal} ${parts.from} ${
+                parts.where
+            } ${filterActive ? parts.whereRecentlyExpired : ""}`;
 
-        const activesTotalQuery = `${parts.selectTotal} ${parts.from} ${parts.where} ${parts.whereNotExpired}`;
+            const [{ total }] = await prisma.$queryRawUnsafe(
+                inactivesTotalQuery
+            );
+
+            bigIntInactiveTotal = total;
+        }
+
+        const activesTotalQuery = `${parts.selectTotal} ${parts.from} ${
+            parts.where
+        } ${filterActive ? parts.whereNotExpired : ""}`;
+
         const [{ total: bigIntActiveTotal }] = await prisma.$queryRawUnsafe(
             activesTotalQuery
         );
@@ -885,10 +935,12 @@ export default class ProductService {
             /**
              * There are more products, so query them and splice in inactives
              */
-            if (page <= maxPagesWithInactives) {
+            if (page <= maxPagesWithInactives && inactivesTotal > 0) {
                 const inactivesQuery = `${parts.selectFields} ${parts.from} ${
                     parts.where
-                } ${parts.whereRecentlyExpired} ${parts.order(
+                } ${
+                    filterActive ? parts.whereRecentlyExpired : ""
+                } ${parts.order(
                     this.getValidSortBy("invalid", SORT_OPTIONS.expiring)
                 )} ${parts.limit(
                     page * inactivesPerPage - inactivesPerPage,
@@ -900,7 +952,9 @@ export default class ProductService {
 
             const activesQuery = `${parts.selectFields} ${parts.from} ${
                 parts.where
-            } ${parts.whereNotExpired} ${parts.order(sortBy)} ${parts.limit(
+            } ${filterActive ? parts.whereNotExpired : ""} ${parts.order(
+                sortBy
+            )} ${parts.limit(
                 activesOffset,
                 limit - (page <= maxPagesWithInactives ? inactivesPerPage : 0)
             )}`;
@@ -916,7 +970,7 @@ export default class ProductService {
 
             const inactivesQuery = `${parts.selectFields} ${parts.from} ${
                 parts.where
-            } ${parts.whereRecentlyExpired} ${parts.order(
+            } ${filterActive ? parts.whereRecentlyExpired : ""} ${parts.order(
                 this.getValidSortBy("invalid", SORT_OPTIONS.expiring)
             )} ${parts.limit(page * limit - limit - baseOffset, limit)}`;
 

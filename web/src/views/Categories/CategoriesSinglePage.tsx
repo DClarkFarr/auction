@@ -68,7 +68,10 @@ export default function ShopPage() {
     }
 
     return (
-        <ProductsSection params={computedParams}>
+        <ProductsSection
+            params={computedParams}
+            locationKey={`categories-${categorySlug}`}
+        >
             <div className="container">
                 <div className="shop lg:flex gap-x-4">
                     <ProductsSection.DesktopSidebar teleportMobile={drawerRef}>

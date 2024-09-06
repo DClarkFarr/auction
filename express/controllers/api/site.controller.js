@@ -72,7 +72,7 @@ export default class SiteController extends BaseController {
         ]);
 
         try {
-            const results = await ProductService.getPaginatedActiveProducts(
+            const results = await ProductService.getPaginatedProductItems(
                 params
             );
 

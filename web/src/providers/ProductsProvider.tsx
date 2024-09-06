@@ -1,13 +1,23 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ProductsContext } from "./useProductsContext";
-import usePaginatedActiveItemsQuery from "../hooks/usePaginatedActiveItemsQuery";
+import usePaginatedActiveItemsQuery, {
+    PaginatedActiveQueryMethod,
+} from "../hooks/usePaginatedActiveItemsQuery";
 import { defaultProductParams } from "../utils/productParams";
 import { FullProductItem } from "../types/Product";
+
+type ProductsProviderProps = React.PropsWithChildren<{
+    params?: Partial<ProductsContext["params"]>;
+    method?: PaginatedActiveQueryMethod;
+    locationKey: string;
+}>;
 
 export default function ProductsProvider({
     children,
     params: initialParams = {},
-}: React.PropsWithChildren<{ params?: Partial<ProductsContext["params"]> }>) {
+    method,
+    locationKey,
+}: ProductsProviderProps) {
     const [params, setParamsState] = useState<ProductsContext["params"]>({
         ...defaultProductParams,
         ...initialParams,
@@ -18,7 +28,7 @@ export default function ProductsProvider({
         isLoading,
         isSuccess,
         error,
-    } = usePaginatedActiveItemsQuery(params);
+    } = usePaginatedActiveItemsQuery(params, method, locationKey);
 
     const rows = useMemo(() => {
         return queriedPagination ? queriedPagination.rows : [];

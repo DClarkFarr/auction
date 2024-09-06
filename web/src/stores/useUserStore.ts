@@ -21,6 +21,7 @@ export type UserStore = {
     hasLoadedFavorites: boolean;
     isLoadingFavorites: boolean;
     isLoading: boolean;
+    isLoaded: boolean;
     loadFavorites: () => Promise<void>;
     addFavorite: (id_item: number) => Promise<void>;
     removeFavorite: (id_item: number) => Promise<void>;
@@ -38,7 +39,7 @@ const useUserStore = create<UserStore>((set, get) => {
                 email,
                 password
             );
-            set({ user, paymentMethod });
+            set({ user, paymentMethod, isLoaded: true });
         } catch (err) {
             if (err instanceof AxiosError) {
                 console.error(err.response?.data || err.message);
@@ -52,7 +53,7 @@ const useUserStore = create<UserStore>((set, get) => {
     const register = async (data: RegisterPayload) => {
         try {
             const user = await UserService.register(data);
-            set({ user });
+            set({ user, isLoaded: true });
         } catch (err) {
             if (err instanceof AxiosError) {
                 console.error(err.response?.data || err.message);
@@ -77,7 +78,7 @@ const useUserStore = create<UserStore>((set, get) => {
         }
     };
     const refresh = async () => {
-        set({ isLoading: true });
+        set({ isLoading: true, isLoaded: false });
 
         try {
             const { user, paymentMethod } = await UserService.me();
@@ -92,7 +93,7 @@ const useUserStore = create<UserStore>((set, get) => {
 
             return null;
         } finally {
-            set({ isLoading: false });
+            set({ isLoading: false, isLoaded: true });
         }
     };
     const setPaymentMethod = (paymentMethod: PaymentMethod | null) => {
@@ -156,6 +157,7 @@ const useUserStore = create<UserStore>((set, get) => {
         user: null,
         paymentMethod: null,
         isLoading: false,
+        isLoaded: false,
         login,
         register,
         logout,
@@ -192,7 +194,7 @@ export function useUserInitials() {
 export function useWatchUserSession(
     callback?: (user: User | null) => void | Promise<void>
 ) {
-    const { refresh, logout, user } = useUserStore();
+    const { refresh, logout, user, isLoading, isLoaded } = useUserStore();
 
     useEffect(() => {
         const syncUserSession = async () => {
@@ -209,8 +211,12 @@ export function useWatchUserSession(
             }
         };
 
+        if (isLoading || !isLoaded) {
+            return;
+        }
+
         syncUserSession();
-    }, [user]);
+    }, [user, isLoading, isLoaded]);
 
     useEffect(() => {
         refresh();

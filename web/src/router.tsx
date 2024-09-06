@@ -24,6 +24,8 @@ import TestPage from "./views/TestPage";
 import AccountLayout from "./layouts/AccountLayout";
 import AccountProfile from "./views/account/AccountProfile";
 import ProductInventoryPage from "./views/admin/Products/ProductInventoryPage";
+import AccountBids from "./views/account/AccountBids";
+import AccountFavorites from "./views/account/AccountFavorites";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -140,6 +142,14 @@ const router = createBrowserRouter([
             {
                 path: "profile",
                 element: <AccountProfile />,
+            },
+            {
+                path: "bids",
+                element: <AccountBids />,
+            },
+            {
+                path: "favorites",
+                element: <AccountFavorites />,
             },
         ],
     },

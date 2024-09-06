@@ -106,14 +106,14 @@ export function filterDefaultProductParams(params: PaginatedProductParams) {
         }
 
         return acc;
-    }, {});
+    }, {} as PaginatedProductParams);
 }
 
-export function makePaginatedActiveItemsKey({
-    page,
-    ...params
-}: PaginatedProductParams) {
-    const arr = ["paginatedActiveItems"];
+export function makePaginatedActiveItemsKey(
+    locationKey: string,
+    { page, ...params }: PaginatedProductParams
+) {
+    const arr = ["paginatedActiveItems", locationKey];
 
     const joinValues = (
         key: string,
