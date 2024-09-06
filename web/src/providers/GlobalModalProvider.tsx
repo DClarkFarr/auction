@@ -15,11 +15,24 @@ export default function GlobalModalProvider({
         show: false,
     });
 
+    const loginCallbacks = React.useRef<CallableFunction[]>([]);
+
     const login = React.useMemo(() => {
         return {
             show: loginModalProps.show,
-            open: () => setLoginShow(true),
-            close: () => setLoginShow(false),
+            open: (onComplete?: CallableFunction) => {
+                if (typeof onComplete === "function") {
+                    loginCallbacks.current.push(onComplete);
+                }
+                setLoginShow(true);
+            },
+            close: () => {
+                if (loginCallbacks.current.length) {
+                    loginCallbacks.current.forEach((method) => method());
+                    loginCallbacks.current = [];
+                }
+                setLoginShow(false);
+            },
         };
     }, [loginModalProps, setLoginShow]);
 

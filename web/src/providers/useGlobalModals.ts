@@ -3,7 +3,7 @@ import { contextFactory } from "../utils/context";
 export type RegisteredModals = "login"; //  | "signup" | "card";
 export type RegisteredModalControls = {
     show: boolean;
-    open: () => void;
+    open: (onCompleteAction?: () => void) => void;
     close: () => void;
 };
 

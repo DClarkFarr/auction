@@ -29,7 +29,7 @@ export default function useFavorite() {
     const addFavorite = React.useCallback(
         (id_item: number) => {
             if (!user) {
-                return openLoginModal();
+                return openLoginModal(() => addFavoriteQuery(id_item));
             }
 
             return addFavoriteQuery(id_item);
@@ -40,7 +40,7 @@ export default function useFavorite() {
     const removeFavorite = React.useCallback(
         (id_item: number) => {
             if (!user) {
-                return openLoginModal();
+                return openLoginModal(() => removeFavoriteQuery(id_item));
             }
 
             return removeFavoriteQuery(id_item);
