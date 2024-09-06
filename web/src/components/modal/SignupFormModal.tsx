@@ -1,24 +1,23 @@
 import { Modal } from "flowbite-react";
-import LoginForm, { LoginFormProps } from "../user/LoginForm";
+import SignupForm, { SignupFormProps } from "../user/SignupForm";
 import useUserStore from "../../stores/useUserStore";
 import React from "react";
 import { UseModalCreateProps } from "../../hooks/useModal";
 import { Link } from "react-router-dom";
 import { useGlobalModalContext } from "../../providers/useGlobalModals";
 
-type LoginFormModalProps = UseModalCreateProps;
+type SignupFormModalProps = UseModalCreateProps;
 
-export default function LoginFormModal(props: LoginFormModalProps) {
-    const { login } = useUserStore();
-
+export default function SignupFormModal(props: SignupFormModalProps) {
+    const { register } = useUserStore();
     const {
-        signup: { open: openSignup },
+        login: { open: openLogin },
         onSuccess,
     } = useGlobalModalContext();
 
     const onSubmit = React.useCallback(
-        async (data: Parameters<LoginFormProps["onSubmit"]>[0]) => {
-            await login(data.email, data.password);
+        async (data: Parameters<SignupFormProps["onSubmit"]>[0]) => {
+            await register(data);
 
             onSuccess();
 
@@ -29,24 +28,24 @@ export default function LoginFormModal(props: LoginFormModalProps) {
         []
     );
 
-    const onClickSignup = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const onClickLogin = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
-        openSignup();
+        openLogin();
     };
 
     return (
         <Modal {...props}>
-            <Modal.Header>Login to Bid!</Modal.Header>
+            <Modal.Header>Sign Up</Modal.Header>
             <Modal.Body className="p-0 rounded-b-lg">
-                <LoginForm onSubmit={onSubmit} />
+                <SignupForm onSubmit={onSubmit} />
                 <div className="text-center py-4 mb-2">
                     <div className="mb-4 font-semibold">OR</div>
                     <Link
                         className="text-purple-700 hover:underline"
                         to="#"
-                        onClick={onClickSignup}
+                        onClick={onClickLogin}
                     >
-                        Create Account
+                        Back to Login
                     </Link>
                 </div>
             </Modal.Body>

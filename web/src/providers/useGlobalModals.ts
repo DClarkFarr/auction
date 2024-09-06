@@ -1,6 +1,6 @@
 import { contextFactory } from "../utils/context";
 
-export type RegisteredModals = "login"; //  | "signup" | "card";
+export type RegisteredModals = "login" | "signup"; // | "card";
 export type RegisteredModalControls = {
     show: boolean;
     open: (onCompleteAction?: () => void) => void;
@@ -11,7 +11,7 @@ type AllModals = {
     [K in RegisteredModals]: RegisteredModalControls;
 };
 
-export type GlobalModalContext = AllModals;
+export type GlobalModalContext = AllModals & { onSuccess: () => void };
 
 export const [GlobalModalContext, useGlobalModalContext] =
     contextFactory<GlobalModalContext>();
