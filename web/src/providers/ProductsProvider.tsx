@@ -71,6 +71,12 @@ export default function ProductsProvider({
     useEffect(() => {
         const { page, limit } = pagination;
         const offset = page * limit - limit;
+
+        if (page === 1) {
+            console.log("page was 1, do reset");
+            setProducts(rows);
+            return;
+        }
         setProducts((prevProducts) => {
             const ps = [...prevProducts];
             ps.splice(offset, limit, ...rows);
