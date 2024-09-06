@@ -163,8 +163,17 @@ class UserController extends BaseController {
         try {
             const user = req.user;
 
-            const paymentMethod =
-                await StripeService.getUserDefaultPaymentMethod(user);
+            let paymentMethod = null;
+            try {
+                paymentMethod = await StripeService.getUserDefaultPaymentMethod(
+                    user
+                );
+            } catch (err) {
+                console.warn(
+                    "getting user -> could not connect to stripe",
+                    err
+                );
+            }
 
             res.json({ user, paymentMethod });
         } catch (err) {
@@ -214,8 +223,14 @@ class UserController extends BaseController {
         try {
             session.user = userModel.toObject(user);
 
-            const paymentMethod =
-                await StripeService.getUserDefaultPaymentMethod(user);
+            let paymentMethod = null;
+            try {
+                paymentMethod = await StripeService.getUserDefaultPaymentMethod(
+                    user
+                );
+            } catch (err) {
+                console.warn("Could not connect to stripe", err);
+            }
 
             res.json({
                 user: userModel.toObject(user),

@@ -55,7 +55,7 @@ export default function LoginForm({ onSubmit, footer }: LoginFormProps) {
     });
 
     return (
-        <div className="max-w-full w-[450px]">
+        <div className="max-w-full">
             <form
                 className="flex flex-col gap-4 bg-gray-100 p-6"
                 onSubmit={handleSubmit}
