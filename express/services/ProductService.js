@@ -13,6 +13,7 @@ import path from "path";
 import ProductItemModel from "../models/ProductItemModel.js";
 import { keyBy, random } from "lodash-es";
 import SiteService from "./SiteService.js";
+import { formatCurrency } from "../utils/format.js";
 
 /**
  * @typedef {import('../models/ProductModel.js').ProductDocument} ProductDocument
@@ -21,6 +22,7 @@ import SiteService from "./SiteService.js";
  * @typedef {import("@prisma/client").Category} CategoryDocument
  * @typedef {import("../models/ImageModel.js").ImageDocument} ImageDocument
  * @typedef {import("@prisma/client").Bid} BidDocument
+ * @typedef {import("@prisma/client").User} UserDocument
  * @typedef {ProductDocument['status']} ProductStatus
  * @typedef {ProductItemDocument['status']} ProductItemStatus
  */
@@ -119,6 +121,7 @@ export default class ProductService {
         return prisma.bid.findFirst({
             where: {
                 id_item: item.id_item,
+                status: "active",
             },
             orderBy: {
                 createdAt: "desc",
@@ -1064,5 +1067,59 @@ export default class ProductService {
         ).filter((p) => !!p);
 
         return populated;
+    }
+
+    /**
+     * @param {UserDocument} user
+     * @param {number} idItem
+     * @param {number} amount
+     */
+    static async placeProductBid(user, idItem, amount) {
+        const prisma = getPrisma();
+
+        const item = await prisma.productItem.findFirst({
+            where: {
+                id_item: idItem,
+            },
+        });
+
+        if (!item) {
+            throw new UserError("Item not found");
+        }
+
+        const highestBid = await this.getProductItemHighestBid(item);
+
+        const product = await this.getProductById(item.id_product);
+
+        const minPrice = highestBid
+            ? highestBid.amount + 1
+            : product.priceInitial;
+
+        if (amount < minPrice) {
+            throw new UserError(
+                "Minimum bid price is " + formatCurrency(minPrice)
+            );
+        }
+
+        await prisma.bid.updateMany({
+            where: {
+                id_item: idItem,
+            },
+            data: {
+                status: "inactive",
+            },
+        });
+
+        const bid = await prisma.bid.create({
+            data: {
+                id_product: item.id_product,
+                id_item: item.id_item,
+                id_user: user.id,
+                amount,
+                status: "active",
+            },
+        });
+
+        return { ...item, bid, product };
     }
 }

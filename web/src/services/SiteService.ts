@@ -101,4 +101,10 @@ export default class SiteService {
             )
             .then((res) => res.data);
     }
+
+    static async placeBid(id_item: number, amount: number) {
+        return apiClient
+            .post<FullProductItem>(`/site/products/${id_item}/bid`, { amount })
+            .then((res) => res.data);
+    }
 }

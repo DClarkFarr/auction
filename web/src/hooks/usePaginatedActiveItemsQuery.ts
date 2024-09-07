@@ -1,5 +1,6 @@
 import {
     keepPreviousData,
+    useMutation,
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query";
@@ -64,3 +65,39 @@ export default function usePaginatedActiveItemsQuery(
         error,
     };
 }
+
+export const usePlaceBidMutation = () => {
+    const queryClient = useQueryClient();
+    const { mutateAsync: placeBid } = useMutation({
+        mutationFn: ({
+            id_item,
+            amount,
+        }: {
+            id_item: number;
+            amount: number;
+        }) => {
+            return SiteService.placeBid(id_item, amount);
+        },
+        onSuccess: (product) => {
+            queryClient.setQueriesData<PaginatedResults<FullProductItem>>(
+                {
+                    predicate: ({ queryKey }) =>
+                        queryKey.includes("paginatedActiveItems"),
+                },
+                (result) => {
+                    if (!result) {
+                        return;
+                    }
+                    return {
+                        ...result,
+                        rows: result.rows.map((r) =>
+                            r.id_item === product.id_item ? product : r
+                        ),
+                    };
+                }
+            );
+        },
+    });
+
+    return placeBid;
+};

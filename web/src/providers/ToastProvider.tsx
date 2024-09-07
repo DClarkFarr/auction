@@ -163,7 +163,7 @@ function ToastWrapper({
             whileInView={{ right: 10 }}
             exit={{ right: -300 }}
             ref={ref}
-            className="fixed"
+            className="fixed z-[100]"
         >
             {children}
         </motion.div>

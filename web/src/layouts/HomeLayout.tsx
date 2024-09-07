@@ -10,7 +10,9 @@ import {
     useCardModal,
     useLoginModal,
     useSignupModal,
+    useBidModal,
 } from "../stores/useModalsStore";
+import ProductBidModal from "../components/modal/ProductBidModal";
 
 export default function HomeLayout({
     children,
@@ -35,6 +37,7 @@ export default function HomeLayout({
     const { state: loginState } = useLoginModal();
     const { state: signupState } = useSignupModal();
     const { state: cardState } = useCardModal();
+    const { state: bidState } = useBidModal();
 
     return (
         <>
@@ -51,6 +54,7 @@ export default function HomeLayout({
                 <LoginFormModal {...loginState} />
                 <SignupFormModal {...signupState} />
                 <PaymentMethodModal {...cardState} />
+                <ProductBidModal {...bidState} />
             </div>
         </>
     );

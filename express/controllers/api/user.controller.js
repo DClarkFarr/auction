@@ -2,9 +2,9 @@ import BaseController from "../_.controller.js";
 import validator from "validator";
 
 import webSessionMiddleware from "../../middleware/webSessionMiddleware.js";
+import { hasUser } from "../../middleware/auth.middleware.js";
 
 import UserError from "../../errors/UserError.js";
-import { hasUser } from "../../middleware/auth.middleware.js";
 import UserModel from "../../models/UserModel.js";
 import { hasRecaptcha } from "../../middleware/recaptcha.middleware.js";
 import StripeService from "../../services/StripeService.js";

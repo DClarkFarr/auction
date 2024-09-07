@@ -4,7 +4,8 @@ import ProductCard from "../ProductCard";
 import React from "react";
 import useFavorite from "../../../hooks/useFavorite";
 import useUserStore from "../../../stores/useUserStore";
-import { useCardModal } from "../../../stores/useModalsStore";
+import { useBidModal, useCardModal } from "../../../stores/useModalsStore";
+import useProductBidStore from "../../../stores/useProductBidStore";
 
 const ProductsItem: ProductsGridItem = ({ product }) => {
     /**
@@ -14,6 +15,8 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
     const { addFavorite, removeFavorite, itemIsFavorite } = useFavorite();
 
     const cardModal = useCardModal();
+    const bidModal = useBidModal();
+    const { setProduct } = useProductBidStore();
 
     const { paymentMethod } = useUserStore();
 
@@ -35,7 +38,9 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
     const onClickBid = (p: FullProductItem) => {
         console.log("on click bid payment method was", paymentMethod);
         if (paymentMethod) {
-            return console.log("show bid modal!!!!");
+            bidModal.open();
+            setProduct(p);
+            return;
         }
 
         cardModal.open(
@@ -43,7 +48,8 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
             {
                 scope: "card",
                 callback: () => {
-                    onClickBid(p);
+                    bidModal.open();
+                    setProduct(p);
                 },
             }
         );

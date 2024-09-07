@@ -76,7 +76,7 @@ model Bid {
     id_product Int
     id_item    Int
     id_user    Int
-    amount     Int
+    amount     Float
     status     BID_STATUS
     createdAt  DateTime?  @default(now())
 

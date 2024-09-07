@@ -3,6 +3,10 @@ import BaseController from "../_.controller.js";
 import ProductService from "../../services/ProductService.js";
 import CategoryService from "../../services/CategoryService.js";
 import SiteService from "../../services/SiteService.js";
+import { AxiosError } from "axios";
+
+import webSessionMiddleware from "../../middleware/webSessionMiddleware.js";
+import { hasUser } from "../../middleware/auth.middleware.js";
 
 export default class SiteController extends BaseController {
     base = "/site";
@@ -28,6 +32,13 @@ export default class SiteController extends BaseController {
         this.router.get(
             "/products/featured",
             this.route(this.getFeaturedProducts)
+        );
+
+        this.router.post(
+            "/products/:id/bid",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.placeProductBid)
         );
 
         this.router.get("/tags", this.route(this.getTags));
@@ -56,6 +67,36 @@ export default class SiteController extends BaseController {
         } catch (err) {
             console.warn("error fetching categories", err);
             res.status(400).json({ message: err.message });
+        }
+    }
+
+    async placeProductBid(req, res) {
+        const id_item = Number(req.params.id);
+        const amount = Number(req.body.amount);
+        const user = req.user;
+
+        if (isNaN(id_item)) {
+            return res.status(400).json({ message: "Invalid product ID" });
+        }
+
+        if (isNaN(amount)) {
+            return res.status(400).json({ message: "Invalid amount" });
+        }
+
+        try {
+            const result = await ProductService.placeProductBid(
+                user,
+                id_item,
+                amount
+            );
+
+            res.json(result);
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                res.status(400).json({ message: err.message });
+            } else {
+                res.status(400).json({ message: "Error placing bid" });
+            }
         }
     }
 
