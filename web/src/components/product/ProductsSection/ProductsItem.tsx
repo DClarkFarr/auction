@@ -3,9 +3,7 @@ import { FullProductItem } from "../../../types/Product";
 import ProductCard from "../ProductCard";
 import React from "react";
 import useFavorite from "../../../hooks/useFavorite";
-import useUserStore from "../../../stores/useUserStore";
-import { useBidModal, useCardModal } from "../../../stores/useModalsStore";
-import useProductBidStore from "../../../stores/useProductBidStore";
+import usePlaceBid from "../../../hooks/usePlaceBid";
 
 const ProductsItem: ProductsGridItem = ({ product }) => {
     /**
@@ -14,11 +12,7 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
 
     const { addFavorite, removeFavorite, itemIsFavorite } = useFavorite();
 
-    const cardModal = useCardModal();
-    const bidModal = useBidModal();
-    const { setProduct } = useProductBidStore();
-
-    const { paymentMethod } = useUserStore();
+    const placeBid = usePlaceBid();
 
     const toggleFavorite = React.useCallback(
         async (id_item: number) => {
@@ -36,23 +30,7 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
     }, [product, itemIsFavorite]);
 
     const onClickBid = (p: FullProductItem) => {
-        console.log("on click bid payment method was", paymentMethod);
-        if (paymentMethod) {
-            bidModal.open();
-            setProduct(p);
-            return;
-        }
-
-        cardModal.open(
-            {},
-            {
-                scope: "card",
-                callback: () => {
-                    bidModal.open();
-                    setProduct(p);
-                },
-            }
-        );
+        placeBid(p);
     };
 
     return (

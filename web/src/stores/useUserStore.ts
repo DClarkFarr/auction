@@ -71,7 +71,14 @@ const useUserStore = create<UserStore>((set, get) => {
         }
     };
     const logout = async () => {
-        set({ user: null, paymentMethod: null, favorites: [] });
+        set({
+            user: null,
+            paymentMethod: null,
+            favorites: [],
+            bids: [],
+            hasLoadedBids: false,
+            hasLoadedFavorites: false,
+        });
 
         try {
             await UserService.logout();
