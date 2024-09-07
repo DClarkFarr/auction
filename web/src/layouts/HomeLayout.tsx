@@ -3,7 +3,14 @@ import { Outlet } from "react-router-dom";
 import useUserStore, { useWatchUserSession } from "../stores/useUserStore";
 import HomeHeader from "./header/HomeHeader";
 import HomeFooter from "./footer/HomeFooter";
-import GlobalModalProvider from "../providers/GlobalModalProvider";
+import LoginFormModal from "../components/modal/LoginFormModal";
+import SignupFormModal from "../components/modal/SignupFormModal";
+import PaymentMethodModal from "../components/modal/PaymentMethodModal";
+import {
+    useCardModal,
+    useLoginModal,
+    useSignupModal,
+} from "../stores/useModalsStore";
 
 export default function HomeLayout({
     children,
@@ -15,8 +22,6 @@ export default function HomeLayout({
     const { user, hasLoadedFavorites, isLoadingFavorites, loadFavorites } =
         useUserStore();
 
-    const modalsRef = React.useRef<HTMLDivElement>(null);
-
     const body = React.useMemo(() => {
         return children || <Outlet />;
     }, [children]);
@@ -27,20 +32,26 @@ export default function HomeLayout({
         }
     }, [user, hasLoadedFavorites, isLoadingFavorites]);
 
+    const { state: loginState } = useLoginModal();
+    const { state: signupState } = useSignupModal();
+    const { state: cardState } = useCardModal();
+
     return (
         <>
-            <GlobalModalProvider teleportRef={modalsRef}>
-                <div className="layout layout--home">
-                    <header className="layout__header mb-4 border-b-2 border-gray-300">
-                        <HomeHeader />
-                    </header>
-                    <main className="layout__main">{body}</main>
-                    <footer>
-                        <HomeFooter />
-                    </footer>
-                </div>
-            </GlobalModalProvider>
-            <div id="global-modals" ref={modalsRef}></div>
+            <div className="layout layout--home">
+                <header className="layout__header mb-4 border-b-2 border-gray-300">
+                    <HomeHeader />
+                </header>
+                <main className="layout__main">{body}</main>
+                <footer>
+                    <HomeFooter />
+                </footer>
+            </div>
+            <div id="global-modals">
+                <LoginFormModal {...loginState} />
+                <SignupFormModal {...signupState} />
+                <PaymentMethodModal {...cardState} />
+            </div>
         </>
     );
 }

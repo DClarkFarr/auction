@@ -83,23 +83,13 @@ export default function ProductsProvider({
         const offset = page * limit - limit;
 
         if (page === 1) {
-            console.log("page was 1, do reset");
             setProducts(rows);
             return;
         }
         setProducts((prevProducts) => {
             const ps = [...prevProducts];
             ps.splice(offset, limit, ...rows);
-            console.log(
-                "splicing page",
-                page,
-                "offset",
-                offset,
-                "for limit",
-                limit,
-                "rows.length",
-                rows.length
-            );
+
             return ps;
         });
     }, [rows, pagination]);

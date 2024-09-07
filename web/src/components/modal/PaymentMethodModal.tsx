@@ -1,31 +1,35 @@
 import { Modal } from "flowbite-react";
 import React from "react";
 import PaymentMethodWizard from "../stripe/PaymentMethodWizard";
-import { useGlobalModalContext } from "../../providers/useGlobalModals";
+import { useCardModal, useLoginModal } from "../../stores/useModalsStore";
 
 type PaymentMethodModalProps = { onClose?: () => void };
 
 export default function PaymentMethodModal(props: PaymentMethodModalProps) {
-    const { signup, card } = useGlobalModalContext();
+    const loginModal = useLoginModal();
+    const cardModal = useCardModal();
 
     const onSaveCard = React.useCallback(async () => {
-        console.log("you saved your card");
         if (typeof props.onClose === "function") {
             props.onClose();
+        } else {
+            cardModal.close();
         }
     }, []);
 
     const onClickLogin = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
-        console.log("preventing and calling");
-        // login.open(() => {
-        //     console.log("card open queued");
-        //     card.open();
-        // });
-        signup.open(() => {
-            console.log("card open queued");
-            card.open();
-        });
+        cardModal.close();
+        loginModal.open(
+            {},
+            {
+                scope: "login",
+                callback: () => {
+                    console.log("login scope invoked -> open card");
+                    cardModal.open();
+                },
+            }
+        );
     };
 
     return (

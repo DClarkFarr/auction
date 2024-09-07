@@ -1,7 +1,7 @@
 import React from "react";
 import useUserStore from "../stores/useUserStore";
 import { keyBy } from "lodash-es";
-import { useGlobalModalContext } from "../providers/useGlobalModals";
+import { useLoginModal } from "../stores/useModalsStore";
 
 export default function useFavorite() {
     const {
@@ -11,9 +11,7 @@ export default function useFavorite() {
         removeFavorite: removeFavoriteQuery,
     } = useUserStore();
 
-    const {
-        login: { open: openLoginModal },
-    } = useGlobalModalContext();
+    const loginModal = useLoginModal();
 
     const favoritesKeyed = React.useMemo(() => {
         return keyBy(favorites, "id_item");
@@ -29,7 +27,15 @@ export default function useFavorite() {
     const addFavorite = React.useCallback(
         (id_item: number) => {
             if (!user) {
-                return openLoginModal(() => addFavoriteQuery(id_item));
+                return loginModal.open(
+                    {},
+                    {
+                        scope: "login",
+                        callback: () => {
+                            addFavoriteQuery(id_item);
+                        },
+                    }
+                );
             }
 
             return addFavoriteQuery(id_item);
@@ -40,7 +46,15 @@ export default function useFavorite() {
     const removeFavorite = React.useCallback(
         (id_item: number) => {
             if (!user) {
-                return openLoginModal(() => removeFavoriteQuery(id_item));
+                return loginModal.open(
+                    {},
+                    {
+                        scope: "login",
+                        callback: () => {
+                            removeFavoriteQuery(id_item);
+                        },
+                    }
+                );
             }
 
             return removeFavoriteQuery(id_item);

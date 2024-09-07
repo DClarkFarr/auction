@@ -3,8 +3,8 @@ import { FullProductItem } from "../../../types/Product";
 import ProductCard from "../ProductCard";
 import React from "react";
 import useFavorite from "../../../hooks/useFavorite";
-import { useGlobalModalContext } from "../../../providers/useGlobalModals";
 import useUserStore from "../../../stores/useUserStore";
+import { useCardModal } from "../../../stores/useModalsStore";
 
 const ProductsItem: ProductsGridItem = ({ product }) => {
     /**
@@ -13,9 +13,7 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
 
     const { addFavorite, removeFavorite, itemIsFavorite } = useFavorite();
 
-    const {
-        card: { open: openCardModal },
-    } = useGlobalModalContext();
+    const cardModal = useCardModal();
 
     const { paymentMethod } = useUserStore();
 
@@ -39,9 +37,7 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
             return console.log("show bid modal!!!!");
         }
 
-        openCardModal(() => {
-            console.log("saved, now show bid modal!!!");
-        });
+        cardModal.open();
     };
 
     return (

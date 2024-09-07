@@ -4,26 +4,26 @@ import useUserStore from "../../stores/useUserStore";
 import React from "react";
 import { UseModalCreateProps } from "../../hooks/useModal";
 import { Link } from "react-router-dom";
-import { useGlobalModalContext } from "../../providers/useGlobalModals";
+import { useLoginModal, useSignupModal } from "../../stores/useModalsStore";
 
 type LoginFormModalProps = UseModalCreateProps;
 
 export default function LoginFormModal(props: LoginFormModalProps) {
     const { login } = useUserStore();
 
-    const {
-        signup: { open: openSignup },
-        executeSuccess,
-    } = useGlobalModalContext();
+    const loginModal = useLoginModal();
+    const signupModal = useSignupModal();
 
     const onSubmit = React.useCallback(
         async (data: Parameters<LoginFormProps["onSubmit"]>[0]) => {
             await login(data.email, data.password);
 
-            executeSuccess(1);
+            loginModal.invokeIntents();
 
             if (typeof props.onClose === "function") {
                 props.onClose();
+            } else {
+                loginModal.close();
             }
         },
         []
@@ -31,7 +31,8 @@ export default function LoginFormModal(props: LoginFormModalProps) {
 
     const onClickSignup = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
-        openSignup();
+        loginModal.close();
+        signupModal.open();
     };
 
     return (
