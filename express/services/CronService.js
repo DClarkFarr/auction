@@ -120,7 +120,7 @@ export default class CronService {
                                                     rejectsAt: DateTime.now()
                                                         .plus({ day: 1 })
                                                         .toJSDate(),
-                                                    id_user: bid.id_user,
+                                                    id_user: highestBid.id_user,
                                                 }
                                             );
                                     } else {

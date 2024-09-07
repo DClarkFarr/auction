@@ -9,10 +9,16 @@ import React from "react";
 import { usePlaceBidMutation } from "../../hooks/usePaginatedActiveItemsQuery";
 import useToastContext from "../../providers/useToastContext";
 import { AxiosError } from "axios";
+import { Bid } from "../../types/Bid";
 
-export default function ProductBid() {
+export default function ProductBid({
+    onPlaceBid,
+}: {
+    onPlaceBid: (bid: Bid) => void;
+}) {
     const { product, bidAmount, setBidAmount, setProduct } =
         useProductBidStore();
+
     const [isSubmitting, setIsSubmitting] = React.useState(false);
 
     const { user, paymentMethod } = useUserStore();
@@ -64,6 +70,8 @@ export default function ProductBid() {
             });
 
             setProduct(newProduct);
+
+            onPlaceBid(product.bid);
 
             toast({
                 text: "Bid placed successfully",

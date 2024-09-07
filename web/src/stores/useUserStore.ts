@@ -5,6 +5,7 @@ import UserService from "../services/UserService";
 import { AxiosError } from "axios";
 import { useEffect, useMemo } from "react";
 import StripeService from "../services/StripeService";
+import { Bid } from "../types/Bid";
 
 export type PaymentMethod = {
     id: string;
@@ -20,8 +21,13 @@ export type UserStore = {
     paymentMethod: PaymentMethod | null;
     hasLoadedFavorites: boolean;
     isLoadingFavorites: boolean;
+    bids: Bid[];
+    isLoadingBids: boolean;
+    hasLoadedBids: boolean;
     isLoading: boolean;
     isLoaded: boolean;
+    loadUserBids: () => Promise<void>;
+    applyUserBid: (bid: Bid) => void;
     loadFavorites: () => Promise<void>;
     addFavorite: (id_item: number) => Promise<void>;
     removeFavorite: (id_item: number) => Promise<void>;
@@ -153,6 +159,30 @@ const useUserStore = create<UserStore>((set, get) => {
         }
     };
 
+    const loadUserBids = async () => {
+        set({ isLoadingBids: true });
+        try {
+            const bids = await UserService.getUserBids();
+            set({ bids });
+        } catch (err) {
+            console.warn("caught error loading user bids", err);
+        } finally {
+            set({ isLoadingBids: false });
+            set({ hasLoadedBids: true });
+        }
+    };
+
+    const applyUserBid = (bid: Bid) => {
+        const bids = get().bids;
+        if (bids.findIndex((b) => b.id_bid === bid.id_bid) === -1) {
+            set({ bids: [...bids, bid] });
+            return;
+        }
+        set({
+            bids: get().bids.map((b) => (b.id_bid === bid.id_bid ? bid : b)),
+        });
+    };
+
     return {
         user: null,
         paymentMethod: null,
@@ -170,6 +200,11 @@ const useUserStore = create<UserStore>((set, get) => {
         loadFavorites,
         addFavorite,
         removeFavorite,
+        bids: [],
+        isLoadingBids: false,
+        hasLoadedBids: false,
+        loadUserBids,
+        applyUserBid,
     } satisfies UserStore;
 });
 

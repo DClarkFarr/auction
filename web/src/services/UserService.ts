@@ -1,5 +1,6 @@
 import { ResetPasswordState } from "../components/user/ResetPasswordForm";
 import { PaymentMethod } from "../stores/useUserStore";
+import { Bid } from "../types/Bid";
 import { PaginatedResults } from "../types/Paginate";
 import { FullProductItem } from "../types/Product";
 import { RegisterPayload, User, UserFavorite } from "../types/User";
@@ -40,6 +41,10 @@ export default class UserService {
             .then((res) => res.data);
     }
 
+    static getUserBids() {
+        return apiClient.get<Bid[]>("/user/bids").then((res) => res.data);
+    }
+
     static addFavorite(id_item: number) {
         return apiClient
             .post<UserFavorite>("/user/favorites", { id_item })
@@ -54,7 +59,7 @@ export default class UserService {
 
     static getUserBidItems(params: PaginatedProductParams) {
         return apiClient
-            .get<PaginatedResults<FullProductItem>>(`/user/bids`, {
+            .get<PaginatedResults<FullProductItem>>(`/user/bids/items`, {
                 params,
             })
             .then((res) => res.data);

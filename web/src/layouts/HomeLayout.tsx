@@ -21,8 +21,15 @@ export default function HomeLayout({
 }) {
     useWatchUserSession();
 
-    const { user, hasLoadedFavorites, isLoadingFavorites, loadFavorites } =
-        useUserStore();
+    const {
+        user,
+        hasLoadedFavorites,
+        isLoadingFavorites,
+        loadFavorites,
+        hasLoadedBids,
+        isLoadingBids,
+        loadUserBids,
+    } = useUserStore();
 
     const body = React.useMemo(() => {
         return children || <Outlet />;
@@ -33,6 +40,12 @@ export default function HomeLayout({
             loadFavorites();
         }
     }, [user, hasLoadedFavorites, isLoadingFavorites]);
+
+    React.useEffect(() => {
+        if (!!user && !hasLoadedBids && !isLoadingBids) {
+            loadUserBids();
+        }
+    }, [user, hasLoadedBids, isLoadingBids]);
 
     const { state: loginState } = useLoginModal();
     const { state: signupState } = useSignupModal();
