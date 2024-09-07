@@ -6,7 +6,7 @@ import { useGlobalModalContext } from "../../providers/useGlobalModals";
 type PaymentMethodModalProps = { onClose?: () => void };
 
 export default function PaymentMethodModal(props: PaymentMethodModalProps) {
-    const { login, signup, card } = useGlobalModalContext();
+    const { signup, card } = useGlobalModalContext();
 
     const onSaveCard = React.useCallback(async () => {
         console.log("you saved your card");
