@@ -4,13 +4,16 @@ import { Link, useSearchParams } from "react-router-dom";
 import StripeCardForm from "./StripeCardForm";
 import CardDetails from "./CardDetails";
 import useUserStore from "../../stores/useUserStore";
+import StripeProvider from "../../providers/StripeProvider";
 
 type WizardView = "login" | "form" | "success" | "card";
 
 type PaymentMethodWizardProps = {
     onSaveCard?: () => void;
+    onClickLogin?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 };
 function PaymentMethodWizardComponent({
+    onClickLogin,
     onSaveCard,
 }: PaymentMethodWizardProps) {
     const [search, setSearch] = useSearchParams();
@@ -49,7 +52,7 @@ function PaymentMethodWizardComponent({
 
     return (
         <div className="border border-gray-800 p-4 rounded-lg max-w-full">
-            {view === "login" && <LoginView />}
+            {view === "login" && <LoginView onClickLogin={onClickLogin} />}
             {view === "form" && (
                 <>
                     <h3 className="mb-2 text-xl font-semibold">
@@ -60,7 +63,9 @@ function PaymentMethodWizardComponent({
                         bids, you select winning bids and complete the purchase
                         with the card on file.
                     </p>
-                    <StripeCardForm onSuccess={onCardSaved} />
+                    <StripeProvider initWithSetup>
+                        <StripeCardForm onSuccess={onCardSaved} />
+                    </StripeProvider>
                 </>
             )}
             {view === "card" && (
@@ -129,7 +134,11 @@ function SuccessView() {
         </div>
     );
 }
-function LoginView() {
+function LoginView({
+    onClickLogin,
+}: {
+    onClickLogin: PaymentMethodWizardProps["onClickLogin"];
+}) {
     return (
         <div className="p-8">
             <h3 className="mb-2 text-xl font-semibold">
@@ -139,7 +148,7 @@ function LoginView() {
                 You must be logged in to save a payment method.
             </p>
             <div className="text-center">
-                <Button as={Link} to="/login">
+                <Button as={Link} to="/login" onClick={onClickLogin}>
                     Login
                 </Button>
             </div>

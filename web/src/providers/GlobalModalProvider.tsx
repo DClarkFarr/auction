@@ -7,21 +7,21 @@ import SignupFormModal from "../components/modal/SignupFormModal";
 import PaymentMethodModal from "../components/modal/PaymentMethodModal";
 
 type UseModal = ReturnType<typeof useModal>;
-type LoginState = UseModal["state"];
-type LoginMethods = Omit<UseModal, "state">;
+type ModalState = UseModal["state"];
+type ModalMethods = Omit<UseModal, "state">;
 
-export default function GlobalModalProvider({
+function GlobalModalProviderComponent({
     children,
     teleportRef,
 }: {
     children: React.ReactNode;
     teleportRef: React.RefObject<HTMLDivElement>;
 }) {
-    const { state: loginState, ...loginMethods } = useModal({
+    const { state: signupState, ...signupMethods } = useModal({
         show: false,
     });
 
-    const { state: signupState, ...signupMethods } = useModal({
+    const { state: loginState, ...loginMethods } = useModal({
         show: false,
     });
 
@@ -29,20 +29,27 @@ export default function GlobalModalProvider({
         show: false,
     });
 
+    const openedModal = React.useRef<false | RegisteredModals>(false);
+
+    console.log(
+        "rendering GlobalModalProvider, openModal",
+        openedModal.current
+    );
+
     const successCallbacks = React.useRef<CallableFunction[]>([]);
 
     const closeOthers = (modalKey: RegisteredModals) => {
+        console.log("closing others", modalKey);
         const map: Record<RegisteredModals, CallableFunction> = {
-            login: () => loginState.show && loginMethods.close(),
             signup: () => signupState.show && signupMethods.close(),
+            login: () => loginState.show && loginMethods.close(),
             card: () => cardState.show && cardMethods.close(),
         };
 
-        Object.entries(map).forEach(([key, method]) => {
-            if (key !== modalKey) {
-                method();
-            }
-        });
+        if (openedModal.current) {
+            map[openedModal.current]();
+            openedModal.current = false;
+        }
     };
 
     const executeSuccess = (successCount: number) => {
@@ -66,14 +73,20 @@ export default function GlobalModalProvider({
         }
     };
 
-    const bindModal = (s: LoginState, m: LoginMethods) => {
+    const bindModal = (
+        name: RegisteredModals,
+        s: ModalState,
+        m: ModalMethods
+    ) => {
         return {
             show: s.show,
             open: (
                 onComplete?: CallableFunction,
                 props: UseModalConfig = {}
             ) => {
-                closeOthers("login");
+                closeOthers(name);
+
+                openedModal.current = name;
 
                 if (typeof onComplete === "function") {
                     successCallbacks.current.push(onComplete);
@@ -83,6 +96,10 @@ export default function GlobalModalProvider({
             close: (successCount = 0) => {
                 m.close();
                 executeSuccess(successCount);
+                if (openedModal.current === name) {
+                    console.log("close() -> openedModal = false");
+                    openedModal.current = false;
+                }
             },
             update: (p: UseModalConfig) => {
                 m.setState(p);
@@ -92,25 +109,25 @@ export default function GlobalModalProvider({
     };
 
     const login = React.useMemo(
-        () => bindModal(loginState, loginMethods),
+        () => bindModal("login", loginState, loginMethods),
         [loginState]
     );
 
     const signup = React.useMemo(
-        () => bindModal(signupState, signupMethods),
+        () => bindModal("signup", signupState, signupMethods),
         [signupState]
     );
 
     const card = React.useMemo(
-        () => bindModal(cardState, cardMethods),
+        () => bindModal("card", cardState, cardMethods),
         [cardState]
     );
 
     return (
         <GlobalModalContext.Provider
             value={{
-                login,
                 signup,
+                login,
                 card,
                 executeSuccess,
             }}
@@ -128,3 +145,7 @@ export default function GlobalModalProvider({
         </GlobalModalContext.Provider>
     );
 }
+
+const GlobalModalProvider = React.memo(GlobalModalProviderComponent);
+
+export default GlobalModalProvider;

@@ -58,6 +58,7 @@ export function useModal({
     );
 
     const state = React.useMemo(() => {
+        console.log("computing modal state");
         return { ...modalState, show: modalState.show || false, onClose };
     }, [modalState]);
 

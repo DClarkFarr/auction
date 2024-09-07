@@ -12,14 +12,14 @@ export default function SignupFormModal(props: SignupFormModalProps) {
     const { register } = useUserStore();
     const {
         login: { open: openLogin },
-        onSuccess,
+        executeSuccess,
     } = useGlobalModalContext();
 
     const onSubmit = React.useCallback(
         async (data: Parameters<SignupFormProps["onSubmit"]>[0]) => {
             await register(data);
 
-            onSuccess();
+            executeSuccess(1);
 
             if (typeof props.onClose === "function") {
                 props.onClose();

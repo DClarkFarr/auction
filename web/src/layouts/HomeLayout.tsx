@@ -3,7 +3,6 @@ import { Outlet } from "react-router-dom";
 import useUserStore, { useWatchUserSession } from "../stores/useUserStore";
 import HomeHeader from "./header/HomeHeader";
 import HomeFooter from "./footer/HomeFooter";
-import StripeProvider from "../providers/StripeProvider";
 import GlobalModalProvider from "../providers/GlobalModalProvider";
 
 export default function HomeLayout({
@@ -29,7 +28,7 @@ export default function HomeLayout({
     }, [user, hasLoadedFavorites, isLoadingFavorites]);
 
     return (
-        <StripeProvider>
+        <>
             <GlobalModalProvider teleportRef={modalsRef}>
                 <div className="layout layout--home">
                     <header className="layout__header mb-4 border-b-2 border-gray-300">
@@ -42,6 +41,6 @@ export default function HomeLayout({
                 </div>
             </GlobalModalProvider>
             <div id="global-modals" ref={modalsRef}></div>
-        </StripeProvider>
+        </>
     );
 }

@@ -1,6 +1,6 @@
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import { ReactNode, useMemo, useState } from "react";
+import React, { ReactNode, useMemo, useState } from "react";
 import { contextFactory } from "../utils/context";
 import StripeService from "../services/StripeService";
 
@@ -16,17 +16,36 @@ export type StripeContext = {
 export const [StripeContext, useStripeContext] =
     contextFactory<StripeContext>();
 
-export default function StripeProvider({ children }: { children: ReactNode }) {
+export type StripeProviderProps = {
+    children: ReactNode;
+    initWithSetup?: boolean;
+};
+let isQuerying = false;
+export default function StripeProvider({
+    children,
+    initWithSetup,
+}: StripeProviderProps) {
     const [clientSecret, setClientSecret] = useState("");
     const [isLoadingSetupIntent, setIsloadingSetupIntent] = useState(true);
     const hasClientSecret = useMemo(() => !!clientSecret, [clientSecret]);
 
     const loadSetupIntent = async () => {
+        if (isQuerying) {
+            return;
+        }
+        isQuerying = true;
         setIsloadingSetupIntent(true);
         const setupIntent = await StripeService.createSetupIntent();
         setClientSecret(setupIntent.client_secret);
         setIsloadingSetupIntent(false);
+        isQuerying = false;
     };
+
+    React.useEffect(() => {
+        if (initWithSetup) {
+            loadSetupIntent();
+        }
+    }, []);
 
     const options = useMemo(() => {
         if (clientSecret) {

@@ -5,7 +5,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { StripePaymentElementChangeEvent } from "@stripe/stripe-js";
 import { Alert, Button, Spinner } from "flowbite-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import React, { FormEvent } from "react";
 import { useStripeContext } from "../../providers/StripeProvider";
 import StripeService from "../../services/StripeService";
 import useUserStore from "../../stores/useUserStore";
@@ -15,10 +15,10 @@ export default function StripeCardForm({
 }: {
     onSuccess?: () => void;
 }) {
-    const [isReady, setIsReady] = useState(false);
-    const [isValid, setIsValid] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isReady, setIsReady] = React.useState(false);
+    const [isValid, setIsValid] = React.useState(false);
+    const [errorMessage, setErrorMessage] = React.useState("");
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
 
     const { setPaymentMethod } = useUserStore();
 
@@ -98,15 +98,9 @@ export default function StripeCardForm({
         }
     };
 
-    const isLoading = useMemo(() => {
+    const isLoading = React.useMemo(() => {
         return !clientSecret || isLoadingSetupIntent;
     }, [clientSecret, isLoadingSetupIntent]);
-
-    useEffect(() => {
-        if (!clientSecret) {
-            loadSetupIntent();
-        }
-    }, []);
 
     return (
         <div className="">

@@ -13,14 +13,14 @@ export default function LoginFormModal(props: LoginFormModalProps) {
 
     const {
         signup: { open: openSignup },
-        onSuccess,
+        executeSuccess,
     } = useGlobalModalContext();
 
     const onSubmit = React.useCallback(
         async (data: Parameters<LoginFormProps["onSubmit"]>[0]) => {
             await login(data.email, data.password);
 
-            onSuccess();
+            executeSuccess(1);
 
             if (typeof props.onClose === "function") {
                 props.onClose();
