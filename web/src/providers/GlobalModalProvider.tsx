@@ -1,9 +1,14 @@
 import { createPortal } from "react-dom";
 import { GlobalModalContext, RegisteredModals } from "./useGlobalModals";
 import React from "react";
-import { useModal } from "../hooks/useModal";
+import { useModal, UseModalConfig } from "../hooks/useModal";
 import LoginFormModal from "../components/modal/LoginFormModal";
 import SignupFormModal from "../components/modal/SignupFormModal";
+import PaymentMethodModal from "../components/modal/PaymentMethodModal";
+
+type UseModal = ReturnType<typeof useModal>;
+type LoginState = UseModal["state"];
+type LoginMethods = Omit<UseModal, "state">;
 
 export default function GlobalModalProvider({
     children,
@@ -12,11 +17,15 @@ export default function GlobalModalProvider({
     children: React.ReactNode;
     teleportRef: React.RefObject<HTMLDivElement>;
 }) {
-    const { setShow: setLoginShow, ...loginModalProps } = useModal({
+    const { state: loginState, ...loginMethods } = useModal({
         show: false,
     });
 
-    const { setShow: setSignupShow, ...signupModalProps } = useModal({
+    const { state: signupState, ...signupMethods } = useModal({
+        show: false,
+    });
+
+    const { state: cardState, ...cardMethods } = useModal({
         show: false,
     });
 
@@ -24,8 +33,9 @@ export default function GlobalModalProvider({
 
     const closeOthers = (modalKey: RegisteredModals) => {
         const map: Record<RegisteredModals, CallableFunction> = {
-            login: () => setLoginShow(false),
-            signup: () => setSignupShow(false),
+            login: () => loginState.show && loginMethods.close(),
+            signup: () => signupState.show && signupMethods.close(),
+            card: () => cardState.show && cardMethods.close(),
         };
 
         Object.entries(map).forEach(([key, method]) => {
@@ -35,59 +45,83 @@ export default function GlobalModalProvider({
         });
     };
 
-    const login = React.useMemo(() => {
+    const executeSuccess = (successCount: number) => {
+        if (successCount === Infinity) {
+            successCallbacks.current.forEach((next) => {
+                next();
+            });
+            successCallbacks.current = [];
+            return;
+        }
+
+        if (successCount > 0) {
+            for (let i = 0; i < successCount; i++) {
+                const next = successCallbacks.current.pop();
+                if (!next) {
+                    break;
+                }
+
+                next();
+            }
+        }
+    };
+
+    const bindModal = (s: LoginState, m: LoginMethods) => {
         return {
-            show: loginModalProps.show,
-            open: (onComplete?: CallableFunction) => {
+            show: s.show,
+            open: (
+                onComplete?: CallableFunction,
+                props: UseModalConfig = {}
+            ) => {
                 closeOthers("login");
 
                 if (typeof onComplete === "function") {
                     successCallbacks.current.push(onComplete);
                 }
-                setLoginShow(true);
+                m.open(props);
             },
-            close: () => {
-                setLoginShow(false);
+            close: (successCount = 0) => {
+                m.close();
+                executeSuccess(successCount);
             },
+            update: (p: UseModalConfig) => {
+                m.setState(p);
+            },
+            executeSuccess,
         };
-    }, [loginModalProps, setLoginShow]);
+    };
 
-    const signup = React.useMemo(() => {
-        return {
-            show: signupModalProps.show,
-            open: (onComplete?: CallableFunction) => {
-                closeOthers("signup");
+    const login = React.useMemo(
+        () => bindModal(loginState, loginMethods),
+        [loginState]
+    );
 
-                if (typeof onComplete === "function") {
-                    successCallbacks.current.push(onComplete);
-                }
-                setSignupShow(true);
-            },
-            close: () => {
-                setSignupShow(false);
-            },
-        };
-    }, [signupModalProps, setSignupShow]);
+    const signup = React.useMemo(
+        () => bindModal(signupState, signupMethods),
+        [signupState]
+    );
 
-    const onSuccess = React.useCallback(() => {
-        successCallbacks.current.forEach((m) => m());
-        successCallbacks.current = [];
-    }, []);
+    const card = React.useMemo(
+        () => bindModal(cardState, cardMethods),
+        [cardState]
+    );
 
     return (
         <GlobalModalContext.Provider
             value={{
                 login,
                 signup,
-                onSuccess,
+                card,
+                executeSuccess,
             }}
         >
             {children}
             {teleportRef.current &&
                 createPortal(
                     <>
-                        <LoginFormModal {...loginModalProps} />
-                        <SignupFormModal {...signupModalProps} />
+                        <LoginFormModal {...loginState} />
+                        <SignupFormModal {...signupState} />
+                        <PaymentMethodModal {...cardState} />
                     </>,
                     teleportRef.current
                 )}

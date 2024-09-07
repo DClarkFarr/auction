@@ -3,6 +3,8 @@ import { FullProductItem } from "../../../types/Product";
 import ProductCard from "../ProductCard";
 import React from "react";
 import useFavorite from "../../../hooks/useFavorite";
+import { useGlobalModalContext } from "../../../providers/useGlobalModals";
+import useUserStore from "../../../stores/useUserStore";
 
 const ProductsItem: ProductsGridItem = ({ product }) => {
     /**
@@ -10,6 +12,12 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
      */
 
     const { addFavorite, removeFavorite, itemIsFavorite } = useFavorite();
+
+    const {
+        card: { open: openCardModal },
+    } = useGlobalModalContext();
+
+    const { paymentMethod } = useUserStore();
 
     const toggleFavorite = React.useCallback(
         async (id_item: number) => {
@@ -27,7 +35,13 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
     }, [product, itemIsFavorite]);
 
     const onClickBid = (p: FullProductItem) => {
-        console.log("clicked bid on", p.product.name);
+        if (paymentMethod) {
+            return console.log("show bid modal!!!!");
+        }
+
+        openCardModal(() => {
+            console.log("saved, now show bid modal!!!");
+        });
     };
 
     return (

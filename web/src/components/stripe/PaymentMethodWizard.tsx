@@ -6,7 +6,13 @@ import CardDetails from "./CardDetails";
 import useUserStore from "../../stores/useUserStore";
 
 type WizardView = "login" | "form" | "success" | "card";
-function PaymentMethodWizardComponent() {
+
+type PaymentMethodWizardProps = {
+    onSaveCard?: () => void;
+};
+function PaymentMethodWizardComponent({
+    onSaveCard,
+}: PaymentMethodWizardProps) {
     const [search, setSearch] = useSearchParams();
 
     const view = search.get("payment-wizard-view") || "login";
@@ -32,13 +38,17 @@ function PaymentMethodWizardComponent() {
     const onCardSaved = useCallback(() => {
         setView("success");
 
+        if (typeof onSaveCard === "function") {
+            onSaveCard();
+        }
+
         setTimeout(() => {
             setView("card");
         }, 4000);
     }, []);
 
     return (
-        <div className="border border-gray-800 p-4 rounded-lg max-w-[450px]">
+        <div className="border border-gray-800 p-4 rounded-lg max-w-full">
             {view === "login" && <LoginView />}
             {view === "form" && (
                 <>
