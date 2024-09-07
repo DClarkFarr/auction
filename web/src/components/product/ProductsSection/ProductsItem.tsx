@@ -33,11 +33,20 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
     }, [product, itemIsFavorite]);
 
     const onClickBid = (p: FullProductItem) => {
+        console.log("on click bid payment method was", paymentMethod);
         if (paymentMethod) {
             return console.log("show bid modal!!!!");
         }
 
-        cardModal.open();
+        cardModal.open(
+            {},
+            {
+                scope: "card",
+                callback: () => {
+                    onClickBid(p);
+                },
+            }
+        );
     };
 
     return (

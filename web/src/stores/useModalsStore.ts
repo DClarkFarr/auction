@@ -26,6 +26,7 @@ export type ModalActions = {
     close: (executeIntent?: boolean) => void;
     update: (props: ModalState) => void;
     invokeIntents: () => void;
+    transferIntents: (fromModal: RegisteredModals) => void;
 };
 
 export type RegisteredModal = {
@@ -40,6 +41,10 @@ export type UseModalsStore = {
     intents: CloseIntentProps[];
     addIntent: (intent: CloseIntentProps) => void;
     invokeIntents: (scope: CloseIntentScope) => void;
+    transferIntents: (
+        fromModal: RegisteredModals,
+        toModal: RegisteredModals
+    ) => void;
 };
 
 const makeInitialState = (onClose: () => void): ModalState => ({
@@ -74,6 +79,17 @@ const useModalsStore = create<UseModalsStore>((set, get) => {
         setter({ intents: intents.filter((it) => it.scope !== scope) });
     };
 
+    const transferIntents = (
+        fromModal: RegisteredModals,
+        toModal: RegisteredModals
+    ) => {
+        setter({
+            intents: get().intents.map((it) =>
+                it.scope === fromModal ? { ...it, scope: toModal } : it
+            ),
+        });
+    };
+
     const modalStateSetter = (name: RegisteredModals, state: ModalState) => {
         const m = get()[name];
         const toSet = {
@@ -106,6 +122,9 @@ const useModalsStore = create<UseModalsStore>((set, get) => {
                     modalStateSetter(name, state);
                 },
                 invokeIntents: () => invokeIntents(name),
+                transferIntents: (fromModal) => {
+                    transferIntents(fromModal, name);
+                },
             },
         };
     };
@@ -117,6 +136,7 @@ const useModalsStore = create<UseModalsStore>((set, get) => {
         intents: [],
         addIntent,
         invokeIntents,
+        transferIntents,
     };
 });
 

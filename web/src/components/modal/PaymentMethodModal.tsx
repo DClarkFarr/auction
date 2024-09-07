@@ -20,16 +20,8 @@ export default function PaymentMethodModal(props: PaymentMethodModalProps) {
     const onClickLogin = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
         cardModal.close();
-        loginModal.open(
-            {},
-            {
-                scope: "login",
-                callback: () => {
-                    console.log("login scope invoked -> open card");
-                    cardModal.open();
-                },
-            }
-        );
+        loginModal.transferIntents("card");
+        loginModal.open();
     };
 
     return (

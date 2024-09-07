@@ -33,6 +33,7 @@ export default function LoginFormModal(props: LoginFormModalProps) {
         e.preventDefault();
         loginModal.close();
         signupModal.open();
+        signupModal.transferIntents("login");
     };
 
     return (

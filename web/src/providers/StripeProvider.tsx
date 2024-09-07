@@ -3,6 +3,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import React, { ReactNode, useMemo, useState } from "react";
 import { contextFactory } from "../utils/context";
 import StripeService from "../services/StripeService";
+import useUserStore from "../stores/useUserStore";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_KEY);
 
@@ -29,6 +30,8 @@ export default function StripeProvider({
     const [isLoadingSetupIntent, setIsloadingSetupIntent] = useState(true);
     const hasClientSecret = useMemo(() => !!clientSecret, [clientSecret]);
 
+    const { user } = useUserStore();
+
     const loadSetupIntent = async () => {
         if (isQuerying) {
             return;
@@ -42,7 +45,7 @@ export default function StripeProvider({
     };
 
     React.useEffect(() => {
-        if (initWithSetup) {
+        if (initWithSetup && user?.id) {
             loadSetupIntent();
         }
     }, []);
@@ -55,6 +58,7 @@ export default function StripeProvider({
         }
         return {};
     }, [clientSecret]);
+
     return (
         <StripeContext.Provider
             value={{
@@ -68,7 +72,7 @@ export default function StripeProvider({
             <Elements
                 stripe={stripePromise}
                 options={options}
-                key={clientSecret}
+                key={clientSecret + user?.id}
             >
                 {children}
             </Elements>
