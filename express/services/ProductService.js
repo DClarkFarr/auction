@@ -1087,6 +1087,14 @@ export default class ProductService {
             throw new UserError("Item not found");
         }
 
+        if (item.status !== "active") {
+            throw new UserError("Cannot bid on " + item.status + " item");
+        }
+
+        if (DateTime.fromJSDate(item.expiresAt) < DateTime.now()) {
+            throw new UserError("Product has expired");
+        }
+
         const highestBid = await this.getProductItemHighestBid(item);
 
         const product = await this.getProductById(item.id_product);
@@ -1119,6 +1127,25 @@ export default class ProductService {
                 status: "active",
             },
         });
+
+        const expiresAtMin = DateTime.fromJSDate(item.expiresAt).minus({
+            minutes: 5,
+        });
+        const now = DateTime.now();
+        if (expiresAtMin < now) {
+            const in5Min = now.plus({ minutes: 5 });
+
+            await prisma.productItem.update({
+                where: {
+                    id_item: item.id_item,
+                },
+                data: {
+                    expiresAt: in5Min.toJSDate(),
+                },
+            });
+
+            item.expiresAt = in5Min.toJSDate();
+        }
 
         return { ...item, bid, product };
     }
