@@ -27,6 +27,10 @@ function PaymentMethodWizardComponent({
     const { paymentMethod, user } = useUserStore();
 
     useEffect(() => {
+        if (view === "card" && !paymentMethod) {
+            setView("form");
+            return;
+        }
         if (!user && view !== "login") {
             setView("login");
             return;

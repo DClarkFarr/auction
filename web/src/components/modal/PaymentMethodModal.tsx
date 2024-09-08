@@ -10,6 +10,8 @@ export default function PaymentMethodModal(props: PaymentMethodModalProps) {
     const cardModal = useCardModal();
 
     const onSaveCard = React.useCallback(async () => {
+        cardModal.invokeIntents();
+
         if (typeof props.onClose === "function") {
             props.onClose();
         } else {

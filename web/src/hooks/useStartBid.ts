@@ -1,3 +1,4 @@
+import React from "react";
 import {
     useBidModal,
     useCardModal,
@@ -6,9 +7,10 @@ import {
 import useProductBidStore from "../stores/useProductBidStore";
 import useUserStore from "../stores/useUserStore";
 import { FullProductItem } from "../types/Product";
+import ModalEmitter from "./useModalEvents";
 
-export default function useStartBid() {
-    const { user, paymentMethod } = useUserStore();
+export default function useStartBid(product: FullProductItem) {
+    const { user, paymentMethod, loadUserBids } = useUserStore();
     const { setProduct } = useProductBidStore();
 
     const bidModal = useBidModal();
@@ -16,32 +18,14 @@ export default function useStartBid() {
     const loginModal = useLoginModal();
 
     const showPlaceBidModal = (p: FullProductItem) => {
-        console.log(
-            "showPlaceBidModal",
-            "user",
-            user,
-            "payment method",
-            paymentMethod,
-            "product",
-            p
-        );
         if (!user) {
             loginModal.open(
                 {},
                 {
                     scope: "login",
-                    callback: () => {
-                        console.log(
-                            "login !user callback calling",
-                            "showPlaceBidModal",
-                            "user",
-                            user,
-                            "payment method",
-                            paymentMethod,
-                            "product",
-                            p
-                        );
-                        showPlaceBidModal(p);
+                    callback: async () => {
+                        await loadUserBids();
+                        ModalEmitter.emit("show:bid", p);
                     },
                 }
             );
@@ -53,27 +37,31 @@ export default function useStartBid() {
                 {},
                 {
                     scope: "card",
-                    callback: () => {
-                        console.log(
-                            "card !paymentMethod callback calling",
-                            "showPlaceBidModal",
-                            "user",
-                            user,
-                            "payment method",
-                            paymentMethod,
-                            "product",
-                            p
-                        );
-                        showPlaceBidModal(p);
+                    callback: async () => {
+                        await loadUserBids();
+                        ModalEmitter.emit("show:bid", p);
                     },
                 }
             );
             return;
         }
-        console.log("setting and showing");
+
         setProduct(p);
         bidModal.open();
     };
+
+    React.useEffect(() => {
+        const cb = (p: FullProductItem) => {
+            if (p.id_item === product.id_item) {
+                showPlaceBidModal(p);
+            }
+        };
+        ModalEmitter.on("show:bid", cb);
+
+        return () => {
+            ModalEmitter.off("show:bid", cb);
+        };
+    }, [user, paymentMethod, product]);
 
     return showPlaceBidModal;
 }

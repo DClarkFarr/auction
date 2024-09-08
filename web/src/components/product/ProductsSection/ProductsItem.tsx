@@ -15,7 +15,7 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
 
     const { getUserBidStatus, getBid } = useUserBid();
 
-    const showBidModal = useStartBid();
+    const showBidModal = useStartBid(product);
 
     const toggleFavorite = React.useCallback(
         async (id_item: number) => {

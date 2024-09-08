@@ -71,9 +71,9 @@ export default function ProductBid({
 
             setProduct(newProduct);
 
-            onPlaceBid(newProduct.bid);
-
             applyUserBid(newProduct.bid);
+
+            onPlaceBid(newProduct.bid);
 
             toast({
                 text: "Bid placed successfully",
