@@ -12,16 +12,19 @@ type PaymentMethodWizardProps = {
     onSaveCard?: () => void;
     onClickLogin?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 };
+
+const URLKey = "payment-wizard-view";
+
 function PaymentMethodWizardComponent({
     onClickLogin,
     onSaveCard,
 }: PaymentMethodWizardProps) {
     const [search, setSearch] = useSearchParams();
 
-    const view = search.get("payment-wizard-view") || "login";
+    const view = search.get(URLKey) || "login";
 
     const setView = (v: WizardView) => {
-        setSearch({ "payment-wizard-view": v });
+        setSearch({ [URLKey]: v });
     };
 
     const { paymentMethod, user } = useUserStore();
@@ -41,6 +44,12 @@ function PaymentMethodWizardComponent({
             return;
         }
     }, [user, view, paymentMethod]);
+
+    useEffect(() => {
+        return () => {
+            setSearch({ [URLKey]: "" });
+        };
+    }, []);
 
     const onCardSaved = useCallback(() => {
         setView("success");

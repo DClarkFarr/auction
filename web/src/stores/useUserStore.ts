@@ -91,6 +91,10 @@ const useUserStore = create<UserStore>((set, get) => {
         }
     };
     const refresh = async () => {
+        if (get().isLoading) {
+            return;
+        }
+
         set({ isLoading: true, isLoaded: false });
 
         try {
