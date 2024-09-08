@@ -180,13 +180,20 @@ const useUserStore = create<UserStore>((set, get) => {
     };
 
     const applyUserBid = (bid: Bid) => {
-        const bids = get().bids;
-        if (bids.findIndex((b) => b.id_bid === bid.id_bid) === -1) {
-            set({ bids: [...bids, bid] });
-            return;
+        let toSet = [...get().bids];
+
+        if (toSet.findIndex((b) => b.id_bid === bid.id_bid) === -1) {
+            toSet.push(bid);
+        } else {
+            toSet = toSet.map((b) => (b.id_bid === bid.id_bid ? bid : b));
         }
+
+        toSet.sort((a, b) => {
+            return b.id_bid - a.id_bid;
+        });
+
         set({
-            bids: get().bids.map((b) => (b.id_bid === bid.id_bid ? bid : b)),
+            bids: toSet,
         });
     };
 

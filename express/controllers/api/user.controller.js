@@ -65,10 +65,17 @@ class UserController extends BaseController {
         );
 
         this.router.get(
-            "/bids",
+            "/bids/items",
             webSessionMiddleware,
             hasUser(),
             this.route(this.getUserBidProducts)
+        );
+
+        this.router.get(
+            "/bids",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.getUserBids)
         );
 
         this.router.get(
@@ -88,6 +95,18 @@ class UserController extends BaseController {
             hasUser(),
             this.route(this.getUser)
         );
+    }
+
+    async getUserBids(req, res) {
+        const user = req.user;
+
+        try {
+            const bids = await UserService.getUserBids(user);
+            res.json(bids);
+        } catch (err) {
+            console.warn("Caught error getting user bids", err);
+            res.status(400).json({ message: "Error getting user bids" });
+        }
     }
 
     async getUserBidProducts(req, res) {

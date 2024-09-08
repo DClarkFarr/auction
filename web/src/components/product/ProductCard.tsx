@@ -9,18 +9,25 @@ import { DateTime } from "luxon";
 import { timeCompare, timeCompareMulti } from "../../utils/time";
 import React from "react";
 import { FullProductItem } from "../../types/Product";
+import { Bid } from "../../types/Bid";
+import { UserBidStatus } from "../../hooks/useUserBid";
 
 export type ProductCardProps = {
     isFavorite?: boolean;
     onToggleFavorite?: (idItem: number) => Promise<void> | void;
     product: FullProductItem;
     onClickBid: (product: FullProductItem) => Promise<void> | void;
+    onClickClaim: (product: FullProductItem) => Promise<void> | void;
+    userBid?: Bid;
+    userBidStatus?: UserBidStatus;
 };
 export default function ProductCard({
     isFavorite = false,
     onToggleFavorite,
     product,
     onClickBid,
+    onClickClaim,
+    userBidStatus,
 }: ProductCardProps) {
     const retailPrice = product.product.priceRetail;
     const currentPrice = product.bid
@@ -55,25 +62,28 @@ export default function ProductCard({
             p.rejectedAt ||
             p.status !== "active";
 
-        const borderColor = isExpired
+        let borderColor = isExpired
             ? "border-red-600"
             : isInactive
             ? "border-gray-600"
             : "border-purple-600";
 
-        const backgroundColor = isExpired
+        let backgroundColor = isExpired
             ? "bg-red-100"
             : isInactive
             ? "bg-gray-100"
             : "bg-white";
 
-        /**
-         * TODO - Caculate if won
-         * - If won, make bg green
-         * - if won, but not claimed, make green "claimed" button
-         * - if one and claimed, make disabled green "claimed" button
-         * - maybe add: "congrats, you won for $$$ divid-y section"
-         */
+        if (userBidStatus === "won" || userBidStatus === "purchased") {
+            borderColor = "border-emerald-600";
+            backgroundColor = "bg-emerald-100";
+        } else if (userBidStatus === "winning") {
+            borderColor = "border-sky-600";
+            backgroundColor = "bg-sky-100";
+        } else if (userBidStatus === "outbid") {
+            borderColor = "border-orange-600";
+            backgroundColor = "bg-orange-100";
+        }
 
         return {
             borderColor,
@@ -96,7 +106,7 @@ export default function ProductCard({
         return () => {
             window.clearInterval(id);
         };
-    }, [product]);
+    }, [product, userBidStatus]);
 
     const {
         borderColor,
@@ -104,14 +114,41 @@ export default function ProductCard({
         timeUntilExpired,
         isExpired,
         backgroundColor,
-        // isInactive,
+        isInactive,
         // isDateExpired,
     } = timeData;
 
     return (
         <div
-            className={`item border-2 border-purple-600 shadow-lg ${backgroundColor} ${borderColor}`}
+            className={`item flex flex-col border-2 border-purple-600 shadow-lg ${backgroundColor} ${borderColor}`}
         >
+            {userBidStatus === "won" && (
+                <div>
+                    <div className="item__countdown text-red-800 p-3 text-center bg-purple-600">
+                        <div className="text-lg text-white font-semibld">
+                            Congratulations, you won!
+                        </div>
+                    </div>
+                </div>
+            )}
+            {userBidStatus === "winning" && (
+                <div>
+                    <div className="item__countdown bg-sky-700 p-3 text-center">
+                        <div className="text-lg text-white font-semibld">
+                            You are the highest bidder
+                        </div>
+                    </div>
+                </div>
+            )}
+            {(userBidStatus === "outbid" || userBidStatus === "lost") && (
+                <div>
+                    <div className="item__countdown bg-orange-800 p-3 text-center">
+                        <div className="text-lg text-white font-semibld">
+                            You've been outbid
+                        </div>
+                    </div>
+                </div>
+            )}
             <div className="item__heading">
                 <div className="h-[85px] flex w-full items-center p-3">
                     <div className="text-ellipsis overflow-hidden max-h-[61px] line-clamp-2">
@@ -226,7 +263,9 @@ export default function ProductCard({
                 {isExpired && (
                     <>
                         <div className="item__countdown text-gray-800 p-3 text-center">
-                            <div className="text-lg font-semibold">Expired</div>
+                            <div className="text-lg font-semibold">
+                                Auction Ended
+                            </div>
                             {timeAfterExpired && <div>{timeAfterExpired}</div>}
                         </div>
                     </>
@@ -237,7 +276,7 @@ export default function ProductCard({
                     timeUntilExpired.length > 0 && (
                         <div>
                             <div className="item__countdown text-red-800 p-3 text-center">
-                                <div className="">Expires In</div>
+                                <div className="">Auction Ends</div>
                                 <div className="font-bold text-lg flex justify-center items-center gap-2">
                                     {timeUntilExpired.map((segment, i) => {
                                         return <div key={i}>{segment}</div>;
@@ -247,16 +286,28 @@ export default function ProductCard({
                         </div>
                     )}
             </div>
-            <div>
-                <Button
-                    className="btn-block w-full text-center rounded-none"
-                    color="failure"
-                    disabled={isExpired}
-                    onClick={() => onClickBid(product)}
-                >
-                    BID NOW
-                </Button>
-            </div>
+            {!isExpired && !isInactive && (
+                <div className="mt-auto">
+                    <Button
+                        className="btn-block w-full text-center rounded-none"
+                        color="failure"
+                        onClick={() => onClickBid(product)}
+                    >
+                        BID NOW
+                    </Button>
+                </div>
+            )}
+            {userBidStatus === "won" && (
+                <div className="mt-auto">
+                    <Button
+                        className="btn-block w-full text-center rounded-none"
+                        color="success"
+                        onClick={() => onClickClaim(product)}
+                    >
+                        CLAIM PURCHASE
+                    </Button>
+                </div>
+            )}
         </div>
     );
 }

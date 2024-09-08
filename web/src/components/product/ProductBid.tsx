@@ -21,7 +21,7 @@ export default function ProductBid({
 
     const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-    const { user, paymentMethod } = useUserStore();
+    const { user, paymentMethod, applyUserBid } = useUserStore();
     const { toast } = useToastContext();
 
     const placeBid = usePlaceBidMutation();
@@ -71,7 +71,9 @@ export default function ProductBid({
 
             setProduct(newProduct);
 
-            onPlaceBid(product.bid);
+            onPlaceBid(newProduct.bid);
+
+            applyUserBid(newProduct.bid);
 
             toast({
                 text: "Bid placed successfully",

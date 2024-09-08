@@ -52,12 +52,6 @@ export default class CronService {
                         productItems.map(async (item) => {
                             const now = DateTime.now();
 
-                            if (item.claimedAt) {
-                                throw new Error(
-                                    "Why is claimed item still active?"
-                                );
-                            }
-
                             if (item.purchasedAt) {
                                 throw new Error(
                                     "Why is purcased item still active?"
@@ -117,6 +111,7 @@ export default class CronService {
                                                 item,
                                                 "claimed",
                                                 {
+                                                    expiredAt: new Date(),
                                                     rejectsAt: DateTime.now()
                                                         .plus({ day: 1 })
                                                         .toJSDate(),

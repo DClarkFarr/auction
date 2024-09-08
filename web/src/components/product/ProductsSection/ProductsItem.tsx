@@ -4,6 +4,7 @@ import ProductCard from "../ProductCard";
 import React from "react";
 import useFavorite from "../../../hooks/useFavorite";
 import usePlaceBid from "../../../hooks/usePlaceBid";
+import useUserBid from "../../../hooks/useUserBid";
 
 const ProductsItem: ProductsGridItem = ({ product }) => {
     /**
@@ -11,6 +12,8 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
      */
 
     const { addFavorite, removeFavorite, itemIsFavorite } = useFavorite();
+
+    const { getUserBidStatus, getBid } = useUserBid();
 
     const placeBid = usePlaceBid();
 
@@ -29,8 +32,20 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
         return itemIsFavorite(product.id_item);
     }, [product, itemIsFavorite]);
 
+    const userBid = React.useMemo(() => {
+        return getBid(product.id_item);
+    }, [product, getBid]);
+
+    const userBidStatus = React.useMemo(() => {
+        return getUserBidStatus(product);
+    }, [product, getUserBidStatus]);
+
     const onClickBid = (p: FullProductItem) => {
         placeBid(p);
+    };
+
+    const onClickClaim = () => {
+        console.log("TODO: clicked claim");
     };
 
     return (
@@ -39,6 +54,9 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
             onToggleFavorite={toggleFavorite}
             isFavorite={isFavorite}
             onClickBid={onClickBid}
+            userBid={userBid}
+            userBidStatus={userBidStatus}
+            onClickClaim={onClickClaim}
         />
     );
 };
