@@ -92,7 +92,7 @@ const useUserStore = create<UserStore>((set, get) => {
     };
     const refresh = async () => {
         if (get().isLoading) {
-            return;
+            return get().user;
         }
 
         set({ isLoading: true, isLoaded: false });
