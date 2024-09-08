@@ -7,7 +7,7 @@ import useProductBidStore from "../stores/useProductBidStore";
 import useUserStore from "../stores/useUserStore";
 import { FullProductItem } from "../types/Product";
 
-export default function usePlaceBid() {
+export default function useStartBid() {
     const { user, paymentMethod } = useUserStore();
     const { setProduct } = useProductBidStore();
 

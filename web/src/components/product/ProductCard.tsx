@@ -19,7 +19,7 @@ export type ProductCardProps = {
     onClickBid: (product: FullProductItem) => Promise<void> | void;
     onClickClaim: (product: FullProductItem) => Promise<void> | void;
     userBid?: Bid;
-    userBidStatus?: UserBidStatus;
+    userBidStatus?: UserBidStatus | null;
 };
 export default function ProductCard({
     isFavorite = false,

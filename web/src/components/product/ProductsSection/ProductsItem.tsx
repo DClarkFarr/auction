@@ -3,7 +3,7 @@ import { FullProductItem } from "../../../types/Product";
 import ProductCard from "../ProductCard";
 import React from "react";
 import useFavorite from "../../../hooks/useFavorite";
-import usePlaceBid from "../../../hooks/usePlaceBid";
+import useStartBid from "../../../hooks/useStartBid";
 import useUserBid from "../../../hooks/useUserBid";
 
 const ProductsItem: ProductsGridItem = ({ product }) => {
@@ -15,7 +15,7 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
 
     const { getUserBidStatus, getBid } = useUserBid();
 
-    const placeBid = usePlaceBid();
+    const showBidModal = useStartBid();
 
     const toggleFavorite = React.useCallback(
         async (id_item: number) => {
@@ -41,7 +41,7 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
     }, [product, getUserBidStatus]);
 
     const onClickBid = (p: FullProductItem) => {
-        placeBid(p);
+        showBidModal(p);
     };
 
     const onClickClaim = () => {
