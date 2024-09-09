@@ -1156,4 +1156,28 @@ export default class ProductService {
 
         return { ...item, bid, product };
     }
+
+    /**
+     *
+     * @param {number[]} itemIds
+     * @returns {(ProductItemDocument & {product: ProductDocument, bid: BidDocument})[]}
+     */
+    static async getPopulatedItemsByIds(itemIds) {
+        const prisma = getPrisma();
+
+        let items = await Promise.all(
+            itemIds.map((id_item) =>
+                prisma.productItem.findFirst({
+                    where: {
+                        id_item,
+                    },
+                })
+            )
+        );
+
+        items = await this.applyItemsProducts(items);
+        items = await this.applyItemsHighestBids(items);
+
+        return items;
+    }
 }

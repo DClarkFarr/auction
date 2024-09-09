@@ -6,6 +6,8 @@ import { useSearchParams } from "react-router-dom";
 import { PaginatedProductParams } from "../../services/SiteService";
 import { FullProductItem } from "../../types/Product";
 import MiniCartPopover from "../../components/checkout/MiniCartPopover";
+import ClaimPurchaseModal from "../../components/modal/ClaimPurchaseModal";
+import { useModal } from "../../hooks/useModal";
 
 export default function AccountBids() {
     const [search, setSearch] = useSearchParams();
@@ -21,6 +23,15 @@ export default function AccountBids() {
     const setView = (view: "winning" | "all") => {
         setSearch({ view });
     };
+
+    const purchaseModal = useModal({
+        show: false,
+        onClose: () => {
+            if (selectedProducts.length) {
+                setShowCart(true);
+            }
+        },
+    });
 
     const options = ["winning", "all"] as const;
 
@@ -46,7 +57,8 @@ export default function AccountBids() {
     }, [selectedProducts]);
 
     const onClickCheckout = async () => {
-        console.log("START CHECKOUT");
+        setShowCart(false);
+        purchaseModal.open();
     };
 
     const onToggleShow = (show: boolean) => {
@@ -108,6 +120,11 @@ export default function AccountBids() {
                     </div>
                 </ProductsSection>
             </div>
+
+            <ClaimPurchaseModal
+                items={selectedProducts}
+                {...purchaseModal.state}
+            />
         </div>
     );
 }

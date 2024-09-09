@@ -12,6 +12,7 @@ import {
 } from "../utils/productParams";
 import { PaginatedResults } from "../types/Paginate";
 import { FullProductItem } from "../types/Product";
+import UserService from "../services/UserService";
 
 export type PaginatedActiveQueryMethod = (
     params: PaginatedProductParams
@@ -100,4 +101,21 @@ export const usePlaceBidMutation = () => {
     });
 
     return placeBid;
+};
+
+export const useCheckoutMutation = () => {
+    const queryClient = useQueryClient();
+
+    const { mutateAsync: mutateCheckout } = useMutation({
+        mutationFn: (params: { itemIds: number[] }) =>
+            UserService.checkoutItems(params),
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                predicate: ({ queryKey }) =>
+                    queryKey.includes("paginatedActiveItems"),
+            });
+        },
+    });
+
+    return mutateCheckout;
 };

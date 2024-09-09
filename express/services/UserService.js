@@ -7,6 +7,8 @@
 import FavoriteModel from "../models/FavoriteModel.js";
 import BidModel from "../models/BidModel.js";
 import { getPrisma } from "../prisma/client.js";
+import ProductService from "./ProductService.js";
+import UserError from "../errors/UserError.js";
 
 export default class UserService {
     /**
@@ -118,5 +120,35 @@ export default class UserService {
         };
 
         return final;
+    }
+
+    /**
+     *
+     * @param {UserDocument} user
+     * @param {number[]} itemIds
+     * @returns
+     */
+    static async checkoutItems(user, itemIds) {
+        const items = await ProductService.getPopulatedItemsByIds([...itemIds]);
+
+        // validate items
+        const errors = [];
+        items.forEach((item) => {
+            if (!item.bid) {
+                errors.push("ID: " + item.id_item + " had no bid");
+            } else if (item.bid.id_user !== user.id) {
+                errors.push("ID: " + item.id_item + " did not belong to user");
+            } else if (item.rejectedAt || item.id_purchase || item.canceledAt) {
+                errors.push(
+                    "ID: " + item.id_item + " is no longer valid to purchase"
+                );
+            }
+        });
+
+        if (errors.length) {
+            throw new UserError(errors.join("\n"));
+        }
+
+        return items;
     }
 }

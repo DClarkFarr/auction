@@ -85,6 +85,13 @@ class UserController extends BaseController {
             this.route(this.getUserFavoriteItems)
         );
 
+        this.router.post(
+            "/checkout/items",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.checkoutItems)
+        );
+
         this.router.get("/test", (req, res) => {
             res.json({ message: "test" });
         });
@@ -401,6 +408,37 @@ class UserController extends BaseController {
             return res.status(500).json({
                 message: "An unknown error occurred creating user",
             });
+        }
+    }
+
+    async checkoutItems(req, res) {
+        const user = req.user;
+
+        if (!Array.isArray(req.body.itemIds)) {
+            return res
+                .status(400)
+                .json({ message: "Item ids required for checkout" });
+        }
+
+        const itemIds = req.body.itemIds.map(Number).filter((n) => !isNaN(n));
+
+        if (!itemIds.length || itemIds.length !== req.body.itemIds.length) {
+            return res.status(400).json({ message: "Invalid item ids given" });
+        }
+
+        try {
+            const result = await UserService.checkoutItems(user, itemIds);
+            res.json(result);
+        } catch (err) {
+            console.error("Error checking out", err);
+            if (err instanceof UserError) {
+                res.status(400).json({ message: err.message });
+            } else {
+                res.status(400).json({
+                    message:
+                        "An unknown error ocurred. Please try again or contact support.",
+                });
+            }
         }
     }
 }

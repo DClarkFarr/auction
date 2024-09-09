@@ -7,6 +7,9 @@ import { RegisterPayload, User, UserFavorite } from "../types/User";
 import apiClient from "./apiClient";
 import { PaginatedProductParams } from "./SiteService";
 
+export type CheckoutItemsParams = {
+    itemIds: number[];
+};
 export default class UserService {
     static login(email: string, password: string) {
         return apiClient
@@ -71,6 +74,12 @@ export default class UserService {
             .get<PaginatedResults<FullProductItem>>(`/user/favorites/items`, {
                 params,
             })
+            .then((res) => res.data);
+    }
+
+    static async checkoutItems(data: CheckoutItemsParams) {
+        return apiClient
+            .post(`/user/checkout/items`, data)
             .then((res) => res.data);
     }
 }
