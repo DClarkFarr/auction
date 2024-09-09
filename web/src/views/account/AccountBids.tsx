@@ -5,11 +5,16 @@ import React from "react";
 import { useSearchParams } from "react-router-dom";
 import { PaginatedProductParams } from "../../services/SiteService";
 import { FullProductItem } from "../../types/Product";
+import MiniCartPopover from "../../components/checkout/MiniCartPopover";
 
 export default function AccountBids() {
     const [search, setSearch] = useSearchParams();
 
-    const [selectedItemIds, setSelectedItemIds] = React.useState<number[]>([]);
+    const [selectedProducts, setSelectedProducts] = React.useState<
+        FullProductItem[]
+    >([]);
+
+    const [showCart, setShowCart] = React.useState(false);
 
     const view = search.get("view") || "winning";
 
@@ -20,16 +25,45 @@ export default function AccountBids() {
     const options = ["winning", "all"] as const;
 
     const onClickClaim = (p: FullProductItem) => {
-        const found = selectedItemIds.indexOf(p.id_item) > -1;
+        const found =
+            selectedProducts.findIndex((pi) => pi.id_item === p.id_item) > -1;
+
         if (found) {
-            setSelectedItemIds((prev) => prev.filter((pi) => pi !== p.id_item));
+            setSelectedProducts((prev) =>
+                prev.filter((pi) => pi.id_item !== p.id_item)
+            );
+            if (selectedProducts.length <= 1) {
+                setShowCart(false);
+            }
         } else {
-            setSelectedItemIds((prev) => [...prev, p.id_item]);
+            setSelectedProducts((prev) => [...prev, p]);
+            setShowCart(true);
         }
+    };
+
+    const selectedItemIds = React.useMemo(() => {
+        return selectedProducts.map((pi) => pi.id_item);
+    }, [selectedProducts]);
+
+    const onClickCheckout = async () => {
+        console.log("START CHECKOUT");
+    };
+
+    const onToggleShow = (show: boolean) => {
+        setShowCart(show);
     };
 
     return (
         <div className="account-profile">
+            <MiniCartPopover
+                top={40}
+                right={10}
+                show={showCart}
+                items={selectedProducts}
+                onClickCheckout={onClickCheckout}
+                onClickShow={onToggleShow}
+            />
+
             <div className="container">
                 <h1 className="text-2xl font-bold mb-10">My Bids</h1>
 
