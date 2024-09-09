@@ -57,7 +57,9 @@ export default class UserService {
             .then(() => {});
     }
 
-    static getUserBidItems(params: PaginatedProductParams) {
+    static getUserBidItems(
+        params: PaginatedProductParams & { winning: boolean }
+    ) {
         return apiClient
             .get<PaginatedResults<FullProductItem>>(`/user/bids/items`, {
                 params,

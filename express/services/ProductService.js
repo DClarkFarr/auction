@@ -816,22 +816,27 @@ export default class ProductService {
     static async queryPaginatedProductItems(
         {
             sortBy: sortByRaw = SORT_OPTIONS.expiring,
-            categoryIds: categoryIdsRaw = [],
+            categoryIds: categoryIdsRaw = null,
             page: pageRaw = 1,
             limit: limitRaw = 20,
             quality: qualityRaw = null,
             priceMin: priceMinRaw = null,
             priceMax: priceMaxRaw = null,
-            productIds: productIdsRaw = [],
-            itemIds: itemIdsRaw = [],
+            productIds: productIdsRaw = null,
+            itemIds: itemIdsRaw = null,
         } = {},
         filterActive = true
     ) {
         const sortBy = this.getValidSortBy(sortByRaw, SORT_OPTIONS.expiring);
 
-        const categoryIds = categoryIdsRaw.map(Number).filter(Boolean);
-        const productIds = productIdsRaw.map(Number).filter(Boolean);
-        const itemIds = itemIdsRaw.map(Number).filter(Boolean);
+        const categoryIds =
+            Array.isArray(categoryIdsRaw) &&
+            categoryIdsRaw.map(Number).filter(Boolean);
+        const productIds =
+            Array.isArray(productIdsRaw) &&
+            productIdsRaw.map(Number).filter(Boolean);
+        const itemIds =
+            Array.isArray(itemIdsRaw) && itemIdsRaw.map(Number).filter(Boolean);
 
         const page = this.getSafeNumber(pageRaw);
         const limit = this.getSafeNumber(limitRaw);
@@ -867,14 +872,16 @@ export default class ProductService {
             )`;
         }
 
-        if (productIds.length) {
+        if (Array.isArray(productIds)) {
             parts.where += `
-            AND p.id_product IN(${productIds.join(",")})`;
+            AND p.id_product IN(${
+                productIds.length ? productIds.join(",") : "NULL"
+            })`;
         }
 
-        if (itemIds.length) {
+        if (Array.isArray(itemIds)) {
             parts.where += `
-                AND i.id_item IN(${itemIds.join(",")})
+                AND i.id_item IN(${itemIds.length ? itemIds.join(",") : "NULL"})
             `;
         }
 

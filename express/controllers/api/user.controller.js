@@ -113,6 +113,7 @@ class UserController extends BaseController {
         const user = req.user;
 
         const params = pick(req.query, [
+            // standard product pagination
             "sortBy",
             "categoryIds",
             "page",
@@ -121,12 +122,19 @@ class UserController extends BaseController {
             "priceMin",
             "priceMax",
             "productIds",
+
+            // bid query params
+            "winning",
         ]);
 
         try {
-            const bids = await UserService.getUserBids(user);
+            const paginatedBids = await UserService.getPaginatedUserBids(user, {
+                page: params.page,
+                limit: params.limit,
+                winningOnly: params.winning === "true",
+            });
 
-            const itemIds = bids.map((b) => b.id_item);
+            const itemIds = paginatedBids.rows.map((b) => b.id_item);
 
             const results = await ProductService.getPaginatedProductItems(
                 {
