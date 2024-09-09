@@ -28,15 +28,17 @@ type BaseInputProps = {
     }>;
 };
 
-type QuickInputProps<Component extends (props: BaseInputProps) => any> = Record<
-    string,
-    any
-> &
-    BaseInputProps & {
-        as?: Component | ((props: Parameters<Component>[0]) => ReactNode);
-    };
+type InputProps = TextInputProps & BaseInputProps;
 
-export default function QuickInput<Component extends (args: any) => ReactNode>({
+type QuickInputProps<Component extends (props: InputProps) => ReactNode> =
+    Record<string, any> &
+        InputProps & {
+            as?: Component | ((props: InputProps) => ReactNode);
+        };
+
+export default function QuickInput<
+    Component extends (props: InputProps) => ReactNode
+>({
     as,
     isSubmitting,
     name,
@@ -50,7 +52,7 @@ export default function QuickInput<Component extends (args: any) => ReactNode>({
     showInitialError = true,
     ...rest
 }: QuickInputProps<Component>) {
-    const Component = as || TextInput;
+    const Component = (as || TextInput) as typeof TextInput;
 
     const content = (
         <div className="p-4 max-w-[250px] text-center bg-gray-800 text-white text-xs">
@@ -86,6 +88,7 @@ export default function QuickInput<Component extends (args: any) => ReactNode>({
                     )}
                 </div>
             )}
+
             <Component
                 id={name}
                 name={name}

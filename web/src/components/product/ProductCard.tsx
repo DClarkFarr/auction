@@ -11,6 +11,8 @@ import React from "react";
 import { FullProductItem } from "../../types/Product";
 import { Bid } from "../../types/Bid";
 import { UserBidStatus } from "../../hooks/useUserBid";
+import QuestionIcon from "~icons/ic/baseline-contact-support";
+import BigTextTooltip from "../controls/BigTextTooltip";
 
 export type ProductCardProps = {
     isFavorite?: boolean;
@@ -55,6 +57,14 @@ export default function ProductCard({
             ? timeCompareMulti(now, expiresAt)
             : (false as const);
 
+        const rejectsAt =
+            userBidStatus === "won" &&
+            p.rejectsAt &&
+            DateTime.fromISO(p.rejectsAt).isValid &&
+            DateTime.fromISO(p.rejectsAt);
+        const timeUntilRejects =
+            rejectsAt && rejectsAt > now && timeCompareMulti(now, rejectsAt);
+
         const isInactive =
             p.canceledAt ||
             p.purchasedAt ||
@@ -93,6 +103,8 @@ export default function ProductCard({
             isExpired,
             isDateExpired,
             backgroundColor,
+            timeUntilRejects,
+            rejectsAt,
         };
     };
 
@@ -115,6 +127,8 @@ export default function ProductCard({
         isExpired,
         backgroundColor,
         isInactive,
+        timeUntilRejects,
+        rejectsAt,
         // isDateExpired,
     } = timeData;
 
@@ -285,6 +299,30 @@ export default function ProductCard({
                             </div>
                         </div>
                     )}
+
+                {userBidStatus === "won" && timeUntilRejects && rejectsAt && (
+                    <div>
+                        <div className="item__countdown text-red-800 p-3 text-center">
+                            <BigTextTooltip
+                                content={`You have until ${rejectsAt.toLocaleString(
+                                    DateTime.DATETIME_MED
+                                )} to purchase this item. If not purchased, this item will return to auction.`}
+                            >
+                                <div className="flex items-center gap-x-2 justify-center">
+                                    <span>Time to purchase</span>
+                                    <span>
+                                        <QuestionIcon />
+                                    </span>
+                                </div>
+                            </BigTextTooltip>
+                            <div className="font-bold text-lg flex justify-center items-center gap-2">
+                                {timeUntilRejects.map((segment, i) => {
+                                    return <div key={i}>{segment}</div>;
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
             {!isExpired && !isInactive && (
                 <div className="mt-auto">
