@@ -6,7 +6,12 @@ import useFavorite from "../../../hooks/useFavorite";
 import useStartBid from "../../../hooks/useStartBid";
 import useUserBid from "../../../hooks/useUserBid";
 
-const ProductsItem: ProductsGridItem = ({ product }) => {
+const ProductsItem: ProductsGridItem = ({
+    product,
+    isSelected,
+    onClickBid: onClickBidCustom,
+    onClickClaim: onClickClaimCustom,
+}) => {
     /**
      * Do context stuff here as needed / register queryClient hooks, etc
      */
@@ -41,10 +46,16 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
     }, [product, getUserBidStatus]);
 
     const onClickBid = (p: FullProductItem) => {
+        if (typeof onClickBidCustom === "function") {
+            return onClickBidCustom(p);
+        }
         showBidModal(p);
     };
 
-    const onClickClaim = () => {
+    const onClickClaim = (p: FullProductItem) => {
+        if (typeof onClickClaimCustom === "function") {
+            return onClickClaimCustom(p);
+        }
         console.log("TODO: clicked claim");
     };
 
@@ -57,6 +68,7 @@ const ProductsItem: ProductsGridItem = ({ product }) => {
             userBid={userBid}
             userBidStatus={userBidStatus}
             onClickClaim={onClickClaim}
+            isSelected={isSelected}
         />
     );
 };

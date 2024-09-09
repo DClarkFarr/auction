@@ -22,6 +22,7 @@ export type ProductCardProps = {
     onClickClaim: (product: FullProductItem) => Promise<void> | void;
     userBid?: Bid;
     userBidStatus?: UserBidStatus | null;
+    isSelected?: boolean;
 };
 export default function ProductCard({
     isFavorite = false,
@@ -30,6 +31,7 @@ export default function ProductCard({
     onClickBid,
     onClickClaim,
     userBidStatus,
+    isSelected,
 }: ProductCardProps) {
     const retailPrice = product.product.priceRetail;
     const currentPrice = product.bid
@@ -138,9 +140,15 @@ export default function ProductCard({
         >
             {userBidStatus === "won" && (
                 <div>
-                    <div className="item__countdown text-red-800 p-3 text-center bg-purple-600">
+                    <div
+                        className={`item__countdown p-3 text-center ${
+                            isSelected ? "bg-purple-800" : "bg-purple-600"
+                        }`}
+                    >
                         <div className="text-lg text-white font-semibld">
-                            Congratulations, you won!
+                            {isSelected
+                                ? "Added to cart"
+                                : "Congratulations, you won!"}
                         </div>
                     </div>
                 </div>
@@ -337,13 +345,24 @@ export default function ProductCard({
             )}
             {userBidStatus === "won" && (
                 <div className="mt-auto">
-                    <Button
-                        className="btn-block w-full text-center rounded-none"
-                        color="success"
-                        onClick={() => onClickClaim(product)}
-                    >
-                        CLAIM PURCHASE
-                    </Button>
+                    {isSelected && (
+                        <Button
+                            className="btn-block w-full text-center rounded-none"
+                            color="dark"
+                            onClick={() => onClickClaim(product)}
+                        >
+                            UNSELECT PRODUCT
+                        </Button>
+                    )}
+                    {!isSelected && (
+                        <Button
+                            className="btn-block w-full text-center rounded-none"
+                            color="success"
+                            onClick={() => onClickClaim(product)}
+                        >
+                            CLAIM PURCHASE
+                        </Button>
+                    )}
                 </div>
             )}
         </div>

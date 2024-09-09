@@ -10,6 +10,9 @@ export type ProductsGridProps<I extends ProductsGridItem = ProductsGridItem> = {
 
 export type ProductsItemProps = {
     product: FullProductItem;
+    isSelected?: boolean;
+    onClickBid?: (p: FullProductItem) => void;
+    onClickClaim?: (p: FullProductItem) => void;
 };
 export type ProductsGridItem<P extends ProductsItemProps = ProductsItemProps> =
     (props: P) => React.ReactNode;
