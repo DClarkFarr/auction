@@ -182,7 +182,7 @@ export default function HomeHeader() {
                             <>
                                 <Navbar.Link
                                     as="span"
-                                    className="ml-4"
+                                    className="lg:ml-4"
                                     active={activeRouteName === "login"}
                                 >
                                     <Link to={homeRoutes.login.to}>Log in</Link>
