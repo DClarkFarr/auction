@@ -430,10 +430,10 @@ class UserController extends BaseController {
             const result = await UserService.checkoutItems(user, itemIds);
             res.json(result);
         } catch (err) {
-            console.error("Error checking out", err);
             if (err instanceof UserError) {
                 res.status(400).json({ message: err.message });
             } else {
+                console.error("Error checking out", err);
                 res.status(400).json({
                     message:
                         "An unknown error ocurred. Please try again or contact support.",

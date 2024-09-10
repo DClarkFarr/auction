@@ -14,6 +14,8 @@ import { UserBidStatus } from "../../hooks/useUserBid";
 import QuestionIcon from "~icons/ic/baseline-contact-support";
 import BigTextTooltip from "../controls/BigTextTooltip";
 
+const rejectedStatuses: UserBidStatus[] = ["won", "rejected"];
+
 export type ProductCardProps = {
     isFavorite?: boolean;
     onToggleFavorite?: (idItem: number) => Promise<void> | void;
@@ -60,10 +62,16 @@ export default function ProductCard({
             : (false as const);
 
         const rejectsAt =
-            userBidStatus === "won" &&
+            userBidStatus &&
+            rejectedStatuses.includes(userBidStatus) &&
             p.rejectsAt &&
-            DateTime.fromISO(p.rejectsAt).isValid &&
             DateTime.fromISO(p.rejectsAt);
+
+        const purchasedAt =
+            userBidStatus === "purchased" &&
+            p.purchasedAt &&
+            DateTime.fromISO(p.purchasedAt);
+
         const timeUntilRejects =
             rejectsAt && rejectsAt > now && timeCompareMulti(now, rejectsAt);
 
@@ -107,6 +115,7 @@ export default function ProductCard({
             backgroundColor,
             timeUntilRejects,
             rejectsAt,
+            purchasedAt,
         };
     };
 
@@ -131,7 +140,7 @@ export default function ProductCard({
         isInactive,
         timeUntilRejects,
         rejectsAt,
-        // isDateExpired,
+        purchasedAt,
     } = timeData;
 
     return (
@@ -275,13 +284,11 @@ export default function ProductCard({
                         </span>
                     </div>
                 )}
-
                 <div className="item__quality p-3 flex justify-center">
                     <Tooltip content="Quality">
                         <Stars value={product.product.quality} readOnly />
                     </Tooltip>
                 </div>
-
                 {isExpired && (
                     <>
                         <div className="item__countdown text-gray-800 p-3 text-center">
@@ -292,7 +299,6 @@ export default function ProductCard({
                         </div>
                     </>
                 )}
-
                 {!isExpired &&
                     timeUntilExpired &&
                     timeUntilExpired.length > 0 && (
@@ -307,7 +313,6 @@ export default function ProductCard({
                             </div>
                         </div>
                     )}
-
                 {userBidStatus === "won" && timeUntilRejects && rejectsAt && (
                     <div>
                         <div className="item__countdown text-red-800 p-3 text-center">
@@ -330,6 +335,43 @@ export default function ProductCard({
                             </div>
                         </div>
                     </div>
+                )}
+                {userBidStatus === "rejected" && rejectsAt && (
+                    <div>
+                        <div className="item__countdown text-red-800 p-3 text-center">
+                            <BigTextTooltip
+                                content={`This bid was not purchased by the deadline and was returned to auction.`}
+                            >
+                                <div className="flex items-center gap-x-2 justify-center">
+                                    <span>Purchase Cancelled</span>
+                                    <span>
+                                        <QuestionIcon />
+                                    </span>
+                                </div>
+                            </BigTextTooltip>
+                            <div className="font-bold text-lg flex justify-center items-center gap-2">
+                                {rejectsAt.toLocaleString(
+                                    DateTime.DATETIME_MED
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+                {userBidStatus === "purchased" && (
+                    <>
+                        <div className="item__countdown text-gray-800 p-3 text-center">
+                            <div className="text-lg font-semibold">
+                                Purchase complete
+                            </div>
+                            {purchasedAt && (
+                                <div>
+                                    {purchasedAt.toLocaleString(
+                                        DateTime.DATETIME_MED
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </>
                 )}
             </div>
             {!isExpired && !isInactive && (

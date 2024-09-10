@@ -21,7 +21,7 @@ const data = {
         production: {
             web: "http://auction.danielsjunk.com",
         },
-        local: {
+        development: {
             web: "http://localhost:5173",
         },
     },

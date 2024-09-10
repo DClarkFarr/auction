@@ -112,9 +112,12 @@ export default class CronService {
                                                 "claimed",
                                                 {
                                                     expiredAt: new Date(),
-                                                    rejectsAt: DateTime.now()
-                                                        .plus({ day: 1 })
-                                                        .toJSDate(),
+                                                    rejectsAt:
+                                                        DateTime.fromJSDate(
+                                                            item.expiredAt
+                                                        )
+                                                            .plus({ day: 1 })
+                                                            .toJSDate(),
                                                     id_user: highestBid.id_user,
                                                 }
                                             );

@@ -124,11 +124,6 @@ class App {
         this.express.use(handlerCallback || defaultErrorHandler);
     }
 
-    host() {
-        const env = env("env");
-        return env(`endpoint.${env}.web`);
-    }
-
     listen() {
         return new Promise((resolve) => {
             const port = env("port");

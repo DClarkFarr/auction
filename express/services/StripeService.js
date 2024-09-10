@@ -1,10 +1,12 @@
 import Stripe from "stripe";
-import { env } from "../utils/environment.js";
+import { env, getEnvHost } from "../utils/environment.js";
 import { getPrisma } from "../prisma/client.js";
+import UserError from "../errors/UserError.js";
 
 /**
  * @typedef {import("../models/UserModel.js").UserDocument} UserDocument
  * @typedef {import("../models/UserModel.js").StripeUserDocument} StripeUserDocument
+ * @typedef {import("../models/ProductItemModel.js").ProductItemDocument} ProductItemDocument
  */
 
 /**
@@ -234,5 +236,109 @@ export default class StripeService {
         }
 
         throw new Error("Unrecognized payment type: " + paymentMethod.type);
+    }
+
+    /**
+     * @param {UserDocument} user
+     * @param {ProductItemDocument[]} items
+     */
+    static async chargeUserForItems(user, items) {
+        const prisma = getPrisma();
+        const stripe = this.getStripe();
+
+        const stripeUser = await this.getStripeUser(user);
+        if (!stripeUser) {
+            throw new Error("Customer not configured on payment gateway");
+        }
+
+        const customer = await this.getStripeCustomer(stripeUser);
+        if (!customer) {
+            throw new Error("External customer data not found");
+        }
+
+        const paymentMethod = await this.getCustomerPaymentMethod(
+            user,
+            customer.id
+        );
+
+        if (!paymentMethod) {
+            throw new Error("Could not verify payment method");
+        }
+
+        const amountRaw = items.reduce((total, item) => {
+            return total + item.bid.amount;
+        }, 0);
+
+        const amountAdjusted = Math.floor(amountRaw * 100);
+
+        try {
+            const result = await prisma.$transaction(async (tx) => {
+                let purchase = await tx.purchase.create({
+                    data: {
+                        id_user: user.id,
+                    },
+                });
+
+                const return_url =
+                    getEnvHost() +
+                    "/account/transactions/" +
+                    purchase.id_purchase;
+
+                const payload = {
+                    amount: amountAdjusted,
+                    currency: "usd",
+                    // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+                    automatic_payment_methods: { enabled: true },
+                    customer: customer.id,
+                    payment_method: paymentMethod.id,
+                    return_url,
+                    off_session: true,
+                    confirm: true,
+                };
+
+                console.log("payload was", payload);
+
+                const paymentIntent = await stripe.paymentIntents.create(
+                    payload
+                );
+
+                // save external ID to purchase
+                purchase = await tx.purchase.update({
+                    where: {
+                        id_purchase: purchase.id_purchase,
+                    },
+                    data: {
+                        id_transaction_external: paymentIntent.id,
+                    },
+                });
+
+                // update items with purchase id
+                await tx.productItem.updateMany({
+                    where: {
+                        id_item: {
+                            in: items.map((i) => i.id_item),
+                        },
+                    },
+                    data: {
+                        id_purchase: purchase.id_purchase,
+                        status: "purchased",
+                        purchasedAt: new Date(),
+                    },
+                });
+
+                return purchase;
+            });
+
+            console.log("result was", result);
+
+            return result;
+        } catch (err) {
+            console.warn("Caught error charging stripe", err);
+            if (err.type?.startsWith("Stripe")) {
+                throw new UserError(err.raw.message);
+            }
+
+            throw new Error(err.message);
+        }
     }
 }

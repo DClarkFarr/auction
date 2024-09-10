@@ -20,6 +20,7 @@ model User {
     stripeUser  StripeUser?
     ProductItem ProductItem[]
     Favorite    Favorite[]
+    Purchase    Purchase[]
 }
 
 model Product {
@@ -63,11 +64,25 @@ model ProductItem {
     status      PRODUCT_ITEM_STATUS @default(active)
 
     product           Product             @relation(fields: [id_product], references: [id_product])
+    purchase          Purchase?           @relation(fields: [id_purchase], references: [id_purchase])
     user              User?               @relation(fields: [id_user], references: [id])
     bids              Bid[]
     ProductCategories ProductCategories[]
 
     @@index([id_product])
+    @@index([id_user])
+}
+
+model Purchase {
+    id_purchase             Int       @id @default(autoincrement())
+    id_user                 Int
+    id_transaction_external String?
+    createdAt               DateTime? @default(now())
+
+    user User @relation(fields: [id_user], references: [id])
+
+    ProductItem ProductItem[]
+
     @@index([id_user])
 }
 

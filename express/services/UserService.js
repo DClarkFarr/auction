@@ -9,6 +9,7 @@ import BidModel from "../models/BidModel.js";
 import { getPrisma } from "../prisma/client.js";
 import ProductService from "./ProductService.js";
 import UserError from "../errors/UserError.js";
+import StripeService from "./StripeService.js";
 
 export default class UserService {
     /**
@@ -149,6 +150,8 @@ export default class UserService {
             throw new UserError(errors.join("\n"));
         }
 
-        return items;
+        const purchase = await StripeService.chargeUserForItems(user, items);
+
+        return { items, purchase };
     }
 }

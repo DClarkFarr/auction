@@ -79,3 +79,8 @@ export function env(...xs) {
         throw new Error("App.env(), 3 parameters given");
     }
 }
+
+export function getEnvHost() {
+    const e = env("env");
+    return env(`endpoint.${e}.web`);
+}
