@@ -7,13 +7,20 @@ import CardDetails from "../stripe/CardDetails";
 import useUserStore from "../../stores/useUserStore";
 import { AxiosError } from "axios";
 import { useCheckoutMutation } from "../../hooks/usePaginatedActiveItemsQuery";
+import { Purchase } from "../../types/Purchase";
+import useToastContext from "../../providers/useToastContext";
 
 export type ClaimPurchaseModalProps = UseModalConfig & {
     items: FullProductItem[];
+    onCheckoutSuccess?: (props: {
+        purchase: Purchase;
+        items: FullProductItem[];
+    }) => void;
 };
 
 export default function ClaimPurchaseModal({
     items,
+    onCheckoutSuccess,
     ...props
 }: ClaimPurchaseModalProps) {
     const total = React.useMemo(() => {
@@ -21,6 +28,8 @@ export default function ClaimPurchaseModal({
             return total + item.bid.amount;
         }, 0);
     }, [items]);
+
+    const { toast } = useToastContext();
 
     const { paymentMethod } = useUserStore();
 
@@ -37,7 +46,15 @@ export default function ClaimPurchaseModal({
             const res = await handleCheckout({
                 itemIds: items.map((i) => i.id_item),
             });
-            console.log("checkout was", res);
+
+            toast({
+                text: "Checkout complete!",
+                type: "success",
+            });
+
+            if (typeof onCheckoutSuccess === "function") {
+                onCheckoutSuccess(res);
+            }
         } catch (err) {
             if (err instanceof AxiosError) {
                 setErrorMessage(err.response?.data?.message || err.message);

@@ -122,9 +122,14 @@ export default function ProductCard({
     const [timeData, setTimeData] = React.useState(calulateTimeData(product));
 
     React.useEffect(() => {
+        const now = DateTime.now();
+        const expiresAt = DateTime.fromISO(product.expiredAt);
+
+        const timeout = now > expiresAt ? 60000 : 1000;
+
         const id = window.setInterval(() => {
             setTimeData(calulateTimeData(product));
-        }, 1000);
+        }, timeout);
 
         return () => {
             window.clearInterval(id);
