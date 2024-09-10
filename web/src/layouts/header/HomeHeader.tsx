@@ -143,7 +143,7 @@ export default function HomeHeader() {
                                         </Dropdown.Item>
                                         <Dropdown.Item>
                                             <Link to="/account/bids">
-                                                My Active Bids
+                                                My Bids
                                             </Link>
                                         </Dropdown.Item>
                                     </>

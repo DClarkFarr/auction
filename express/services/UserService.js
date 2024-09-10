@@ -89,7 +89,11 @@ export default class UserService {
                 FROM Bid 
                 GROUP BY id_item 
             ) b ON a.id_bid = b.id_bid
-            WHERE id_user = ${Number(user.id)} `;
+            JOIN (
+                SELECT * FROM ProductItem 
+                WHERE (status = 'active' OR status = 'claimed' OR status = 'purchased')
+            ) i ON a.id_item = i.id_item
+            WHERE a.id_user = ${Number(user.id)} `;
         }
 
         let query = baseQuery;
@@ -99,7 +103,7 @@ export default class UserService {
         query += `LIMIT ${page * limit - limit}, ${limit}`;
 
         const countQuery = baseQuery.replace(
-            `SELECT *`,
+            `SELECT a.*`,
             "SELECT COUNT(*) AS total"
         );
 
@@ -110,6 +114,7 @@ export default class UserService {
         /**
          * @type {BidDocument[]}
          */
+
         const rows = await prisma.$queryRawUnsafe(query);
 
         const final = {

@@ -5,13 +5,16 @@ import {
     useNavigate,
     useSearchParams,
 } from "react-router-dom";
-import { useWatchUserSession } from "../stores/useUserStore";
+import useUserStore, { useWatchUserSession } from "../stores/useUserStore";
 import HomeLayout from "./HomeLayout";
+import { Spinner } from "flowbite-react";
 
 export default function AccountLayout({ children }: { children?: ReactNode }) {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const location = useLocation();
+
+    const { user } = useUserStore();
 
     const body = React.useMemo(() => {
         return children || <Outlet />;
@@ -27,5 +30,15 @@ export default function AccountLayout({ children }: { children?: ReactNode }) {
             navigate(to);
         }
     });
-    return <HomeLayout>{body}</HomeLayout>;
+    return (
+        <HomeLayout>
+            {!user ? (
+                <div className="p-10">
+                    <Spinner />
+                </div>
+            ) : (
+                body
+            )}
+        </HomeLayout>
+    );
 }

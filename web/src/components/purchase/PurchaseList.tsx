@@ -35,44 +35,47 @@ export default function PurchaseList() {
                             </td>
                         </tr>
                     ) : isSuccess ? (
-                        purchases.map((purchase) => (
-                            <tr key={purchase.id_purchase}>
-                                <td className="pl-4">
-                                    {DateTime.fromISO(
-                                        purchase.createdAt
-                                    ).toLocaleString(DateTime.DATETIME_MED)}
-                                </td>
-                                <td className="pl-4 text-sm">
-                                    {purchase.items.map((item) => (
-                                        <div
-                                            key={item.id_item}
-                                            className="flex justify-between gap-x-2"
-                                        >
-                                            <div>{item.product.name}</div>
-                                            <div>
-                                                {formatCurrency(
-                                                    item.bid.amount
-                                                )}
+                        purchases.map((purchase, i) => {
+                            const bg = i % 2 === 0 ? "bg-gray-100" : "bg-white";
+                            return (
+                                <tr key={purchase.id_purchase}>
+                                    <td className={`py-2 pl-4 ${bg}`}>
+                                        {DateTime.fromISO(
+                                            purchase.createdAt
+                                        ).toLocaleString(DateTime.DATETIME_MED)}
+                                    </td>
+                                    <td className={`py-2 pl-4 text-sm ${bg}`}>
+                                        {purchase.items.map((item) => (
+                                            <div
+                                                key={item.id_item}
+                                                className="flex justify-between gap-x-2"
+                                            >
+                                                <div>{item.product.name}</div>
+                                                <div>
+                                                    {formatCurrency(
+                                                        item.bid.amount
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
-                                </td>
-                                <td className="pl-4">
-                                    {formatCurrency(purchase.totalAmount)}
-                                </td>
-                                <td className="pl-4">
-                                    <Link
-                                        to={`/account/purchases/${purchase.id_purchase}`}
-                                        className="text-purple-700 hover:underline flex items-center"
-                                    >
-                                        <span>
-                                            <ListIcon />
-                                        </span>
-                                        <span className="pl-2">View</span>
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))
+                                        ))}
+                                    </td>
+                                    <td className={`py-2 pl-4 ${bg}`}>
+                                        {formatCurrency(purchase.totalAmount)}
+                                    </td>
+                                    <td className={`py-2 pl-4 ${bg}`}>
+                                        <Link
+                                            to={`/account/purchases/${purchase.id_purchase}`}
+                                            className="text-purple-700 hover:underline flex items-center"
+                                        >
+                                            <span>
+                                                <ListIcon />
+                                            </span>
+                                            <span className="pl-2">View</span>
+                                        </Link>
+                                    </td>
+                                </tr>
+                            );
+                        })
                     ) : (
                         <tr>
                             <td colSpan={4}>

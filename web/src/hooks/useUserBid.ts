@@ -1,7 +1,7 @@
 import React from "react";
 import useUserStore from "../stores/useUserStore";
 import { FullProductItem } from "../types/Product";
-import { DateTime } from "luxon";
+import { calculateBidStatus } from "../utils/product";
 
 export const BID_STATUS = {
     canceled: "canceled", // was cancelled regardless of betting
@@ -16,10 +16,12 @@ export const BID_STATUS = {
 export type UserBidStatus = keyof typeof BID_STATUS;
 
 export default function useUserBid() {
-    const { bids } = useUserStore();
+    const { bids, user } = useUserStore();
 
     const getBid = React.useCallback(
         (id_item: number) => {
+            // TODO
+            return;
             return bids.find((b) => b.id_item === id_item);
         },
         [bids, bids.length]
@@ -36,39 +38,7 @@ export default function useUserBid() {
         (product: FullProductItem): UserBidStatus | null => {
             const bid = getBid(product.id_item);
 
-            const expiresAt = DateTime.fromISO(product.expiresAt);
-            const isExpired =
-                expiresAt <= DateTime.now() || product.status !== "active";
-
-            if (product.status === "canceled") {
-                return BID_STATUS.canceled;
-            }
-
-            if (!bid) {
-                return null;
-            } else if (bid.id_bid === product.bid?.id_bid) {
-                if (product.status === "purchased") {
-                    return BID_STATUS.purchased;
-                }
-
-                if (product.status === "rejected") {
-                    return BID_STATUS.rejected;
-                }
-
-                if (product.status === "claimed" || isExpired) {
-                    return BID_STATUS.won;
-                }
-
-                return BID_STATUS.winning;
-            } else if (product.bid) {
-                if (isExpired) {
-                    return BID_STATUS.lost;
-                }
-
-                return BID_STATUS.outbid;
-            }
-
-            return null;
+            return calculateBidStatus(user, product, bid);
         },
         [getBid]
     );

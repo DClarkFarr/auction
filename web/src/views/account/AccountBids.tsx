@@ -112,13 +112,23 @@ export default function AccountBids() {
                             <ProductsSection.Grid
                                 item={(props) => (
                                     <>
-                                        <ProductsSection.Item
-                                            {...props}
-                                            onClickClaim={onClickClaim}
-                                            isSelected={selectedItemIds.includes(
-                                                props.product.id_item
-                                            )}
-                                        />
+                                        {view === "winning" ? (
+                                            <ProductsSection.HistoryItem
+                                                {...props}
+                                                onClickClaim={onClickClaim}
+                                                isSelected={selectedItemIds.includes(
+                                                    props.product.id_item
+                                                )}
+                                            />
+                                        ) : (
+                                            <ProductsSection.Item
+                                                {...props}
+                                                onClickClaim={onClickClaim}
+                                                isSelected={selectedItemIds.includes(
+                                                    props.product.id_item
+                                                )}
+                                            />
+                                        )}
                                     </>
                                 )}
                             />

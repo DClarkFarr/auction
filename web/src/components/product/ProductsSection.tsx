@@ -13,7 +13,9 @@ import ProductsDesktopSidebar, {
 } from "./ProductsSection/ProductsDesktopSidebar";
 import UrlParamsSync from "./ProductsSection/UrlParamsSync";
 import ProductsGrid from "./ProductsSection/ProductsGrid";
-import ProductsItem from "./ProductsSection/ProductsItem";
+import ProductsItem, {
+    ProductsHistoryItem,
+} from "./ProductsSection/ProductsItem";
 import ProductsHeading from "./ProductsSection/ProductsHeading";
 import ProductsSortBy from "./ProductsSection/ProductsSortBy";
 import ProductsToggleMobileFilters from "./ProductsSection/ProductsToggleMobileFilters";
@@ -54,6 +56,7 @@ function ProductsSectionWrapper({
 const ProductsSection = Object.assign(ProductsSectionWrapper, {
     UrlParamsSync,
     Item: ProductsItem,
+    HistoryItem: ProductsHistoryItem,
     Grid: ProductsGrid,
     DesktopSidebar: ProductsDesktopSidebar,
     EndlessScroller: ProductsEndlessScroller,

@@ -9,7 +9,6 @@ import { DateTime } from "luxon";
 import { timeCompare, timeCompareMulti } from "../../utils/time";
 import React from "react";
 import { FullProductItem } from "../../types/Product";
-import { Bid } from "../../types/Bid";
 import { UserBidStatus } from "../../hooks/useUserBid";
 import QuestionIcon from "~icons/ic/baseline-contact-support";
 import BigTextTooltip from "../controls/BigTextTooltip";
@@ -22,7 +21,6 @@ export type ProductCardProps = {
     product: FullProductItem;
     onClickBid: (product: FullProductItem) => Promise<void> | void;
     onClickClaim: (product: FullProductItem) => Promise<void> | void;
-    userBid?: Bid;
     userBidStatus?: UserBidStatus | null;
     isSelected?: boolean;
 };
@@ -127,6 +125,8 @@ export default function ProductCard({
 
         const timeout = now > expiresAt ? 60000 : 1000;
 
+        setTimeData(calulateTimeData(product));
+
         const id = window.setInterval(() => {
             setTimeData(calulateTimeData(product));
         }, timeout);
@@ -147,6 +147,10 @@ export default function ProductCard({
         rejectsAt,
         purchasedAt,
     } = timeData;
+
+    if (product.id_item === 181) {
+        console.log("timeData was", timeData, "bidstatus", userBidStatus);
+    }
 
     return (
         <div
