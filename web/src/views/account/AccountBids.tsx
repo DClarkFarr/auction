@@ -2,12 +2,13 @@ import { Tabs } from "flowbite-react";
 import ProductsSection from "../../components/product/ProductsSection";
 import UserService from "../../services/UserService";
 import React from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { PaginatedProductParams } from "../../services/SiteService";
 import { FullProductItem } from "../../types/Product";
 import MiniCartPopover from "../../components/checkout/MiniCartPopover";
 import ClaimPurchaseModal from "../../components/modal/ClaimPurchaseModal";
 import { useModal } from "../../hooks/useModal";
+import { Purchase } from "../../types/Purchase";
 
 export default function AccountBids() {
     const [search, setSearch] = useSearchParams();
@@ -17,6 +18,8 @@ export default function AccountBids() {
     >([]);
 
     const [showCart, setShowCart] = React.useState(false);
+
+    const navigate = useNavigate();
 
     const view = search.get("view") || "winning";
 
@@ -63,6 +66,10 @@ export default function AccountBids() {
 
     const onToggleShow = (show: boolean) => {
         setShowCart(show);
+    };
+
+    const handleCheckoutSuccess = ({ purchase }: { purchase: Purchase }) => {
+        navigate(`/account/transactions/${purchase.id_purchase}`);
     };
 
     return (
@@ -123,6 +130,7 @@ export default function AccountBids() {
 
             <ClaimPurchaseModal
                 items={selectedProducts}
+                onCheckoutSuccess={handleCheckoutSuccess}
                 {...purchaseModal.state}
             />
         </div>
