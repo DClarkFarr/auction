@@ -24,12 +24,15 @@ createEnvironment({
     JWT_SECRET: process.env.JWT_SECRET,
     SESSION_SECRET: process.env.SESSION_SECRET,
     STRIPE_SECRET: process.env.STRIPE_SECRET_KEY,
+    SOCKET_ORIGIN: process.env.SOCKET_ORIGIN,
 })
     .then(() => app.configureExpress())
-    .then(() => {
+    .then(async () => {
         app.registerControllers([new ApiController(), new WebController()]);
 
         app.registerErrorHandler();
+
+        await app.initSocket();
 
         return app
             .connectToDb()

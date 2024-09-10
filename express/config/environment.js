@@ -36,6 +36,9 @@ const data = {
     stripe: {
         secret: "[replace this]",
     },
+    socket: {
+        origin: "https://auction.danielsjunk.com",
+    },
 };
 
 export default data;

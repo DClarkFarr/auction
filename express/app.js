@@ -15,11 +15,16 @@ import session from "express-session";
 import CreateMysqlStore from "express-mysql-session";
 
 import mysql from "mysql2/promise";
-import { createDbUrlFromEnv } from "./utils/database.js";
+import { createSocket } from "./utils/socket.js";
 
 class App {
     express = false;
-    httpServer = false;
+    server = false;
+
+    /**
+     * @type {import('socket.io').Server | null}
+     */
+    io = null;
 
     /**
      * @type {ReturnType<typeof getPrisma>}
@@ -27,6 +32,19 @@ class App {
     db = null;
     constructor() {
         this.express = express();
+        this.server = http.createServer(this.express);
+        this.server.timeout = 3e5;
+    }
+
+    async initSocket() {
+        this.io = new createSocket(this.server);
+
+        this.io.on("connection", (socket) => {
+            console.log("a user connected");
+            socket.on("disconnect", () => {
+                console.log("user disconnected");
+            });
+        });
     }
 
     async configureExpress() {
@@ -127,11 +145,10 @@ class App {
     listen() {
         return new Promise((resolve) => {
             const port = env("port");
-            this.server = http.createServer(this.express);
+
             this.server.listen(port, () => {
                 resolve(port);
             });
-            this.server.timeout = 3e5;
         });
     }
 

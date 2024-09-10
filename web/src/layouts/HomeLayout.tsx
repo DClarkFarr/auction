@@ -14,6 +14,8 @@ import {
 } from "../stores/useModalsStore";
 import ProductBidModal from "../components/modal/ProductBidModal";
 
+import { io } from "socket.io-client";
+
 export default function HomeLayout({
     children,
 }: {
@@ -46,6 +48,16 @@ export default function HomeLayout({
             loadUserBids();
         }
     }, [user, hasLoadedBids, isLoadingBids]);
+
+    React.useEffect(() => {
+        const socket = io(import.meta.env.VITE_SOCKET_URL, {
+            withCredentials: true,
+        });
+
+        socket.on("bid", function (msg) {
+            console.log("got bid message", msg);
+        });
+    }, []);
 
     const { state: loginState } = useLoginModal();
     const { state: signupState } = useSignupModal();
