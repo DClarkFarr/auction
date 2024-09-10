@@ -12,6 +12,7 @@ import { FullProductItem } from "../../types/Product";
 import { UserBidStatus } from "../../hooks/useUserBid";
 import QuestionIcon from "~icons/ic/baseline-contact-support";
 import BigTextTooltip from "../controls/BigTextTooltip";
+import { Bid } from "../../types/Bid";
 
 const rejectedStatuses: UserBidStatus[] = ["won", "rejected"];
 
@@ -22,6 +23,7 @@ export type ProductCardProps = {
     onClickBid: (product: FullProductItem) => Promise<void> | void;
     onClickClaim: (product: FullProductItem) => Promise<void> | void;
     userBidStatus?: UserBidStatus | null;
+    userBid?: Bid | null;
     isSelected?: boolean;
 };
 export default function ProductCard({
@@ -147,10 +149,6 @@ export default function ProductCard({
         rejectsAt,
         purchasedAt,
     } = timeData;
-
-    if (product.id_item === 181) {
-        console.log("timeData was", timeData, "bidstatus", userBidStatus);
-    }
 
     return (
         <div

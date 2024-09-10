@@ -39,7 +39,7 @@ class App {
     async initSocket() {
         this.io = new createSocket(this.server);
 
-        this.io.on("connection", (socket) => {
+        this.io.of("bid").on("connection", (socket) => {
             console.log("a user connected");
             socket.on("disconnect", () => {
                 console.log("user disconnected");

@@ -20,8 +20,6 @@ export default function useUserBid() {
 
     const getBid = React.useCallback(
         (id_item: number) => {
-            // TODO
-            return;
             return bids.find((b) => b.id_item === id_item);
         },
         [bids, bids.length]

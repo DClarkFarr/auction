@@ -7,6 +7,7 @@ import { AxiosError } from "axios";
 
 import webSessionMiddleware from "../../middleware/webSessionMiddleware.js";
 import { hasUser } from "../../middleware/auth.middleware.js";
+import { getSocket } from "../../utils/socket.js";
 
 export default class SiteController extends BaseController {
     base = "/site";
@@ -89,6 +90,10 @@ export default class SiteController extends BaseController {
                 id_item,
                 amount
             );
+
+            const socket = getSocket();
+
+            socket.of("/bid").emit("update", result);
 
             res.json(result);
         } catch (err) {

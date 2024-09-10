@@ -13,8 +13,10 @@ import {
     useBidModal,
 } from "../stores/useModalsStore";
 import ProductBidModal from "../components/modal/ProductBidModal";
-
-import { io } from "socket.io-client";
+import useSocket from "../hooks/useSocket";
+import { useQueryClient } from "@tanstack/react-query";
+import { PaginatedResults } from "../types/Paginate";
+import { FullProductItem } from "../types/Product";
 
 export default function HomeLayout({
     children,
@@ -33,6 +35,8 @@ export default function HomeLayout({
         loadUserBids,
     } = useUserStore();
 
+    const queryClient = useQueryClient();
+
     const body = React.useMemo(() => {
         return children || <Outlet />;
     }, [children]);
@@ -49,15 +53,33 @@ export default function HomeLayout({
         }
     }, [user, hasLoadedBids, isLoadingBids]);
 
-    React.useEffect(() => {
-        const socket = io(import.meta.env.VITE_SOCKET_URL, {
-            withCredentials: true,
-        });
+    useSocket({
+        onUpdate(product) {
+            if (product.bid?.id_user !== user?.id) {
+                queryClient.setQueriesData<PaginatedResults<FullProductItem>>(
+                    {
+                        predicate: ({ queryKey }) =>
+                            queryKey.includes("paginatedActiveItems"),
+                    },
+                    (result) => {
+                        if (!result) {
+                            return;
+                        }
 
-        socket.on("bid", function (msg) {
-            console.log("got bid message", msg);
-        });
-    }, []);
+                        console.log("looking at", result.rows);
+                        return {
+                            ...result,
+                            rows: result.rows.map((r) =>
+                                r.id_item === product.id_item ? product : r
+                            ),
+                        };
+                    }
+                );
+            } else {
+                console.log("got my own event, so...");
+            }
+        },
+    });
 
     const { state: loginState } = useLoginModal();
     const { state: signupState } = useSignupModal();

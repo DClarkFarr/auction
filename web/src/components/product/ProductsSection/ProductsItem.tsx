@@ -20,7 +20,7 @@ const ProductsItem: ProductsGridItem = ({
 
     const { addFavorite, removeFavorite, itemIsFavorite } = useFavorite();
 
-    const { getUserBidStatus } = useUserBid();
+    const { getUserBidStatus, getBid } = useUserBid();
 
     const showBidModal = useStartBid(product);
 
@@ -43,6 +43,10 @@ const ProductsItem: ProductsGridItem = ({
         return getUserBidStatus(product);
     }, [product, getUserBidStatus]);
 
+    const userBid = React.useMemo(() => {
+        return getBid(product.id_item);
+    }, [getBid, product.id_item]);
+
     const onClickBid = (p: FullProductItem) => {
         if (typeof onClickBidCustom === "function") {
             return onClickBidCustom(p);
@@ -64,6 +68,7 @@ const ProductsItem: ProductsGridItem = ({
             isFavorite={isFavorite}
             onClickBid={onClickBid}
             userBidStatus={userBidStatus}
+            userBid={userBid}
             onClickClaim={onClickClaim}
             isSelected={isSelected}
         />
