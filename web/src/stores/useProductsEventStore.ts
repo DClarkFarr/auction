@@ -62,3 +62,19 @@ const useProductsEventsStore = create<ProductsEventsStore>((set, get) => {
 });
 
 export default useProductsEventsStore;
+
+export const useProductEvents = (id_item: number) => {
+    const { events, addEvent, dismissEvent } = useProductsEventsStore();
+
+    const productEvents = events[id_item] || [];
+
+    return {
+        productEvents,
+        addEvent: (eventName: ProductsEvents, timeout?: number) => {
+            addEvent(id_item, eventName, timeout);
+        },
+        dismissEvent: (id: string) => {
+            dismissEvent(id_item, id);
+        },
+    };
+};

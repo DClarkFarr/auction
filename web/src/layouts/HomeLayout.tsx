@@ -17,6 +17,8 @@ import useSocket from "../hooks/useSocket";
 import { useQueryClient } from "@tanstack/react-query";
 import { PaginatedResults } from "../types/Paginate";
 import { FullProductItem } from "../types/Product";
+import useUserBid from "../hooks/useUserBid";
+import useProductsEventsStore from "../stores/useProductsEventStore";
 
 export default function HomeLayout({
     children,
@@ -37,6 +39,10 @@ export default function HomeLayout({
 
     const queryClient = useQueryClient();
 
+    const { getBid } = useUserBid();
+
+    const { addEvent } = useProductsEventsStore();
+
     const body = React.useMemo(() => {
         return children || <Outlet />;
     }, [children]);
@@ -53,8 +59,16 @@ export default function HomeLayout({
         }
     }, [user, hasLoadedBids, isLoadingBids]);
 
-    useSocket({
-        onUpdate(product) {
+    const handleProductUpdate = React.useRef<
+        ((p: FullProductItem) => void) | null
+    >(null);
+
+    React.useEffect(() => {
+        handleProductUpdate.current = (product: FullProductItem) => {
+            const userBid = getBid(product.id_item);
+
+            let hasUpdated = false;
+
             if (product.bid?.id_user !== user?.id) {
                 queryClient.setQueriesData<PaginatedResults<FullProductItem>>(
                     {
@@ -66,7 +80,24 @@ export default function HomeLayout({
                             return;
                         }
 
-                        console.log("looking at", result.rows);
+                        const found = result.rows.find(
+                            (p) => p.id_item === product.id_item
+                        );
+
+                        if (found && !hasUpdated) {
+                            if (product.bid?.id_user !== user?.id) {
+                                if (
+                                    userBid &&
+                                    userBid.id_bid === found.bid?.id_bid
+                                ) {
+                                    addEvent(product.id_item, "outbid");
+                                } else {
+                                    addEvent(product.id_item, "bid", 2000);
+                                }
+                                hasUpdated = true;
+                            }
+                        }
+
                         return {
                             ...result,
                             rows: result.rows.map((r) =>
@@ -75,11 +106,11 @@ export default function HomeLayout({
                         };
                     }
                 );
-            } else {
-                console.log("got my own event, so...");
             }
-        },
-    });
+        };
+    }, [getBid]);
+
+    useSocket(handleProductUpdate);
 
     const { state: loginState } = useLoginModal();
     const { state: signupState } = useSignupModal();

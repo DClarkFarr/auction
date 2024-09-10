@@ -13,6 +13,12 @@ import { UserBidStatus } from "../../hooks/useUserBid";
 import QuestionIcon from "~icons/ic/baseline-contact-support";
 import BigTextTooltip from "../controls/BigTextTooltip";
 import { Bid } from "../../types/Bid";
+import {
+    ProductEventConfig,
+    useProductEvents,
+} from "../../stores/useProductsEventStore";
+import { FailureToast, InfoToast } from "../controls/Toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 const rejectedStatuses: UserBidStatus[] = ["won", "rejected"];
 
@@ -45,6 +51,8 @@ export default function ProductCard({
     const savingsPercent = parseFloat(
         ((1 - currentPrice / retailPrice) * 100).toFixed(1)
     );
+
+    const { productEvents, dismissEvent } = useProductEvents(product.id_item);
 
     const calulateTimeData = (p: ProductCardProps["product"]) => {
         const expiresAt = DateTime.fromISO(p.expiresAt);
@@ -152,7 +160,11 @@ export default function ProductCard({
 
     return (
         <div
-            className={`item flex flex-col border-2 border-purple-600 shadow-lg ${backgroundColor} ${borderColor}`}
+            className={`item flex flex-col border-2 border-purple-600 shadow-lg ${backgroundColor} ${borderColor} ${
+                productEvents.length > 0
+                    ? "animate-flash-border animate-custom-bounce"
+                    : ""
+            }`}
         >
             {userBidStatus === "won" && (
                 <div>
@@ -187,7 +199,16 @@ export default function ProductCard({
                     </div>
                 </div>
             )}
-            <div className="item__heading">
+            <div className="item__heading relative">
+                {productEvents.map((productEvent) => {
+                    return (
+                        <ProductToast
+                            key={productEvent.id}
+                            productEvent={productEvent}
+                            onClickDismiss={() => dismissEvent(productEvent.id)}
+                        />
+                    );
+                })}
                 <div className="h-[85px] flex w-full items-center p-3">
                     <div className="text-ellipsis overflow-hidden max-h-[61px] line-clamp-2">
                         <h4 className="text-lg font-bold">
@@ -415,5 +436,41 @@ export default function ProductCard({
                 </div>
             )}
         </div>
+    );
+}
+
+function ProductToast({
+    productEvent,
+    onClickDismiss,
+}: {
+    productEvent: ProductEventConfig;
+    onClickDismiss: () => void;
+}) {
+    const Component = productEvent.event === "bid" ? InfoToast : FailureToast;
+    const message =
+        productEvent.event === "bid"
+            ? "Bid placed by other user"
+            : "A higher bid was placed";
+    return (
+        <AnimatePresence>
+            <motion.div
+                className="absolute pulse top-0 w-full"
+                initial={{ right: "-100%" }}
+                animate={{ right: 0 }}
+                exit={{ right: "-100%" }}
+            >
+                <Component
+                    theme={{
+                        root: {
+                            base: "flex w-full items-center rounded-lg bg-white p-4 text-gray-500 shadow",
+                        },
+                    }}
+                    className="w-full"
+                    onDismiss={onClickDismiss}
+                >
+                    {message}
+                </Component>
+            </motion.div>
+        </AnimatePresence>
     );
 }

@@ -6,15 +6,13 @@ const socket = io(import.meta.env.VITE_SOCKET_URL + "bid", {
     withCredentials: true,
 });
 
-export default function useSocket({
-    onUpdate,
-}: {
-    onUpdate?: (product: FullProductItem) => void;
-}) {
+export default function useSocket(
+    onUpdate: React.RefObject<((product: FullProductItem) => void) | null>
+) {
     React.useEffect(() => {
         socket.on("update", function (p: FullProductItem) {
-            if (typeof onUpdate === "function") {
-                onUpdate(p);
+            if (onUpdate.current) {
+                onUpdate.current(p);
             }
         });
 

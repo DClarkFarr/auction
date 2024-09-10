@@ -87,3 +87,48 @@ body,
 .max-w-screen {
     max-width: 100vw;
 }
+
+// custom animation keyframes called "cutomPing"
+@keyframes customPing {
+    75% {
+        transform: scale(1.05);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1.05);
+        opacity: 0;
+    }
+}
+
+.animate-custom-ping {
+    animation: customPing 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+// custom animation keyframes called "flash-border"
+@keyframes flash-border {
+    0% {
+        border-color: inherit;
+    }
+    100% {
+        border-color: red;
+    }
+}
+.animate-flash-border {
+    animation: flash-border 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes customBounce {
+    50% {
+        transform: translateY(-5px);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    0%,
+    100% {
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+}
+
+.animate-custom-bounce {
+    animation: customBounce 0.5s 4;
+}
