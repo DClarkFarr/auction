@@ -3,7 +3,7 @@ import { PaymentMethod } from "../stores/useUserStore";
 import { Bid } from "../types/Bid";
 import { PaginatedResults } from "../types/Paginate";
 import { FullProductItem } from "../types/Product";
-import { Purchase } from "../types/Purchase";
+import { FullPurchase, Purchase } from "../types/Purchase";
 import { RegisterPayload, User, UserFavorite } from "../types/User";
 import apiClient from "./apiClient";
 import { PaginatedProductParams } from "./SiteService";
@@ -84,6 +84,18 @@ export default class UserService {
                 `/user/checkout/items`,
                 data
             )
+            .then((res) => res.data);
+    }
+
+    static async purchases() {
+        return apiClient
+            .get<FullPurchase[]>(`/user/purchases`)
+            .then((res) => res.data);
+    }
+
+    static async purchase(idPurchase: number) {
+        return apiClient
+            .get<FullPurchase>(`/user/purchases/${idPurchase}`)
             .then((res) => res.data);
     }
 }

@@ -69,7 +69,7 @@ export default function AccountBids() {
     };
 
     const handleCheckoutSuccess = ({ purchase }: { purchase: Purchase }) => {
-        navigate(`/account/transactions/${purchase.id_purchase}`);
+        navigate(`/account/purchases/${purchase.id_purchase}`);
     };
 
     return (

@@ -26,8 +26,8 @@ import AccountProfile from "./views/account/AccountProfile";
 import ProductInventoryPage from "./views/admin/Products/ProductInventoryPage";
 import AccountBids from "./views/account/AccountBids";
 import AccountFavorites from "./views/account/AccountFavorites";
-import AccountTransactionDetails from "./views/account/transactions/AccountTransactionDetails";
-import AccountTransactions from "./views/account/AccountTransactions";
+import AccountPurchases from "./views/account/AccountPurchases";
+import AccountPurchaseDetails from "./views/account/purchases/AccountPurchaseDetails";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -154,12 +154,12 @@ const router = createBrowserRouter([
                 element: <AccountFavorites />,
             },
             {
-                path: "transactions",
-                element: <AccountTransactions />,
+                path: "purchases",
+                element: <AccountPurchases />,
                 children: [
                     {
                         path: ":id",
-                        element: <AccountTransactionDetails />,
+                        element: <AccountPurchaseDetails />,
                     },
                 ],
             },

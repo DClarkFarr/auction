@@ -77,6 +77,7 @@ model Purchase {
     id_purchase             Int       @id @default(autoincrement())
     id_user                 Int
     id_transaction_external String?
+    totalAmount             Float?
     createdAt               DateTime? @default(now())
 
     user User @relation(fields: [id_user], references: [id])

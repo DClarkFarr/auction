@@ -92,6 +92,20 @@ class UserController extends BaseController {
             this.route(this.checkoutItems)
         );
 
+        this.router.get(
+            "/purchases",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.getUserPurchases)
+        );
+
+        this.router.get(
+            "/purchases/:id",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.getUserPurchase)
+        );
+
         this.router.get("/test", (req, res) => {
             res.json({ message: "test" });
         });
@@ -102,6 +116,42 @@ class UserController extends BaseController {
             hasUser(),
             this.route(this.getUser)
         );
+    }
+
+    async getUserPurchases(req, res) {
+        const user = req.user;
+
+        try {
+            const purchases = await UserService.getPopulatedUserPurchases(user);
+            res.json(purchases);
+        } catch (err) {
+            console.warn("Caught error getting user purchases", err);
+            res.status(400).json({
+                message: "Error getting user purchases",
+            });
+        }
+    }
+
+    async getUserPurchase(req, res) {
+        const user = req.user;
+        const id_purchase = Number(req.params.id);
+
+        if (isNaN(id_purchase)) {
+            return res.status(400).json({ message: "Invalid purchase id" });
+        }
+
+        try {
+            const purchase = await UserService.getPopulatedUserPurchase(
+                user,
+                id_purchase
+            );
+            res.json(purchase);
+        } catch (err) {
+            console.warn("Caught error getting user purchase", err);
+            res.status(400).json({
+                message: "Error getting user purchase",
+            });
+        }
     }
 
     async getUserBids(req, res) {

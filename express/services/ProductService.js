@@ -23,6 +23,7 @@ import { formatCurrency } from "../utils/format.js";
  * @typedef {import("../models/ImageModel.js").ImageDocument} ImageDocument
  * @typedef {import("@prisma/client").Bid} BidDocument
  * @typedef {import("@prisma/client").User} UserDocument
+ * @typedef {import("@prisma/client").Purchase} PurchaseDocument
  * @typedef {ProductDocument['status']} ProductStatus
  * @typedef {ProductItemDocument['status']} ProductItemStatus
  */
@@ -1179,5 +1180,51 @@ export default class ProductService {
         items = await this.applyItemsHighestBids(items);
 
         return items;
+    }
+
+    /**
+     * @param {PurchaseDocument[]} purchases
+     */
+    static async applyPurchasesData(purchases) {
+        const prisma = getPrisma();
+        const purchaseIds = purchases.map((p) => p.id_purchase);
+
+        const allItems = await prisma.productItem.findMany({
+            where: {
+                id_purchase: {
+                    in: purchaseIds,
+                },
+            },
+            orderBy: {
+                createdAt: "asc",
+            },
+        });
+
+        /**
+         * @type {Record<number, ProductItemDocument[]>}
+         */
+        const allItemsKeyed = allItems.reduce((acc, item) => {
+            if (!acc[item.id_purchase]) {
+                acc[item.id_purchase] = [];
+            }
+            acc[item.id_purchase].push(item);
+
+            return acc;
+        }, {});
+
+        purchases = await Promise.all(
+            purchases.map(async (p) => {
+                let items = allItemsKeyed[p.id_purchase] || [];
+
+                items = await this.applyItemsProducts(items);
+                items = await this.applyItemsHighestBids(items);
+
+                p.items = items;
+
+                return p;
+            })
+        );
+
+        return purchases;
     }
 }

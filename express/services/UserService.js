@@ -154,4 +154,56 @@ export default class UserService {
 
         return { items, purchase };
     }
+
+    /**
+     *
+     * @param {UserDocument} user
+     */
+    static async getPopulatedUserPurchases(user) {
+        const purchases = await this.getUserPurchases(user);
+
+        return ProductService.applyPurchasesData(purchases);
+    }
+
+    /**
+     * @param {UserDocument} user
+     */
+    static async getUserPurchases(user) {
+        const prisma = getPrisma();
+
+        return prisma.purchase.findMany({
+            where: {
+                id_user: user.id,
+            },
+            include: {
+                user: true,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+        });
+    }
+
+    /**
+     *
+     * @param {UserDocument} user
+     * @param {number} id_item
+     */
+    static async getPopulatedUserPurchase(user, id_item) {
+        const prisma = getPrisma();
+
+        const purchase = await prisma.purchase.findUnique({
+            where: {
+                id_purchase: id_item,
+                id_user: user.id,
+            },
+            include: {
+                user: true,
+            },
+        });
+
+        const list = await ProductService.applyPurchasesData([purchase]);
+
+        return list[0];
+    }
 }

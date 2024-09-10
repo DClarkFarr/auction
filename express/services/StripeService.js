@@ -276,6 +276,7 @@ export default class StripeService {
                 let purchase = await tx.purchase.create({
                     data: {
                         id_user: user.id,
+                        totalAmount: amountRaw,
                     },
                 });
 
@@ -295,8 +296,6 @@ export default class StripeService {
                     off_session: true,
                     confirm: true,
                 };
-
-                console.log("payload was", payload);
 
                 const paymentIntent = await stripe.paymentIntents.create(
                     payload
