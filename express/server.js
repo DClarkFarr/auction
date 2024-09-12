@@ -47,13 +47,6 @@ createEnvironment({
                 setTimeout(() => {
                     console.log("scheduling cron");
 
-                    if (env("env") === "production") {
-                        queueService.add(async () => {
-                            console.log("syncing active products");
-                            const res = await CronService.syncActiveProducts();
-                            console.log("active products synced", res);
-                        });
-                    }
                     cron.schedule("0,30 * * * *", async () => {
                         queueService.add(async () => {
                             console.log("syncing active products");

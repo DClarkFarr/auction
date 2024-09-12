@@ -105,6 +105,10 @@ export default class CronService {
                                      */
                                     let result;
                                     if (highestBid) {
+                                        console.log(
+                                            "item.expiredAt was",
+                                            item.expiredAt
+                                        );
                                         result =
                                             await ProductService.publishProductItemStatus(
                                                 product,
@@ -114,7 +118,7 @@ export default class CronService {
                                                     expiredAt: new Date(),
                                                     rejectsAt:
                                                         DateTime.fromJSDate(
-                                                            item.expiredAt
+                                                            item.expiresAt
                                                         )
                                                             .plus({ day: 1 })
                                                             .toJSDate(),

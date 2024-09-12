@@ -240,18 +240,24 @@ export default class ProductService {
                 product,
                 Math.min(toCancel.length, maxUpdateable)
             );
+
             await this.cancelActiveProductItems(product);
         }
 
         return toCancel;
     }
 
+    /**
+     *
+     * @param {ProductDocument} product
+     */
     static async cancelActiveProductItems(product) {
         const productItemModel = new ProductItemModel();
 
         return productItemModel.table.updateMany({
             where: {
                 id_product: product.id_product,
+                status: "active",
             },
             data: {
                 status: "canceled",

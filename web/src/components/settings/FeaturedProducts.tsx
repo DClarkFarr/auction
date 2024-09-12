@@ -164,7 +164,7 @@ function ManageFeaturedProducts() {
                         <Alert color="info">No Featured Products yet.</Alert>
                     </>
                 )}
-                {featuredProducts.length && (
+                {featuredProducts.length > 0 && (
                     <div className="flex justify-end">
                         <ToggleSwitch
                             checked={reorder}

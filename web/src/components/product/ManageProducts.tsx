@@ -19,7 +19,7 @@ import InventoryIcon from "~icons/ic/baseline-production-quantity-limits";
 type ProductTabs = "active" | "archived" | "sold";
 
 const statusMap: Record<ProductTabs, ProductStatus[]> = {
-    active: ["active", "inactive", "sold"],
+    active: ["active", "inactive"],
     archived: ["archived"],
     sold: ["sold"],
 };
@@ -191,6 +191,7 @@ function ProductActions({
                     </Tooltip>
                 )}
             </div>
+            <div>|</div>
             <div>
                 <ProductStatusButtons
                     minify
