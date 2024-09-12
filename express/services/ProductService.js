@@ -355,6 +355,9 @@ export default class ProductService {
         if (adjusted < 0) {
             throw new Error("Remaining quantity was below 0");
         }
+
+        product.remainingQuantity = adjusted;
+
         await productModel.update(product.id_product, {
             remainingQuantity: adjusted,
         });
