@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Label, Popover, TextInput, TextInputProps } from "flowbite-react";
-import { FormEvent, ReactNode } from "react";
+import React, { FormEvent, ReactNode } from "react";
 import QuestionIcon from "~icons/ic/baseline-contact-support";
 
 type BaseInputProps = {
@@ -28,86 +28,102 @@ type BaseInputProps = {
     }>;
 };
 
-type InputProps = TextInputProps & BaseInputProps;
+type AsProps<T> = T extends React.ComponentType<infer P> ? P : never;
 
-type QuickInputProps<Component extends (props: InputProps) => ReactNode> =
-    Record<string, any> &
-        InputProps & {
-            as?: Component | ((props: InputProps) => ReactNode);
-        };
+type AsRef<T> = T extends React.ForwardRefExoticComponent<
+    object & React.RefAttributes<infer R>
+>
+    ? R
+    : T extends React.LegacyRef<infer RR>
+    ? RR
+    : never;
 
-export default function QuickInput<
-    Component extends (props: InputProps) => ReactNode
->({
-    as,
-    isSubmitting,
-    name,
-    disabled,
-    placeholder,
-    field,
-    attrs,
-    label,
-    tooltip,
-    type = "text",
-    showInitialError = true,
-    ...rest
-}: QuickInputProps<Component>) {
-    const Component = (as || TextInput) as typeof TextInput;
+type QuickInputProps<C extends React.ComponentType<any>> = BaseInputProps &
+    AsProps<C> & {
+        as?: C;
+    };
 
-    const content = (
-        <div className="p-4 max-w-[250px] text-center bg-gray-800 text-white text-xs">
-            {tooltip || ""}
-        </div>
-    );
-    return (
-        <div>
-            {label && (
-                <div className="mb-2 block">
-                    {typeof label === "string" ? (
-                        <div className="flex gap-x-2">
-                            <Label htmlFor={name} value={label} />
-                            {tooltip && (
-                                <Popover
-                                    theme={{
-                                        arrow: {
-                                            base: "absolute h-2 w-2 z-0 rotate-45 bg-gray-600 border border-gray-800 bg-gray-800",
-                                        },
-                                    }}
-                                    placement="top"
-                                    trigger="hover"
-                                    content={content}
-                                >
-                                    <div>
-                                        <QuestionIcon className="text-gray-500" />
-                                    </div>
-                                </Popover>
-                            )}
-                        </div>
-                    ) : (
-                        label
-                    )}
-                </div>
-            )}
+const QuickInput = React.forwardRef(
+    <C extends React.ComponentType<any>>(
+        {
+            as,
+            isSubmitting,
+            name,
+            disabled,
+            placeholder,
+            field,
+            attrs,
+            label,
+            tooltip,
+            type = "text",
+            showInitialError = true,
+            ...rest
+        }: QuickInputProps<C>,
+        ref: React.Ref<AsRef<C>>
+    ) => {
+        const Component = as || TextInput;
 
-            <Component
-                id={name}
-                name={name}
-                type={type}
-                placeholder={placeholder}
-                disabled={isSubmitting || disabled}
-                color={
-                    ((!field.focus && field.dirty) || showInitialError) &&
-                    !field.valid
-                        ? "failure"
-                        : undefined
-                }
-                value={field.value}
-                helperText={
-                    !field.focus && field.dirty && !field.valid && field.error
-                }
-                {...attrs}
-                {...rest}
-            />
-        </div>
-    );
-}
+        const content = (
+            <div className="p-4 max-w-[250px] text-center bg-gray-800 text-white text-xs">
+                {tooltip || ""}
+            </div>
+        );
+        return (
+            <div>
+                {label && (
+                    <div className="mb-2 block">
+                        {typeof label === "string" ? (
+                            <div className="flex gap-x-2">
+                                <Label htmlFor={name} value={label} />
+                                {tooltip && (
+                                    <Popover
+                                        theme={{
+                                            arrow: {
+                                                base: "absolute h-2 w-2 z-0 rotate-45 bg-gray-600 border border-gray-800 bg-gray-800",
+                                            },
+                                        }}
+                                        placement="top"
+                                        trigger="hover"
+                                        content={content}
+                                    >
+                                        <div>
+                                            <QuestionIcon className="text-gray-500" />
+                                        </div>
+                                    </Popover>
+                                )}
+                            </div>
+                        ) : (
+                            label
+                        )}
+                    </div>
+                )}
+
+                <Component
+                    id={name}
+                    name={name}
+                    type={type}
+                    ref={ref}
+                    placeholder={placeholder}
+                    disabled={isSubmitting || disabled}
+                    color={
+                        ((!field.focus && field.dirty) || showInitialError) &&
+                        !field.valid
+                            ? "failure"
+                            : undefined
+                    }
+                    value={field.value}
+                    helperText={
+                        !field.focus &&
+                        field.dirty &&
+                        !field.valid &&
+                        field.error
+                    }
+                    {...attrs}
+                    {...rest}
+                />
+            </div>
+        );
+    }
+);
+
+export default QuickInput;
