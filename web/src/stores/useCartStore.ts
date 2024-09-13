@@ -57,6 +57,7 @@ export function useCartStore() {
     const { winningItems } = useWinningItemsQuery();
 
     const onPurchaseModalRef = React.useRef(() => {
+        purchaseModal.close();
         if (selectedProducts.length) {
             setShowCart(true);
         }

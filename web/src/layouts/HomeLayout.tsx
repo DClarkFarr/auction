@@ -125,8 +125,11 @@ export default function HomeLayout({
     const { state: signupState } = useSignupModal();
     const { state: cardState } = useCardModal();
     const { state: bidState } = useBidModal();
-    const { state: purchaseState, open: openPurchaseModal } =
-        usePurchaseModal();
+    const {
+        state: purchaseState,
+        open: openPurchaseModal,
+        close: closePurchaseModal,
+    } = usePurchaseModal();
 
     const onClickCheckout = async () => {
         setShowCart(false);
@@ -138,6 +141,7 @@ export default function HomeLayout({
     };
 
     const handleCheckoutSuccess = ({ purchase }: { purchase: Purchase }) => {
+        closePurchaseModal();
         navigate(`/account/purchases/${purchase.id_purchase}`);
     };
 

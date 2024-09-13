@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { DateTime } from "luxon";
 import { formatCurrency } from "../../utils/currency";
 
-export default function TransactionDetails({
+export default function PurchaseDetails({
     purchase,
     isLoading,
     error,
@@ -14,7 +14,7 @@ export default function TransactionDetails({
     error?: Error | null;
 }) {
     return (
-        <div className="container">
+        <div className="container  mb-[80px]">
             <Breadcrumb aria-label="Default breadcrumb example">
                 <Breadcrumb.Item>
                     <Link
@@ -89,25 +89,26 @@ export default function TransactionDetails({
                     </div>
 
                     <h3 className="text-xl font-semibold mt-4 mb-2">Items</h3>
-                    <ul>
-                        {purchase.items.map((item, i) => {
-                            const bg = i % 2 === 0 ? "bg-gray-200" : "bg-white";
-                            return (
-                                <table className="table table-striped w-full">
-                                    <thead>
-                                        <tr>
-                                            <th className="pb-2 text-left">
-                                                Product
-                                            </th>
-                                            <th className="pl-4 pb-2 text-center">
-                                                Quantity
-                                            </th>
-                                            <th className="pl-4 pb-2 text-left text-right">
-                                                Amount
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                    <div>
+                        <table className="table table-striped w-full">
+                            <thead>
+                                <tr>
+                                    <th className="pb-2 text-left">Product</th>
+                                    <th className="pl-4 pb-2 text-center">
+                                        Quantity
+                                    </th>
+                                    <th className="pl-4 pb-2 text-left text-right">
+                                        Amount
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {purchase.items.map((item, i) => {
+                                    const bg =
+                                        i % 2 === 0
+                                            ? "bg-gray-200"
+                                            : "bg-white";
+                                    return (
                                         <tr key={item.id_item}>
                                             <td className={`${bg} pl-4 py-2 `}>
                                                 {item.product.name}
@@ -125,11 +126,11 @@ export default function TransactionDetails({
                                                 )}
                                             </td>
                                         </tr>
-                                    </tbody>
-                                </table>
-                            );
-                        })}
-                    </ul>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                     <hr className="mt-4 border-b border-b-gray-700" />
                     <div className="flex justify-between items-center">
                         <div className="text-lg font-semibold mt-4">Total</div>

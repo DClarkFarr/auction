@@ -78,7 +78,7 @@ export default function ClaimPurchaseModal({
                         <tr className="font-semibold text-left">
                             <th>Description</th>
                             <th>Quantity</th>
-                            <th>Unit Price</th>
+                            <th className="text-center">Unit Price</th>
                             <th className="text-right">Total</th>
                         </tr>
                     </thead>
