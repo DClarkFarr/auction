@@ -1,88 +1,30 @@
 import { Tabs } from "flowbite-react";
 import ProductsSection from "../../components/product/ProductsSection";
 import UserService from "../../services/UserService";
-import React from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { PaginatedProductParams } from "../../services/SiteService";
 import { FullProductItem } from "../../types/Product";
-import MiniCartPopover from "../../components/checkout/MiniCartPopover";
-import ClaimPurchaseModal from "../../components/modal/ClaimPurchaseModal";
-import { useModal } from "../../hooks/useModal";
-import { Purchase } from "../../types/Purchase";
+import { useCartStore } from "../../stores/useCartStore";
 
 export default function AccountBids() {
     const [search, setSearch] = useSearchParams();
 
-    const [selectedProducts, setSelectedProducts] = React.useState<
-        FullProductItem[]
-    >([]);
-
-    const [showCart, setShowCart] = React.useState(false);
-
-    const navigate = useNavigate();
-
     const view = search.get("view") || "winning";
+
+    const { toggleSelectedProduct, itemIsSelected } = useCartStore();
 
     const setView = (view: "winning" | "all") => {
         setSearch({ view });
     };
 
-    const purchaseModal = useModal({
-        show: false,
-        onClose: () => {
-            if (selectedProducts.length) {
-                setShowCart(true);
-            }
-        },
-    });
-
     const options = ["winning", "all"] as const;
 
     const onClickClaim = (p: FullProductItem) => {
-        const found =
-            selectedProducts.findIndex((pi) => pi.id_item === p.id_item) > -1;
-
-        if (found) {
-            setSelectedProducts((prev) =>
-                prev.filter((pi) => pi.id_item !== p.id_item)
-            );
-            if (selectedProducts.length <= 1) {
-                setShowCart(false);
-            }
-        } else {
-            setSelectedProducts((prev) => [...prev, p]);
-            setShowCart(true);
-        }
-    };
-
-    const selectedItemIds = React.useMemo(() => {
-        return selectedProducts.map((pi) => pi.id_item);
-    }, [selectedProducts]);
-
-    const onClickCheckout = async () => {
-        setShowCart(false);
-        purchaseModal.open();
-    };
-
-    const onToggleShow = (show: boolean) => {
-        setShowCart(show);
-    };
-
-    const handleCheckoutSuccess = ({ purchase }: { purchase: Purchase }) => {
-        navigate(`/account/purchases/${purchase.id_purchase}`);
+        toggleSelectedProduct(p);
     };
 
     return (
         <div className="account-profile">
-            <MiniCartPopover
-                top={40}
-                right={10}
-                show={showCart}
-                items={selectedProducts}
-                onClickCheckout={onClickCheckout}
-                onClickShow={onToggleShow}
-            />
-
             <div className="container">
                 <h1 className="text-2xl font-bold mb-10">My Bids</h1>
 
@@ -116,7 +58,7 @@ export default function AccountBids() {
                                             <ProductsSection.HistoryItem
                                                 {...props}
                                                 onClickClaim={onClickClaim}
-                                                isSelected={selectedItemIds.includes(
+                                                isSelected={itemIsSelected(
                                                     props.product.id_item
                                                 )}
                                             />
@@ -124,7 +66,7 @@ export default function AccountBids() {
                                             <ProductsSection.Item
                                                 {...props}
                                                 onClickClaim={onClickClaim}
-                                                isSelected={selectedItemIds.includes(
+                                                isSelected={itemIsSelected(
                                                     props.product.id_item
                                                 )}
                                             />
@@ -137,12 +79,6 @@ export default function AccountBids() {
                     </div>
                 </ProductsSection>
             </div>
-
-            <ClaimPurchaseModal
-                items={selectedProducts}
-                onCheckoutSuccess={handleCheckoutSuccess}
-                {...purchaseModal.state}
-            />
         </div>
     );
 }

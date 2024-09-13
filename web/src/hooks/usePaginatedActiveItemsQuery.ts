@@ -53,11 +53,17 @@ export default function usePaginatedActiveItemsQuery(
                     locationKey,
                     nextPageParams
                 ),
-                queryFn: () =>
-                    SiteService.getPaginatedActiveItems(nextPageParams),
+                queryFn: () => method(nextPageParams),
             });
         }
-    }, [pagination, isPlaceholderData, params, queryClient]);
+    }, [
+        pagination,
+        isPlaceholderData,
+        params,
+        queryClient,
+        locationKey,
+        method,
+    ]);
 
     return {
         isSuccess,

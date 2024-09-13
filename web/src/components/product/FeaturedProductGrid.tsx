@@ -28,24 +28,19 @@ export default function FeaturedProductGrid({
 
     React.useEffect(() => {
         handleProductUpdate.current = (product: FullProductItem) => {
-            if (product.bid?.id_user !== user?.id) {
-                const userBid = getBid(product.id_item);
+            const userBid = getBid(product.id_item);
 
-                updateFeaturedProduct(product, (oldProduct) => {
-                    if (product.bid?.id_user !== user?.id) {
-                        if (
-                            userBid &&
-                            userBid.id_bid === oldProduct.bid?.id_bid
-                        ) {
-                            addEvent(product.id_item, "outbid");
-                        } else {
-                            addEvent(product.id_item, "bid", 2000);
-                        }
+            updateFeaturedProduct(product, (oldProduct) => {
+                if (product.bid?.id_user !== user?.id) {
+                    if (userBid && userBid.id_bid === oldProduct.bid?.id_bid) {
+                        addEvent(product.id_item, "outbid");
+                    } else {
+                        addEvent(product.id_item, "bid", 2000);
                     }
+                }
 
-                    return product;
-                });
-            }
+                return product;
+            });
         };
     }, [getBid]);
 

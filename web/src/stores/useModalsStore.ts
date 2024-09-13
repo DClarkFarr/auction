@@ -13,7 +13,7 @@ export type ModalState = {
     theme?: ModalProps["theme"];
     initialFocus?: ModalProps["initialFocus"];
 };
-export type RegisteredModals = "login" | "signup" | "card" | "bid";
+export type RegisteredModals = "login" | "signup" | "card" | "bid" | "purchase";
 export type CloseIntentCallback = () => void;
 export type CloseIntentScope = RegisteredModals;
 export type CloseIntentProps = {
@@ -134,6 +134,7 @@ const useModalsStore = create<UseModalsStore>((set, get) => {
         signup: makeRegisteredModal("signup"),
         card: makeRegisteredModal("card"),
         bid: makeRegisteredModal("bid"),
+        purchase: makeRegisteredModal("purchase"),
         intents: [],
         addIntent,
         invokeIntents,
@@ -175,6 +176,15 @@ export const useBidModal = () => {
         useShallow((state) => ({
             state: state.bid.state,
             ...state.bid.actions,
+        }))
+    );
+};
+
+export const usePurchaseModal = () => {
+    return useModalsStore(
+        useShallow((state) => ({
+            state: state.purchase.state,
+            ...state.purchase.actions,
         }))
     );
 };

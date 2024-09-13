@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import useUserStore, { useWatchUserSession } from "../stores/useUserStore";
 import HomeHeader from "./header/HomeHeader";
 import HomeFooter from "./footer/HomeFooter";
@@ -11,6 +11,7 @@ import {
     useLoginModal,
     useSignupModal,
     useBidModal,
+    usePurchaseModal,
 } from "../stores/useModalsStore";
 import ProductBidModal from "../components/modal/ProductBidModal";
 import useSocket from "../hooks/useSocket";
@@ -19,6 +20,10 @@ import { PaginatedResults } from "../types/Paginate";
 import { FullProductItem } from "../types/Product";
 import useUserBid from "../hooks/useUserBid";
 import useProductsEventsStore from "../stores/useProductsEventStore";
+import ClaimPurchaseModal from "../components/modal/ClaimPurchaseModal";
+import MiniCartPopover from "../components/checkout/MiniCartPopover";
+import { useCartStore } from "../stores/useCartStore";
+import { Purchase } from "../types/Purchase";
 
 export default function HomeLayout({
     children,
@@ -37,7 +42,11 @@ export default function HomeLayout({
         loadUserBids,
     } = useUserStore();
 
+    const { selectedProducts, showCart, setShowCart } = useCartStore();
+
     const queryClient = useQueryClient();
+
+    const navigate = useNavigate();
 
     const { getBid } = useUserBid();
 
@@ -116,6 +125,21 @@ export default function HomeLayout({
     const { state: signupState } = useSignupModal();
     const { state: cardState } = useCardModal();
     const { state: bidState } = useBidModal();
+    const { state: purchaseState, open: openPurchaseModal } =
+        usePurchaseModal();
+
+    const onClickCheckout = async () => {
+        setShowCart(false);
+        openPurchaseModal();
+    };
+
+    const onToggleShow = (show: boolean) => {
+        setShowCart(show);
+    };
+
+    const handleCheckoutSuccess = ({ purchase }: { purchase: Purchase }) => {
+        navigate(`/account/purchases/${purchase.id_purchase}`);
+    };
 
     return (
         <>
@@ -123,7 +147,17 @@ export default function HomeLayout({
                 <header className="layout__header mb-4 border-b-2 border-gray-300">
                     <HomeHeader />
                 </header>
-                <main className="layout__main">{body}</main>
+                <main className="layout__main">
+                    <MiniCartPopover
+                        top={40}
+                        right={10}
+                        show={showCart}
+                        items={selectedProducts}
+                        onClickCheckout={onClickCheckout}
+                        onClickShow={onToggleShow}
+                    />
+                    {body}
+                </main>
                 <footer>
                     <HomeFooter />
                 </footer>
@@ -133,6 +167,11 @@ export default function HomeLayout({
                 <SignupFormModal {...signupState} />
                 <PaymentMethodModal {...cardState} />
                 <ProductBidModal {...bidState} />
+                <ClaimPurchaseModal
+                    items={selectedProducts}
+                    onCheckoutSuccess={handleCheckoutSuccess}
+                    {...purchaseState}
+                />
             </div>
         </>
     );
