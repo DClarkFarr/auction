@@ -76,8 +76,6 @@ export default function HomeLayout({
         handleProductUpdate.current = (product: FullProductItem) => {
             const userBid = getBid(product.id_item);
 
-            let hasUpdated = false;
-
             if (product.bid?.id_user !== user?.id) {
                 queryClient.setQueriesData<PaginatedResults<FullProductItem>>(
                     {
@@ -93,7 +91,7 @@ export default function HomeLayout({
                             (p) => p.id_item === product.id_item
                         );
 
-                        if (found && !hasUpdated) {
+                        if (found) {
                             if (product.bid?.id_user !== user?.id) {
                                 if (
                                     userBid &&
@@ -103,7 +101,6 @@ export default function HomeLayout({
                                 } else {
                                     addEvent(product.id_item, "bid", 2000);
                                 }
-                                hasUpdated = true;
                             }
                         }
 

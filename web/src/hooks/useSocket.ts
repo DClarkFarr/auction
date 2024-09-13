@@ -10,14 +10,16 @@ export default function useSocket(
     onUpdate: React.RefObject<((product: FullProductItem) => void) | null>
 ) {
     React.useEffect(() => {
-        socket.on("update", function (p: FullProductItem) {
+        const method = function (p: FullProductItem) {
             if (onUpdate.current) {
                 onUpdate.current(p);
             }
-        });
+        };
+
+        socket.on("update", method);
 
         return () => {
-            socket.off("update");
+            socket.off("update", method);
         };
     }, []);
 }
