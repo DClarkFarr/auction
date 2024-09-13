@@ -2,7 +2,11 @@ import React from "react";
 import useFeaturedProducts from "../../hooks/useFeaturedProducts";
 import { FullProductItem } from "../../types/Product";
 import ProductCard from "./ProductCard";
-import useFavorite from "../../hooks/useFavorite";
+import useProductItemIntegration from "../../hooks/useProductItemIntegration";
+import useUserBid from "../../hooks/useUserBid";
+import useUserStore from "../../stores/useUserStore";
+import useSocket from "../../hooks/useSocket";
+import useProductsEventsStore from "../../stores/useProductsEventStore";
 
 export type FeaturedProductsGridProps = {
     maxCols?: number;
@@ -10,20 +14,42 @@ export type FeaturedProductsGridProps = {
 export default function FeaturedProductGrid({
     maxCols = 3,
 }: FeaturedProductsGridProps) {
-    const { featuredProducts } = useFeaturedProducts();
+    const { featuredProducts, updateFeaturedProduct } = useFeaturedProducts();
 
-    const { addFavorite, removeFavorite, itemIsFavorite } = useFavorite();
+    const { user } = useUserStore();
 
-    const toggleFavorite = React.useCallback(
-        async (id_item: number) => {
-            if (itemIsFavorite(id_item)) {
-                await removeFavorite(id_item);
-            } else {
-                await addFavorite(id_item);
+    const handleProductUpdate = React.useRef<
+        ((p: FullProductItem) => void) | null
+    >(null);
+
+    const { getBid } = useUserBid();
+
+    const { addEvent } = useProductsEventsStore();
+
+    React.useEffect(() => {
+        handleProductUpdate.current = (product: FullProductItem) => {
+            if (product.bid?.id_user !== user?.id) {
+                const userBid = getBid(product.id_item);
+
+                updateFeaturedProduct(product, (oldProduct) => {
+                    if (product.bid?.id_user !== user?.id) {
+                        if (
+                            userBid &&
+                            userBid.id_bid === oldProduct.bid?.id_bid
+                        ) {
+                            addEvent(product.id_item, "outbid");
+                        } else {
+                            addEvent(product.id_item, "bid", 2000);
+                        }
+                    }
+
+                    return product;
+                });
             }
-        },
-        [itemIsFavorite, addFavorite, removeFavorite]
-    );
+        };
+    }, [getBid]);
+
+    useSocket(handleProductUpdate);
 
     const items: FullProductItem[] = React.useMemo(() => {
         return featuredProducts
@@ -43,29 +69,40 @@ export default function FeaturedProductGrid({
 
                 return item;
             });
-    }, [featuredProducts]);
+    }, [featuredProducts, maxCols]);
 
     if (!featuredProducts) {
         return null;
     }
 
-    const onClickBid = (p: FullProductItem) => {
-        console.log("fp clicked", p.product.name);
-    };
-
     return (
         <div className="featured-products-grid grid gap-4 justify-center">
             {items.map((item, i) => {
-                return (
-                    <ProductCard
-                        key={item.id_item + "-" + i}
-                        product={item}
-                        onToggleFavorite={toggleFavorite}
-                        isFavorite={itemIsFavorite(item.id_item)}
-                        onClickBid={onClickBid}
-                    />
-                );
+                return <FeaturedProductWrapper key={i} product={item} />;
             })}
         </div>
+    );
+}
+
+function FeaturedProductWrapper({ product }: { product: FullProductItem }) {
+    const {
+        userBid,
+        isFavorite,
+        userBidStatus,
+        onClickBid,
+        onClickClaim,
+        toggleFavorite,
+    } = useProductItemIntegration(product);
+
+    return (
+        <ProductCard
+            product={product}
+            onToggleFavorite={toggleFavorite}
+            isFavorite={isFavorite}
+            onClickBid={onClickBid}
+            onClickClaim={onClickClaim}
+            userBid={userBid}
+            userBidStatus={userBidStatus}
+        />
     );
 }
