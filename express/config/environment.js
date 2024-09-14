@@ -20,7 +20,10 @@ const data = {
     },
     endpoint: {
         production: {
-            web: "http://auction.danielsjunk.com",
+            web: "https://auction.danielsjunk.com",
+        },
+        staging: {
+            web: "https://auction.danielsjunk.com",
         },
         development: {
             web: "http://localhost:5173",
