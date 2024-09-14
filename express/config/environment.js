@@ -13,6 +13,7 @@ const data = {
         "http://localhost:4000",
         "http://localhost:5173",
         "http://auction.danielsjunk.com",
+        "http://18.208.204.8",
     ],
     session: {
         secret: "put something here",
