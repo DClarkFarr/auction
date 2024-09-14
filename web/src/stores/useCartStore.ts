@@ -57,6 +57,8 @@ export function useCartStore() {
     const purchaseModal = usePurchaseModal();
     const { selectedProducts, setShowCart, ...rest } = useCartStoreState();
 
+    const { user } = useUserStore();
+
     const onPurchaseModalRef = React.useRef(() => {
         purchaseModal.close();
         if (selectedProducts.length) {
@@ -80,6 +82,13 @@ export function useCartStore() {
         });
     }, []);
 
+    React.useEffect(() => {
+        if (!user) {
+            setShowCart(false);
+            rest.setSelectedProducts([]);
+        }
+    }, [user]);
+
     return {
         selectedItemIds,
         selectedProducts,
@@ -91,7 +100,7 @@ export function useCartStore() {
 
 export function useActiveItems() {
     const { user } = useUserStore();
-    const { activeItems } = useBiddingItemsQuery();
+    const { activeItems, refresh } = useBiddingItemsQuery();
 
     const [itemsByType, setItemsByType] = React.useState<{
         winningItems: FullProductItem[];
@@ -158,6 +167,10 @@ export function useActiveItems() {
             clearInterval(id);
         };
     }, [calculateItemStatus]);
+
+    React.useEffect(() => {
+        refresh();
+    }, [user]);
 
     return { ...itemsByType };
 }

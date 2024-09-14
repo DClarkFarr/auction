@@ -1,13 +1,19 @@
-import { Popover } from "flowbite-react";
+import { Popover, TooltipProps } from "flowbite-react";
 import { PropsWithChildren, ReactNode } from "react";
 
 export default function BigTextTooltip({
     content,
     children,
-}: PropsWithChildren<{ content: ReactNode }>) {
+    placement = "auto",
+    className,
+}: PropsWithChildren<{
+    content: ReactNode;
+    placement?: TooltipProps["placement"];
+    className?: string;
+}>) {
     return (
         <Popover
-            placement="top"
+            placement={placement}
             trigger="hover"
             theme={{
                 arrow: {
@@ -15,7 +21,9 @@ export default function BigTextTooltip({
                 },
             }}
             content={
-                <div className="p-4 max-w-[250px] text-center bg-gray-800 text-white text-xs">
+                <div
+                    className={`p-4 max-w-[250px] text-center bg-gray-800 text-white text-xs ${className}`}
+                >
                     {content}
                 </div>
             }

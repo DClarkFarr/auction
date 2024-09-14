@@ -69,7 +69,7 @@ export default function HomeHeader() {
     return (
         <div className="container">
             <div className="-mx-2 sm:-mx-6">
-                <Navbar className="relative z-[70]">
+                <Navbar className="relative z-[70] lg:[z-40]">
                     <Navbar.Brand as={Link} to={homeRoutes.home.to}>
                         <img
                             src="https://placehold.co/150x80"

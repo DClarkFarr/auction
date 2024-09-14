@@ -1,4 +1,4 @@
-import { Button, Tooltip } from "flowbite-react";
+import { Button, TooltipProps } from "flowbite-react";
 import MiniCart, { MiniCartProps } from "./MiniCart";
 import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "~icons/ic/baseline-arrow-forward";
@@ -7,6 +7,7 @@ import OutbidIcon from "~icons/ic/outline-warning";
 import WonIcon from "~icons/heroicons/trophy-16-solid";
 import WinningIcon from "~icons/ic/baseline-attach-money";
 import React from "react";
+import BigTextTooltip from "../controls/BigTextTooltip";
 
 export type MiniCartPopover = MiniCartProps & {
     top: number;
@@ -43,6 +44,8 @@ export default function MiniCartPopover({
     const maxTop = 60;
 
     const [topAdjustment, setTopAdjustment] = React.useState(0);
+    const [tooltipPlacement] =
+        React.useState<TooltipProps["placement"]>("bottom");
 
     React.useEffect(() => {
         const handler = () => {
@@ -99,6 +102,7 @@ export default function MiniCartPopover({
                     >
                         <div className="flex gap-2 items-center">
                             <CartButtonItem
+                                tooltipPlacement={tooltipPlacement}
                                 show={!isAllPage}
                                 icon={OutbidIcon}
                                 count={numOutbidItems}
@@ -108,12 +112,14 @@ export default function MiniCartPopover({
                             />
 
                             <CartButtonItem
+                                tooltipPlacement={tooltipPlacement}
                                 icon={CartIcon}
                                 count={items.length}
                                 tooltip="# Cart Items"
                                 onClick={() => onClickShow("cart")}
                             />
                             <CartButtonItem
+                                tooltipPlacement={tooltipPlacement}
                                 show={!isWinningPage}
                                 icon={WinningIcon}
                                 count={numWinningItems}
@@ -122,6 +128,7 @@ export default function MiniCartPopover({
                                 onClick={() => onClickShow("winning")}
                             />
                             <CartButtonItem
+                                tooltipPlacement={tooltipPlacement}
                                 show={!isWinningPage}
                                 icon={WonIcon}
                                 count={numWonItems}
@@ -138,6 +145,7 @@ export default function MiniCartPopover({
 }
 
 function CartButtonItem({
+    tooltipPlacement,
     tooltip,
     icon: Icon,
     count,
@@ -145,6 +153,7 @@ function CartButtonItem({
     badgeColor = "bg-gray-600",
     onClick,
 }: {
+    tooltipPlacement: TooltipProps["placement"];
     icon: (props: React.SVGProps<SVGSVGElement>) => React.ReactElement;
     onClick: () => void;
     tooltip: string;
@@ -152,11 +161,14 @@ function CartButtonItem({
     show?: boolean;
     badgeColor?: string;
 }) {
-    console.log("tooltip", tooltip, count, "and", show);
     return (
-        <div>
+        <>
             {count > 0 && show && (
-                <Tooltip content={tooltip}>
+                <BigTextTooltip
+                    className="text-center"
+                    placement={tooltipPlacement}
+                    content={tooltip}
+                >
                     <Button
                         size="sm"
                         color="light"
@@ -174,8 +186,8 @@ function CartButtonItem({
                             </div>
                         </div>
                     </Button>
-                </Tooltip>
+                </BigTextTooltip>
             )}
-        </div>
+        </>
     );
 }
