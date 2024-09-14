@@ -40,9 +40,9 @@ class App {
         this.io = new createSocket(this.server);
 
         this.io.of("bid").on("connection", (socket) => {
-            console.log("a user connected");
+            // console.log("a user connected");
             socket.on("disconnect", () => {
-                console.log("user disconnected");
+                // console.log("user disconnected");
             });
         });
     }

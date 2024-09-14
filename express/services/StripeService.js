@@ -328,8 +328,6 @@ export default class StripeService {
                 return purchase;
             });
 
-            console.log("result was", result);
-
             return result;
         } catch (err) {
             console.warn("Caught error charging stripe", err);
