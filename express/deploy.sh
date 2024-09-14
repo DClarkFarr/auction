@@ -14,4 +14,4 @@ cd ../express
 npm install
 
 forever stopall
-forever start server.js
+forever start forever.json
