@@ -69,7 +69,7 @@ export default function HomeHeader() {
     return (
         <div className="container">
             <div className="-mx-2 sm:-mx-6">
-                <Navbar>
+                <Navbar className="relative z-[70]">
                     <Navbar.Brand as={Link} to={homeRoutes.home.to}>
                         <img
                             src="https://placehold.co/150x80"
@@ -81,9 +81,12 @@ export default function HomeHeader() {
                         </span>
                     </Navbar.Brand>
                     <div className="ml-auto"></div>
-                    <div className="flex md:order-2">
+                    <div className="flex gap-x-2 md:order-2">
+                        <Navbar.Toggle />
+
                         {user && (
                             <Dropdown
+                                className="z-[70]"
                                 arrowIcon={false}
                                 inline
                                 label={
@@ -105,20 +108,31 @@ export default function HomeHeader() {
                                 {user.role === "admin" && (
                                     <>
                                         <Dropdown.Item>
-                                            <Link to="/admin">Dashboard</Link>
+                                            <Link className="block" to="/admin">
+                                                Dashboard
+                                            </Link>
                                         </Dropdown.Item>
                                         <Dropdown.Item>
-                                            <Link to="/admin/products">
+                                            <Link
+                                                className="block"
+                                                to="/admin/products"
+                                            >
                                                 Manage Products
                                             </Link>
                                         </Dropdown.Item>
                                         <Dropdown.Item>
-                                            <Link to="/admin/settings">
+                                            <Link
+                                                className="block"
+                                                to="/admin/settings"
+                                            >
                                                 Site Settings
                                             </Link>
                                         </Dropdown.Item>
                                         <Dropdown.Item>
-                                            <Link to="/account/profile">
+                                            <Link
+                                                className="block"
+                                                to="/account/profile"
+                                            >
                                                 Profile Settings
                                             </Link>
                                         </Dropdown.Item>
@@ -127,22 +141,34 @@ export default function HomeHeader() {
                                 {user.role === "user" && (
                                     <>
                                         <Dropdown.Item>
-                                            <Link to="/account/profile">
+                                            <Link
+                                                className="block"
+                                                to="/account/profile"
+                                            >
                                                 Profile Settings
                                             </Link>
                                         </Dropdown.Item>
                                         <Dropdown.Item>
-                                            <Link to="/account/purchases">
+                                            <Link
+                                                className="block"
+                                                to="/account/purchases"
+                                            >
                                                 Purchase History
                                             </Link>
                                         </Dropdown.Item>
                                         <Dropdown.Item>
-                                            <Link to="/account/favorites">
+                                            <Link
+                                                className="block"
+                                                to="/account/favorites"
+                                            >
                                                 My Favorites
                                             </Link>
                                         </Dropdown.Item>
                                         <Dropdown.Item>
-                                            <Link to="/account/bids">
+                                            <Link
+                                                className="block"
+                                                to="/account/bids"
+                                            >
                                                 My Bids
                                             </Link>
                                         </Dropdown.Item>
@@ -154,27 +180,32 @@ export default function HomeHeader() {
                                 </Dropdown.Item>
                             </Dropdown>
                         )}
-
-                        <Navbar.Toggle />
                     </div>
                     <Navbar.Collapse className="md:mr-4">
                         <Navbar.Link
                             as="span"
                             active={activeRouteName === "home"}
                         >
-                            <Link to={homeRoutes.home.to}>Home</Link>
+                            <Link className="block" to={homeRoutes.home.to}>
+                                Home
+                            </Link>
                         </Navbar.Link>
                         <Navbar.Link
                             as="span"
                             active={activeRouteName === "shop"}
                         >
-                            <Link to={homeRoutes.shop.to}>Shop</Link>
+                            <Link className="block" to={homeRoutes.shop.to}>
+                                Shop
+                            </Link>
                         </Navbar.Link>
                         <Navbar.Link
                             as="span"
                             active={activeRouteName === "categories"}
                         >
-                            <Link to={homeRoutes.categories.to}>
+                            <Link
+                                className="block"
+                                to={homeRoutes.categories.to}
+                            >
                                 Categories
                             </Link>
                         </Navbar.Link>
@@ -185,13 +216,21 @@ export default function HomeHeader() {
                                     className="lg:ml-4"
                                     active={activeRouteName === "login"}
                                 >
-                                    <Link to={homeRoutes.login.to}>Log in</Link>
+                                    <Link
+                                        className="block"
+                                        to={homeRoutes.login.to}
+                                    >
+                                        Log in
+                                    </Link>
                                 </Navbar.Link>
                                 <Navbar.Link
                                     as="span"
                                     active={activeRouteName === "signup"}
                                 >
-                                    <Link to={homeRoutes.signUp.to}>
+                                    <Link
+                                        className="block"
+                                        to={homeRoutes.signUp.to}
+                                    >
                                         Sign up
                                     </Link>
                                 </Navbar.Link>

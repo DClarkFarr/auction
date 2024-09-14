@@ -49,7 +49,8 @@ export default function HomeLayout({
 
     const activeItems = useActiveItems();
 
-    const { selectedProducts, showCart, setShowCart } = useCartStore();
+    const { selectedProducts, showCart, setShowCart, setSelectedProducts } =
+        useCartStore();
 
     const queryClient = useQueryClient();
 
@@ -164,9 +165,18 @@ export default function HomeLayout({
     };
 
     const handleCheckoutSuccess = ({ purchase }: { purchase: Purchase }) => {
+        setSelectedProducts([]);
         closePurchaseModal();
+        setShowCart(false);
         navigate(`/account/purchases/${purchase.id_purchase}`);
     };
+
+    const isWinningPage =
+        location.pathname.startsWith("/account/bids") &&
+        search.get("view") === "winning";
+    const isAllPage =
+        location.pathname.startsWith("/account/bids") &&
+        search.get("view") === "all";
 
     return (
         <>
@@ -176,10 +186,12 @@ export default function HomeLayout({
                 </header>
                 <main className="layout__main">
                     <MiniCartPopover
+                        isWinningPage={isWinningPage}
+                        isAllPage={isAllPage}
                         numOutbidItems={activeItems.outbidItems.length}
                         numWinningItems={activeItems.winningItems.length}
                         numWonItems={activeItems.wonItems.length}
-                        top={50}
+                        top={10}
                         right={10}
                         items={selectedProducts}
                         show={showCart}

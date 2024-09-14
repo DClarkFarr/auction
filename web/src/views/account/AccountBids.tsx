@@ -1,13 +1,16 @@
-import { Tabs } from "flowbite-react";
+import { Tabs, TabsRef } from "flowbite-react";
 import ProductsSection from "../../components/product/ProductsSection";
 import UserService from "../../services/UserService";
 import { useSearchParams } from "react-router-dom";
 import { PaginatedProductParams } from "../../services/SiteService";
 import { FullProductItem } from "../../types/Product";
 import { useCartStore } from "../../stores/useCartStore";
+import React from "react";
 
 export default function AccountBids() {
     const [search, setSearch] = useSearchParams();
+
+    const tabsRef = React.useRef<TabsRef>(null);
 
     const view = search.get("view") || "winning";
 
@@ -23,21 +26,23 @@ export default function AccountBids() {
         toggleSelectedProduct(p);
     };
 
+    React.useEffect(() => {
+        tabsRef.current?.setActiveTab(view === "winning" ? 0 : 1);
+    }, [view]);
+
     return (
         <div className="account-profile">
             <div className="container">
                 <h1 className="text-2xl font-bold mb-10">My Bids</h1>
 
                 <Tabs
+                    ref={tabsRef}
                     aria-label="Pills"
                     variant="pills"
                     onActiveTabChange={(index) => setView(options[index])}
                 >
-                    <Tabs.Item
-                        active={view === "winning"}
-                        title="Winning Bids"
-                    />
-                    <Tabs.Item active={view === "all"} title="All Bids" />
+                    <Tabs.Item title="Winning Bids" />
+                    <Tabs.Item title="All Bids" />
                 </Tabs>
 
                 <ProductsSection

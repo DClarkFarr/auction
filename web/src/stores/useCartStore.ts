@@ -152,6 +152,8 @@ export function useActiveItems() {
             calculateItemStatus();
         }, 1000);
 
+        calculateItemStatus();
+
         return () => {
             clearInterval(id);
         };
