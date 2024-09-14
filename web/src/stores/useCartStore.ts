@@ -103,7 +103,7 @@ export function useActiveItems() {
         outbidItems: [],
     });
 
-    const calculateItemStatusRef = React.useRef(() => {
+    const calculateItemStatus = React.useCallback(() => {
         const now = DateTime.now();
         const toReturn: Record<
             "winningItems" | "wonItems" | "outbidItems",
@@ -127,6 +127,7 @@ export function useActiveItems() {
                 if (item.bid?.id_user === user?.id) {
                     toReturn.winningItems.push(item);
                 } else {
+                    console.log("outbid item", item, "vs", user?.id);
                     toReturn.outbidItems.push(item);
                 }
             }
@@ -138,29 +139,24 @@ export function useActiveItems() {
             }, {});
         };
 
-        console.log(
-            "checking items by type",
-            getTotals(toReturn),
-            "vs",
-            getTotals(itemsByType),
-            "=",
-            isEqual(getTotals(toReturn), getTotals(itemsByType))
-        );
-        if (!isEqual(getTotals(toReturn), getTotals(itemsByType))) {
-            console.log("setting items by type");
-            setItemsByType(toReturn);
-        }
-    });
+        setItemsByType((prev) => {
+            if (!isEqual(getTotals(toReturn), getTotals(prev))) {
+                return toReturn;
+            }
+
+            return prev;
+        });
+    }, [activeItems, user]);
 
     React.useEffect(() => {
         const id = setInterval(() => {
-            calculateItemStatusRef.current();
+            calculateItemStatus();
         }, 1000);
 
         return () => {
             clearInterval(id);
         };
-    }, []);
+    }, [calculateItemStatus]);
 
     return { ...itemsByType };
 }

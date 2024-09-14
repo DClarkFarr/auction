@@ -3,6 +3,9 @@ import MiniCart, { MiniCartProps } from "./MiniCart";
 import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "~icons/ic/baseline-arrow-forward";
 import CartIcon from "~icons/ic/baseline-shopping-cart";
+import OutbidIcon from "~icons/ic/outline-warning";
+import WonIcon from "~icons/heroicons/trophy-16-solid";
+import WinningIcon from "~icons/ic/baseline-attach-money";
 
 export type MiniCartPopover = MiniCartProps & {
     top: number;
@@ -12,7 +15,7 @@ export type MiniCartPopover = MiniCartProps & {
     numWonItems: number;
     numOutbidItems: number;
     onClickHide: () => void;
-    onClickShow: (clicked: "winning" | "won" | "outbit" | "cart") => void;
+    onClickShow: (clicked: "winning" | "won" | "outbid" | "cart") => void;
 };
 export default function MiniCartPopover({
     top,
@@ -69,10 +72,29 @@ export default function MiniCartPopover({
                     >
                         <div className="flex gap-2 items-center">
                             <CartButtonItem
+                                icon={OutbidIcon}
+                                count={numOutbidItems}
+                                tooltip="# Outbid Items"
+                                onClick={() => onClickShow("outbid")}
+                            />
+
+                            <CartButtonItem
                                 icon={CartIcon}
                                 count={items.length}
                                 tooltip="# Cart Items"
                                 onClick={() => onClickShow("cart")}
+                            />
+                            <CartButtonItem
+                                icon={WinningIcon}
+                                count={numWinningItems}
+                                tooltip="# Winning Items"
+                                onClick={() => onClickShow("winning")}
+                            />
+                            <CartButtonItem
+                                icon={WonIcon}
+                                count={numWonItems}
+                                tooltip="# Won Items"
+                                onClick={() => onClickShow("won")}
                             />
                         </div>
                     </motion.div>

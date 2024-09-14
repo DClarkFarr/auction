@@ -10,7 +10,9 @@ import { hasRecaptcha } from "../../middleware/recaptcha.middleware.js";
 import StripeService from "../../services/StripeService.js";
 import { validatePassword } from "../../utils/validators.js";
 import UserService from "../../services/UserService.js";
-import ProductService from "../../services/ProductService.js";
+import ProductService, {
+    PRODUCT_ITEM_STATUSES,
+} from "../../services/ProductService.js";
 import { pick } from "lodash-es";
 
 class UserController extends BaseController {
@@ -169,6 +171,14 @@ class UserController extends BaseController {
     async getUserBidProducts(req, res) {
         const user = req.user;
 
+        const status = Array.isArray(req.query.status)
+            ? req.query.status.filter((s) => PRODUCT_ITEM_STATUSES.includes(s))
+            : undefined;
+
+        const days = !isNaN(Number(req.query.days))
+            ? Number(req.query.days)
+            : undefined;
+
         const params = pick(req.query, [
             // standard product pagination
             "sortBy",
@@ -189,9 +199,16 @@ class UserController extends BaseController {
                 page: params.page,
                 limit: params.limit,
                 winningOnly: params.winning === "true",
+                days,
+                status,
             });
 
             const itemIds = paginatedBids.rows.map((b) => b.id_item);
+
+            const itemIndexMap = itemIds.reduce((acc, id, i) => {
+                acc[id] = i;
+                return acc;
+            }, {});
 
             const results = await ProductService.getPaginatedProductItems(
                 {
@@ -200,6 +217,16 @@ class UserController extends BaseController {
                 },
                 false
             );
+
+            /**
+             * TODO: Why is this not sorting??!?!
+             */
+            results.rows.sort((a, b) => {
+                return (
+                    itemIndexMap[b.id] - itemIndexMap[a.id] ||
+                    b.id_bid - a.id_bid
+                );
+            });
 
             res.json(results);
         } catch (err) {

@@ -18,6 +18,8 @@ export default function useBiddingItemsQuery() {
                 UserService.getUserBidItems({
                     ...params,
                     winning: false,
+                    days: 2,
+                    status: ["active", "claimed"],
                 }),
             "cart-store"
         );

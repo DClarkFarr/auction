@@ -1,5 +1,10 @@
 import React from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import {
+    Outlet,
+    useLocation,
+    useNavigate,
+    useSearchParams,
+} from "react-router-dom";
 import useUserStore, { useWatchUserSession } from "../stores/useUserStore";
 import HomeHeader from "./header/HomeHeader";
 import HomeFooter from "./footer/HomeFooter";
@@ -32,8 +37,6 @@ export default function HomeLayout({
 }) {
     useWatchUserSession();
 
-    console.log("home layout rendered");
-
     const {
         user,
         hasLoadedFavorites,
@@ -51,6 +54,8 @@ export default function HomeLayout({
     const queryClient = useQueryClient();
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const [search, setSearch] = useSearchParams();
 
     const { getBid } = useUserBid();
 
@@ -137,9 +142,25 @@ export default function HomeLayout({
         openPurchaseModal();
     };
 
-    const onClickShow = (clicked: "won" | "winning" | "outbit" | "cart") => {
-        console.log("show clicked", clicked);
-        setShowCart(true);
+    const onClickShow = (clicked: "won" | "winning" | "outbid" | "cart") => {
+        const isCheckoutPage = location.pathname.startsWith("/account/bids");
+        if (!isCheckoutPage) {
+            const view = clicked === "outbid" ? "all" : "winning";
+            return navigate(`/account/bids?view=${view}`);
+        }
+
+        const currentView = search.get("view");
+
+        if (clicked === "outbid" && currentView !== "all") {
+            return setSearch({ view: "all" });
+        }
+        if (["winning", "won"].includes(clicked) && currentView !== "winning") {
+            return setSearch({ view: "winning" });
+        }
+
+        if (clicked === "cart") {
+            setShowCart(true);
+        }
     };
 
     const handleCheckoutSuccess = ({ purchase }: { purchase: Purchase }) => {
@@ -158,7 +179,7 @@ export default function HomeLayout({
                         numOutbidItems={activeItems.outbidItems.length}
                         numWinningItems={activeItems.winningItems.length}
                         numWonItems={activeItems.wonItems.length}
-                        top={40}
+                        top={50}
                         right={10}
                         items={selectedProducts}
                         show={showCart}

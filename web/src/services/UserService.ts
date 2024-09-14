@@ -2,7 +2,7 @@ import { ResetPasswordState } from "../components/user/ResetPasswordForm";
 import { PaymentMethod } from "../stores/useUserStore";
 import { Bid } from "../types/Bid";
 import { PaginatedResults } from "../types/Paginate";
-import { FullProductItem } from "../types/Product";
+import { FullProductItem, ProductItemStatus } from "../types/Product";
 import { FullPurchase, Purchase } from "../types/Purchase";
 import { RegisterPayload, User, UserFavorite } from "../types/User";
 import apiClient from "./apiClient";
@@ -62,7 +62,11 @@ export default class UserService {
     }
 
     static getUserBidItems(
-        params: PaginatedProductParams & { winning: boolean }
+        params: PaginatedProductParams & {
+            winning: boolean;
+            days?: number;
+            status?: ProductItemStatus[];
+        }
     ) {
         return apiClient
             .get<PaginatedResults<FullProductItem>>(`/user/bids/items`, {

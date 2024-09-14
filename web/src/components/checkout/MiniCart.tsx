@@ -27,7 +27,7 @@ export default function MiniCart({ onClickCheckout, items }: MiniCartProps) {
     };
 
     return (
-        <Card className="max-w-sm">
+        <Card className="max-w-sm min-w-[250px]">
             <div className="card__heading text-lg font-semibold border-b border-gray-300 text-gray-800">
                 Cart
             </div>

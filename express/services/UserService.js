@@ -71,41 +71,56 @@ export default class UserService {
 
     /**
      * @param {UserDocument} user
-     * @param {{ winningOnly: boolean; page: number; limit: number; }} config
+     * @param {{ winningOnly: boolean; page: number; limit: number; days?: number, status?: string[] }} config
      */
     static async getPaginatedUserBids(user, config = {}) {
-        const { winningOnly = false, page = 1, limit = 20 } = config;
+        const {
+            winningOnly = false,
+            page = 1,
+            limit = 20,
+            days = null,
+            status = ["active", "claimed", "purchased", "rejected", "canceled"],
+        } = config;
 
         const prisma = getPrisma();
 
-        let baseQuery = `SELECT * FROM Bid WHERE id_user = ${Number(user.id)} `;
-
-        if (winningOnly) {
-            baseQuery = `
-            SELECT a.* 
-            FROM Bid a 
-            JOIN (
+        const pieces = {
+            select: `SELECT a.* `,
+            from: `FROM Bid a `,
+            where: `WHERE a.id_user = ${Number(user.id)} `,
+            joinMax: `JOIN (
                 SELECT MAX(id_bid) AS id_bid, id_item
                 FROM Bid 
+                WHERE 1 
+                ${!winningOnly ? `AND id_user = ${Number(user.id)}` : ""}
                 GROUP BY id_item 
-            ) b ON a.id_bid = b.id_bid
-            JOIN (
+            ) b ON a.id_bid = b.id_bid `,
+            joinItem: `JOIN (
                 SELECT * FROM ProductItem 
-                WHERE (status = 'active' OR status = 'claimed' OR status = 'purchased')
-            ) i ON a.id_item = i.id_item
-            WHERE a.id_user = ${Number(user.id)} `;
+                WHERE (status IN(${status.map((s) => `"${s}"`).join(",")}))
+            ) i ON a.id_item = i.id_item `,
+            order: `ORDER BY id_bid DESC `,
+            limit: `LIMIT ${page * limit - limit}, ${limit}`,
+        };
+
+        let baseQuery = `${pieces.select} ${pieces.from} ${pieces.joinMax}`;
+
+        if (Array.isArray(status) && status.length) {
+            baseQuery += pieces.joinItem;
         }
 
-        let query = baseQuery;
+        baseQuery += pieces.where;
 
-        query += `ORDER BY id_bid DESC `;
-
-        query += `LIMIT ${page * limit - limit}, ${limit}`;
+        if (days) {
+            baseQuery += `AND a.createdAt > DATE_SUB(NOW(), INTERVAL ${days} DAY) `;
+        }
 
         const countQuery = baseQuery.replace(
             `SELECT a.*`,
             "SELECT COUNT(*) AS total"
         );
+
+        const query = `${baseQuery} ${pieces.order} ${pieces.limit}`;
 
         const countRow = await prisma.$queryRawUnsafe(countQuery);
 

@@ -31,12 +31,21 @@ import { formatCurrency } from "../utils/format.js";
 /**
  * @type {ProductStatus[]}
  */
-const PRODUCT_STATUSES = [
+export const PRODUCT_STATUSES = [
     "active",
     "inactive",
     "scheduled",
     "archived",
     "sold",
+];
+
+export const PRODUCT_ITEM_STATUSES = [
+    "active",
+    "canceled",
+    "claimed",
+    "expired",
+    "purchased",
+    "rejected",
 ];
 
 const SORT_OPTIONS = {

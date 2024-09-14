@@ -45,6 +45,10 @@ export default function AccountBids() {
                         UserService.getUserBidItems({
                             ...p,
                             winning: view === "winning",
+                            status:
+                                view === "winning"
+                                    ? ["active", "claimed"]
+                                    : undefined,
                         })
                     }
                     locationKey={`bids-${view}`}
