@@ -131,9 +131,9 @@ const useUserStore = create<UserStore>((set, get) => {
             });
         } catch (err) {
             console.warn("Error loading favorites", err);
-        }finally{
-            set({ hasLoadedFavorites: true, isLoadingFavorites: false }
-        )
+        } finally {
+            set({ hasLoadedFavorites: true, isLoadingFavorites: false });
+        }
     };
 
     const addFavorite = async (id_item: number) => {
