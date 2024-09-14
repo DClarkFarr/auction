@@ -1,4 +1,6 @@
 #!/bin/bash
+cd "../";
+
 echo "FETCH GIT"
 git pull origin main
 
