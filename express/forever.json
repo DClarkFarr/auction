@@ -1,0 +1,7 @@
+{
+    "uid": "my-app",
+    "script": "server.js",
+    "env": {
+        "TZ": "UTC"
+    }
+}
