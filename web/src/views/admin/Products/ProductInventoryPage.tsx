@@ -59,7 +59,9 @@ export default function ProductInventoryPage() {
                 <tbody>
                     {items.map((item) => {
                         const status = item.status;
-                        const statusDate = item[`${status}At`];
+                        const statusDate = item[
+                            `${status}At` as keyof typeof item
+                        ] as string;
 
                         return (
                             <tr key={item.id_item}>
