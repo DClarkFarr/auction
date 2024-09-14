@@ -22,7 +22,7 @@ import useUserBid from "../hooks/useUserBid";
 import useProductsEventsStore from "../stores/useProductsEventStore";
 import ClaimPurchaseModal from "../components/modal/ClaimPurchaseModal";
 import MiniCartPopover from "../components/checkout/MiniCartPopover";
-import { useCartStore } from "../stores/useCartStore";
+import { useActiveItems, useCartStore } from "../stores/useCartStore";
 import { Purchase } from "../types/Purchase";
 
 export default function HomeLayout({
@@ -31,6 +31,8 @@ export default function HomeLayout({
     children?: React.ReactNode;
 }) {
     useWatchUserSession();
+
+    console.log("home layout rendered");
 
     const {
         user,
@@ -41,6 +43,8 @@ export default function HomeLayout({
         isLoadingBids,
         loadUserBids,
     } = useUserStore();
+
+    const activeItems = useActiveItems();
 
     const { selectedProducts, showCart, setShowCart } = useCartStore();
 
@@ -133,8 +137,9 @@ export default function HomeLayout({
         openPurchaseModal();
     };
 
-    const onToggleShow = (show: boolean) => {
-        setShowCart(show);
+    const onClickShow = (clicked: "won" | "winning" | "outbit" | "cart") => {
+        console.log("show clicked", clicked);
+        setShowCart(true);
     };
 
     const handleCheckoutSuccess = ({ purchase }: { purchase: Purchase }) => {
@@ -150,12 +155,16 @@ export default function HomeLayout({
                 </header>
                 <main className="layout__main">
                     <MiniCartPopover
+                        numOutbidItems={activeItems.outbidItems.length}
+                        numWinningItems={activeItems.winningItems.length}
+                        numWonItems={activeItems.wonItems.length}
                         top={40}
                         right={10}
-                        show={showCart}
                         items={selectedProducts}
+                        show={showCart}
                         onClickCheckout={onClickCheckout}
-                        onClickShow={onToggleShow}
+                        onClickHide={() => setShowCart(false)}
+                        onClickShow={onClickShow}
                     />
                     {body}
                 </main>

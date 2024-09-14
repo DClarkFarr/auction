@@ -1,4 +1,4 @@
-import { Button } from "flowbite-react";
+import { Button, Tooltip } from "flowbite-react";
 import MiniCart, { MiniCartProps } from "./MiniCart";
 import { motion, AnimatePresence } from "framer-motion";
 import CloseIcon from "~icons/ic/baseline-arrow-forward";
@@ -8,15 +8,30 @@ export type MiniCartPopover = MiniCartProps & {
     top: number;
     right: number;
     show: boolean;
-    onClickShow: (show: boolean) => void;
+    numWinningItems: number;
+    numWonItems: number;
+    numOutbidItems: number;
+    onClickHide: () => void;
+    onClickShow: (clicked: "winning" | "won" | "outbit" | "cart") => void;
 };
 export default function MiniCartPopover({
     top,
     right,
     show,
     onClickShow,
+    onClickHide,
+    items,
+    numWinningItems,
+    numWonItems,
+    numOutbidItems,
     ...props
 }: MiniCartPopover) {
+    const hasContent =
+        numWinningItems > 0 ||
+        numWonItems > 0 ||
+        numOutbidItems > 0 ||
+        items.length > 0;
+
     return (
         <>
             <AnimatePresence>
@@ -33,18 +48,18 @@ export default function MiniCartPopover({
                                 <Button
                                     size="sm"
                                     color="light"
-                                    onClick={() => onClickShow(false)}
+                                    onClick={() => onClickHide()}
                                 >
                                     <CloseIcon />
                                 </Button>
                             </div>
-                            <MiniCart {...props} />
+                            <MiniCart {...props} items={items} />
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
             <AnimatePresence>
-                {!show && props.items.length > 0 && (
+                {!show && hasContent && (
                     <motion.div
                         className="fixed z-[60]"
                         style={{ top: top + "px" }}
@@ -52,26 +67,55 @@ export default function MiniCartPopover({
                         animate={{ right: right + "px" }}
                         exit={{ right: "-400px" }}
                     >
-                        <div>
-                            <Button
-                                size="sm"
-                                color="light"
-                                onClick={() => onClickShow(true)}
-                                className="flex items-center"
-                            >
-                                <div>
-                                    <CartIcon className="h-5" />
-                                </div>
-                                <div>
-                                    <div className="rounded-full bg-gray-600 text-white leading-0 h-5 w-5 text-center">
-                                        {props.items.length}
-                                    </div>
-                                </div>
-                            </Button>
+                        <div className="flex gap-2 items-center">
+                            <CartButtonItem
+                                icon={CartIcon}
+                                count={items.length}
+                                tooltip="# Cart Items"
+                                onClick={() => onClickShow("cart")}
+                            />
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
         </>
+    );
+}
+
+function CartButtonItem({
+    tooltip,
+    icon: Icon,
+    count,
+    onClick,
+}: {
+    icon: (props: React.SVGProps<SVGSVGElement>) => React.ReactElement;
+    onClick: () => void;
+    tooltip: string;
+    count: number;
+}) {
+    if (!count) {
+        return null;
+    }
+
+    return (
+        <div>
+            <Tooltip content={tooltip}>
+                <Button
+                    size="sm"
+                    color="light"
+                    onClick={() => onClick()}
+                    className="flex items-center"
+                >
+                    <div>
+                        <Icon className="h-5" />
+                    </div>
+                    <div>
+                        <div className="rounded-full bg-gray-600 text-white leading-0 h-5 w-5 text-center">
+                            {count}
+                        </div>
+                    </div>
+                </Button>
+            </Tooltip>
+        </div>
     );
 }

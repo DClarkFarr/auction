@@ -1,7 +1,7 @@
 import usePaginatedActiveItemsQuery from "./usePaginatedActiveItemsQuery";
 import UserService from "../services/UserService";
 
-export default function useWinningItemsQuery() {
+export default function useBiddingItemsQuery() {
     const { pagination, isLoading, isSuccess, error } =
         usePaginatedActiveItemsQuery(
             {
@@ -17,13 +17,13 @@ export default function useWinningItemsQuery() {
             (params) =>
                 UserService.getUserBidItems({
                     ...params,
-                    winning: true,
+                    winning: false,
                 }),
-            "winning-store"
+            "cart-store"
         );
 
     return {
-        winningItems: pagination?.rows || [],
+        activeItems: pagination?.rows || [],
         isLoading,
         isSuccess,
         error,

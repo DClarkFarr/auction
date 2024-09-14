@@ -2,7 +2,10 @@ import { create } from "zustand";
 import { FullProductItem } from "../types/Product";
 import { usePurchaseModal } from "./useModalsStore";
 import React from "react";
-import useWinningItemsQuery from "../hooks/useWinningItemsQuery";
+import useBiddingItemsQuery from "../hooks/useBiddingItemsQuery";
+import { DateTime } from "luxon";
+import useUserStore from "./useUserStore";
+import { isEqual } from "lodash-es";
 
 export type CartStateStore = {
     showCart: boolean;
@@ -12,7 +15,7 @@ export type CartStateStore = {
     setShowCart(showCart: boolean): void;
 };
 
-const useCartStateStore = create<CartStateStore>((set, get) => {
+export const useCartStoreState = create<CartStateStore>((set, get) => {
     const setShowCart = (showCart: boolean) => {
         set({ showCart });
     };
@@ -52,9 +55,7 @@ const useCartStateStore = create<CartStateStore>((set, get) => {
 
 export function useCartStore() {
     const purchaseModal = usePurchaseModal();
-    const { selectedProducts, setShowCart, ...rest } = useCartStateStore();
-
-    const { winningItems } = useWinningItemsQuery();
+    const { selectedProducts, setShowCart, ...rest } = useCartStoreState();
 
     const onPurchaseModalRef = React.useRef(() => {
         purchaseModal.close();
@@ -84,7 +85,82 @@ export function useCartStore() {
         selectedProducts,
         setShowCart,
         itemIsSelected,
-        winningItems,
         ...rest,
     };
+}
+
+export function useActiveItems() {
+    const { user } = useUserStore();
+    const { activeItems } = useBiddingItemsQuery();
+
+    const [itemsByType, setItemsByType] = React.useState<{
+        winningItems: FullProductItem[];
+        wonItems: FullProductItem[];
+        outbidItems: FullProductItem[];
+    }>({
+        winningItems: [],
+        wonItems: [],
+        outbidItems: [],
+    });
+
+    const calculateItemStatusRef = React.useRef(() => {
+        const now = DateTime.now();
+        const toReturn: Record<
+            "winningItems" | "wonItems" | "outbidItems",
+            FullProductItem[]
+        > = {
+            winningItems: [],
+            wonItems: [],
+            outbidItems: [],
+        };
+
+        activeItems.forEach((item) => {
+            const expiresAt = DateTime.fromISO(item.expiresAt);
+
+            if (now > expiresAt) {
+                if (item.bid?.id_user === user?.id) {
+                    toReturn.wonItems.push(item);
+                } else {
+                    // lost, nothing
+                }
+            } else {
+                if (item.bid?.id_user === user?.id) {
+                    toReturn.winningItems.push(item);
+                } else {
+                    toReturn.outbidItems.push(item);
+                }
+            }
+        });
+
+        const getTotals = (obj: Record<string, FullProductItem[]>) => {
+            return Object.keys(obj).reduce((acc, key) => {
+                return { ...acc, [key]: obj[key].length };
+            }, {});
+        };
+
+        console.log(
+            "checking items by type",
+            getTotals(toReturn),
+            "vs",
+            getTotals(itemsByType),
+            "=",
+            isEqual(getTotals(toReturn), getTotals(itemsByType))
+        );
+        if (!isEqual(getTotals(toReturn), getTotals(itemsByType))) {
+            console.log("setting items by type");
+            setItemsByType(toReturn);
+        }
+    });
+
+    React.useEffect(() => {
+        const id = setInterval(() => {
+            calculateItemStatusRef.current();
+        }, 1000);
+
+        return () => {
+            clearInterval(id);
+        };
+    }, []);
+
+    return { ...itemsByType };
 }
