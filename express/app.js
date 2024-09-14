@@ -116,10 +116,10 @@ class App {
             store: sessionStore,
         };
 
-        if (env("env") == "production") {
-            this.express.set("trust proxy", 1); // trust first proxy
-            sessionConfig.cookie.secure = true;
-        }
+        // if (env("env") == "production") {
+        //     this.express.set("trust proxy", 1); // trust first proxy
+        //     sessionConfig.cookie.secure = true;
+        // }
         this.express.use(session(sessionConfig));
 
         await sessionStore
