@@ -14,13 +14,14 @@ export default function useBiddingItemsQuery() {
                 priceMin: null,
                 priceMax: null,
             },
-            (params) =>
-                UserService.getUserBidItems({
+            (params) => {
+                return UserService.getUserBidItems({
                     ...params,
                     winning: false,
                     days: 2,
                     status: ["active", "claimed"],
-                }),
+                });
+            },
             "cart-store"
         );
 

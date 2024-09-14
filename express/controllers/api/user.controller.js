@@ -223,7 +223,7 @@ class UserController extends BaseController {
              */
             results.rows.sort((a, b) => {
                 return (
-                    itemIndexMap[b.id] - itemIndexMap[a.id] ||
+                    itemIndexMap[a.id_item] - itemIndexMap[b.id_item] ||
                     b.id_bid - a.id_bid
                 );
             });

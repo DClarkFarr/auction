@@ -8,6 +8,7 @@ import { AxiosError } from "axios";
 import webSessionMiddleware from "../../middleware/webSessionMiddleware.js";
 import { hasUser } from "../../middleware/auth.middleware.js";
 import { getSocket } from "../../utils/socket.js";
+import UserError from "../../errors/UserError.js";
 
 export default class SiteController extends BaseController {
     base = "/site";
@@ -97,7 +98,9 @@ export default class SiteController extends BaseController {
 
             res.json(result);
         } catch (err) {
-            if (err instanceof AxiosError) {
+            if (err instanceof UserError) {
+                res.status(400).json({ message: err.message });
+            } else if (err instanceof AxiosError) {
                 res.status(400).json({ message: err.message });
             } else {
                 res.status(400).json({ message: "Error placing bid" });

@@ -43,7 +43,7 @@ export default function ProductBid({
         : product.product.priceInitial;
 
     const nextAmount = product.bid
-        ? product.bid.amount + 1
+        ? parseFloat((product.bid.amount + 1).toFixed(2))
         : product.product.priceInitial;
 
     const onClickPlus = () => {

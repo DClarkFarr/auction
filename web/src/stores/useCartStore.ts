@@ -127,7 +127,6 @@ export function useActiveItems() {
                 if (item.bid?.id_user === user?.id) {
                     toReturn.winningItems.push(item);
                 } else {
-                    console.log("outbid item", item, "vs", user?.id);
                     toReturn.outbidItems.push(item);
                 }
             }

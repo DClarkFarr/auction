@@ -26,7 +26,10 @@ const useProductBidStore = create<ProductBidStore>((set, get) => {
                 : p.product.priceInitial
             : 0;
 
-        set((prev) => ({ ...prev, bidAmount: Math.max(minAmount, a) }));
+        set((prev) => ({
+            ...prev,
+            bidAmount: parseFloat(Math.max(minAmount, a).toFixed(2)),
+        }));
     };
     return {
         product: null,

@@ -40,7 +40,5 @@ typings
 .DS_Store
 .env
 
-.DS_Store
-
 serviceAccountKey.json
 uploads/
