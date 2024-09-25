@@ -24,7 +24,7 @@ export default function SignupPage() {
                                 footer={
                                     <div className="mt-4 text-center">
                                         <Link
-                                            className="text-base text-purple-500 hover:underline"
+                                            className="text-base text-cyan-500 hover:underline"
                                             to="/login"
                                         >
                                             Back to login

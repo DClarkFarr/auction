@@ -18,7 +18,7 @@ export default function PurchaseDetails({
             <Breadcrumb aria-label="Default breadcrumb example">
                 <Breadcrumb.Item>
                     <Link
-                        className="text-purple-700 hover:underline"
+                        className="text-cyan-700 hover:underline"
                         to="/account/purchases"
                     >
                         Purchase History

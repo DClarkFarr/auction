@@ -246,7 +246,7 @@ export default function ProductSinglePage() {
             <div>
                 <Link
                     to="/admin/products"
-                    className="text-purple-800 hover:underline flex items-center gap-x-1 text-xs"
+                    className="text-cyan-800 hover:underline flex items-center gap-x-1 text-xs"
                 >
                     <ChevronLeftIcon />
                     <span>Back</span>

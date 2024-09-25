@@ -30,7 +30,7 @@ export default function CardDetails({
     return (
         <div className="border border-gray-300 rounded p-4">
             <div className="flex w-full items-center gap-4">
-                <div className="text-xl text-purple-600">
+                <div className="text-xl text-cyan-600">
                     <Icon />
                 </div>
                 <div>

@@ -93,7 +93,7 @@ export default function AccountProfile() {
                                         <>
                                             <Link
                                                 to=""
-                                                className="text-purple-600 hover:text-purple-700 hover:underline"
+                                                className="text-cyan-600 hover:text-cyan-700 hover:underline"
                                                 onClick={(e) => (
                                                     setPaymentView("form"),
                                                     e.preventDefault()

@@ -34,7 +34,7 @@ export default function ProductInventoryPage() {
                 <div className="text-base">
                     <Link
                         to="/admin/products"
-                        className="text-purple-700 hover:underline"
+                        className="text-cyan-700 hover:underline"
                     >
                         Back to Products
                     </Link>

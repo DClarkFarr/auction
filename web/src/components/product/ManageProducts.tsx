@@ -121,7 +121,7 @@ export default function ManageProducts() {
                     </h1>
                 </div>
                 <div className="md:ml-auto">
-                    <Button onClick={onShowCreateModal} color="purple">
+                    <Button onClick={onShowCreateModal} color="cyan">
                         Create Product
                     </Button>
                 </div>

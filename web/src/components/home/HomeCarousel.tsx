@@ -27,7 +27,7 @@ function ImageSlide() {
 function TwoColumn() {
     return (
         <div className="slide h-full w-full lg:flex items-stretch">
-            <div className="max-w-full shrink w-full lg:w-[450px] flex h-full flex-col text-white bg-purple-700 p-4 lg:p-10 justify-center lg:justify-start items-center lg:items-center">
+            <div className="max-w-full shrink w-full lg:w-[450px] flex h-full flex-col text-white bg-cyan-700 p-4 lg:p-10 justify-center lg:justify-start items-center lg:items-center">
                 <h1 className="text-4xl font-bold mb-4">This is a title</h1>
                 <p>Aand this is a big paragraph that we like</p>
             </div>
@@ -55,7 +55,7 @@ function FullBackground() {
                 />
             </div>
             <div className="slide h-full w-full relative">
-                <div className="max-w-full shrink w-full lg:w-1/2 flex h-full flex-col text-purple-800 p-4 lg:p-10 justify-center items-center">
+                <div className="max-w-full shrink w-full lg:w-1/2 flex h-full flex-col text-cyan-800 p-4 lg:p-10 justify-center items-center">
                     <div className="p-4 bg-white/50">
                         <h1 className="text-4xl font-bold mb-4">
                             This is a title

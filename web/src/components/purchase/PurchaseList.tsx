@@ -65,7 +65,7 @@ export default function PurchaseList() {
                                     <td className={`py-2 pl-4 ${bg}`}>
                                         <Link
                                             to={`/account/purchases/${purchase.id_purchase}`}
-                                            className="text-purple-700 hover:underline flex items-center"
+                                            className="text-cyan-700 hover:underline flex items-center"
                                         >
                                             <span>
                                                 <ListIcon />

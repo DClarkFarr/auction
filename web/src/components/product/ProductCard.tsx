@@ -1,5 +1,4 @@
 import { Button, Carousel, Tooltip } from "flowbite-react";
-import Stars from "../controls/Stars";
 import { formatCurrency } from "../../utils/currency";
 import { uploadedAsset } from "../../utils/asset";
 
@@ -94,7 +93,7 @@ export default function ProductCard({
             ? "border-red-600"
             : isInactive
             ? "border-gray-600"
-            : "border-purple-600";
+            : "border-cyan-600";
 
         let backgroundColor = isExpired
             ? "bg-red-100"
@@ -160,7 +159,7 @@ export default function ProductCard({
 
     return (
         <div
-            className={`item flex flex-col border-2 border-purple-600 shadow-lg ${backgroundColor} ${borderColor} ${
+            className={`item flex flex-col border-2 border-cyan-600 shadow-lg ${backgroundColor} ${borderColor} ${
                 productEvents.length > 0
                     ? "animate-flash-border animate-custom-bounce"
                     : ""
@@ -170,7 +169,7 @@ export default function ProductCard({
                 <div>
                     <div
                         className={`item__countdown p-3 text-center ${
-                            isSelected ? "bg-purple-800" : "bg-purple-600"
+                            isSelected ? "bg-cyan-800" : "bg-cyan-600"
                         }`}
                     >
                         <div className="text-lg text-white font-semibld">
@@ -218,7 +217,7 @@ export default function ProductCard({
                 </div>
             </div>
             <div className="item__carousel relative">
-                <div className="relative aspect-[2] w-full">
+                <div className="relative aspect-square w-full">
                     {product.product?.images?.length > 0 && (
                         <Carousel
                             theme={{
@@ -312,11 +311,7 @@ export default function ProductCard({
                         </span>
                     </div>
                 )}
-                <div className="item__quality p-3 flex justify-center">
-                    <Tooltip content="Quality">
-                        <Stars value={product.product.quality} readOnly />
-                    </Tooltip>
-                </div>
+
                 {isExpired && (
                     <>
                         <div className="item__countdown text-gray-800 p-3 text-center">
@@ -406,7 +401,6 @@ export default function ProductCard({
                 <div className="mt-auto">
                     <Button
                         className="btn-block w-full text-center rounded-none"
-                        color="failure"
                         onClick={() => onClickBid(product)}
                     >
                         BID NOW

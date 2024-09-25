@@ -10,9 +10,11 @@ import useProductsEventsStore from "../../stores/useProductsEventStore";
 
 export type FeaturedProductsGridProps = {
     maxCols?: number;
+    maxRows?: number;
 };
 export default function FeaturedProductGrid({
     maxCols = 3,
+    maxRows = 3,
 }: FeaturedProductsGridProps) {
     const { featuredProducts, updateFeaturedProduct } = useFeaturedProducts();
 
@@ -47,9 +49,8 @@ export default function FeaturedProductGrid({
     useSocket(handleProductUpdate);
 
     const items: FullProductItem[] = React.useMemo(() => {
-        return featuredProducts
-            .slice(0, maxCols)
-            .map(({ item, name, description, image: imagePath }) => {
+        return featuredProducts.map(
+            ({ item, name, description, image: imagePath }) => {
                 item.product.name = name;
                 item.product.description = description;
 
@@ -63,7 +64,8 @@ export default function FeaturedProductGrid({
                 }
 
                 return item;
-            });
+            }
+        );
     }, [featuredProducts, maxCols]);
 
     if (!featuredProducts) {
@@ -72,7 +74,7 @@ export default function FeaturedProductGrid({
 
     return (
         <div className="featured-products-grid grid gap-4 justify-center">
-            {items.map((item, i) => {
+            {items.slice(0, maxCols * maxRows).map((item, i) => {
                 return <FeaturedProductWrapper key={i} product={item} />;
             })}
         </div>

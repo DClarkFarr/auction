@@ -47,7 +47,7 @@ export default function CategoryCard<
             <div
                 className={`category__footer transition duration-300 text-white p-4 flex w-full items-center ${
                     !hasCount || productCount > 0
-                        ? `bg-purple-600 group-hover:bg-purple-800`
+                        ? `bg-cyan-600 group-hover:bg-cyan-800`
                         : `bg-gray-600 group-hover:bg-gray-800`
                 }`}
             >

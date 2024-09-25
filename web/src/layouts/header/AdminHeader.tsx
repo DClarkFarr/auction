@@ -22,7 +22,7 @@ export default function AdminHeader() {
         <Navbar
             theme={{
                 root: {
-                    base: "bg-purple-800 px-2 py-2.5 sm:px-4",
+                    base: "bg-cyan-800 px-2 py-2.5 sm:px-4",
                 },
                 brand: {
                     base: "flex items-center text-white",

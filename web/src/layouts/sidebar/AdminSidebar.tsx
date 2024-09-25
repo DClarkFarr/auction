@@ -41,7 +41,7 @@ export default function AdminSidebar({ fullWidth }: { fullWidth: boolean }) {
             aria-label="Sidebar with logo branding example"
             theme={{
                 item: {
-                    active: "bg-purple-200 hover:bg-purple-300",
+                    active: "bg-cyan-200 hover:bg-cyan-300",
                 },
             }}
         >

@@ -17,7 +17,6 @@ export default function ShopPage() {
                 <div className="shop lg:flex gap-x-4">
                     <ProductsSection.DesktopSidebar teleportMobile={drawerRef}>
                         <ProductsSection.SidebarCategories multiple />
-                        <ProductsSection.SidebarQualities />
                         <ProductsSection.SidebarPrices />
                     </ProductsSection.DesktopSidebar>
                     <div className="shop__grid grow">
@@ -27,7 +26,7 @@ export default function ShopPage() {
                         >
                             <Breadcrumb.Item icon={HomeIcon}>
                                 <Link
-                                    className="text-purple-900 hover:underline"
+                                    className="text-cyan-900 hover:underline"
                                     to="/"
                                 >
                                     Home

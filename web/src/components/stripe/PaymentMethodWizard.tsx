@@ -99,7 +99,7 @@ function PaymentMethodWizardComponent({
                                     <>
                                         <Link
                                             to=""
-                                            className="text-purple-600 hover:text-purple-700 hover:underline"
+                                            className="text-cyan-600 hover:text-cyan-700 hover:underline"
                                             onClick={(e) => (
                                                 setView("form"),
                                                 e.preventDefault()
@@ -122,7 +122,7 @@ function PaymentMethodWizardComponent({
                                 onClick={(e) => (
                                     setView("form"), e.preventDefault()
                                 )}
-                                className="text-purple-600 hover:text-purple-700 hover:underline"
+                                className="text-cyan-600 hover:text-cyan-700 hover:underline"
                             >
                                 Add new payment method
                             </Link>

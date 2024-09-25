@@ -44,7 +44,7 @@ export default function LoginFormModal(props: LoginFormModalProps) {
                 <div className="text-center py-4 mb-2">
                     <div className="mb-4 font-semibold">OR</div>
                     <Link
-                        className="text-purple-700 hover:underline"
+                        className="text-cyan-700 hover:underline"
                         to="#"
                         onClick={onClickSignup}
                     >

@@ -417,7 +417,7 @@ function ProductRow({
                                                     }
                                                     className={`border-4 inline-flex cursor-pointer ${
                                                         isSelected
-                                                            ? "border-purple-500"
+                                                            ? "border-cyan-500"
                                                             : "border-gray-100"
                                                     }`}
                                                 >

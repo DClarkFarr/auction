@@ -76,13 +76,13 @@ function FilterItem<V>({
     return (
         <div
             onClick={() => onClick(value)}
-            className={`filter-item flex items-center gap-x-1 px-2 py-1 text-sm bg-white rounded border-2 cursor-pointer hover:bg-purple-100 ${
-                active ? "border-purple-600" : "border-gray-300"
+            className={`filter-item flex items-center gap-x-1 px-2 py-1 text-sm bg-white rounded border-2 cursor-pointer hover:bg-cyan-100 ${
+                active ? "border-cyan-600" : "border-gray-300"
             }`}
         >
             <div className="filter-item__check w-[25px] shrink">
                 {active ? (
-                    <CheckedIcon className="text-purple-700" />
+                    <CheckedIcon className="text-cyan-700" />
                 ) : (
                     <UncheckedIcon />
                 )}
@@ -92,7 +92,7 @@ function FilterItem<V>({
                 <>
                     {typeof badge !== "object" ? (
                         <div
-                            className={`bg-purple-600 text-white leading-none py-1 px-2 rounded-full ml-auto`}
+                            className={`bg-cyan-600 text-white leading-none py-1 px-2 rounded-full ml-auto`}
                         >
                             {badge}
                         </div>
