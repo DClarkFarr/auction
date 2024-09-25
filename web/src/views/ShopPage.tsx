@@ -32,7 +32,7 @@ export default function ShopPage() {
                                     Home
                                 </Link>
                             </Breadcrumb.Item>
-                            <Breadcrumb.Item>Shop</Breadcrumb.Item>
+                            <Breadcrumb.Item>Bid Now</Breadcrumb.Item>
                         </Breadcrumb>
                         <ProductsSection.Heading>
                             <div className={`mr-auto ${!isMobile && "hidden"}`}>
@@ -43,7 +43,7 @@ export default function ShopPage() {
                             </div>
                         </ProductsSection.Heading>
                         <ProductsSection.Grid />
-                        <ProductsSection.EndlessScroller />
+                        <ProductsSection.Pagination />
                     </div>
                 </div>
             </div>

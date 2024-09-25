@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { ProductsContext } from "./useProductsContext";
 import usePaginatedActiveItemsQuery, {
     PaginatedActiveQueryMethod,
@@ -23,16 +23,18 @@ export default function ProductsProvider({
         ...initialParams,
     });
 
+    const [useEndlessScrolling, setUseEndlessScrolling] = useState(false);
+
+    const setEndlessScrolling = useCallback((value: boolean) => {
+        setUseEndlessScrolling(value);
+    }, []);
+
     const {
         pagination: queriedPagination,
         isLoading,
         isSuccess,
         error,
     } = usePaginatedActiveItemsQuery(params, method, locationKey);
-
-    const rows = useMemo(() => {
-        return queriedPagination ? queriedPagination.rows : [];
-    }, [queriedPagination]);
 
     const pagination = useMemo(() => {
         return {
@@ -78,22 +80,6 @@ export default function ProductsProvider({
         [setParams]
     );
 
-    useEffect(() => {
-        const { page, limit } = pagination;
-        const offset = page * limit - limit;
-
-        if (page === 1) {
-            setProducts(rows);
-            return;
-        }
-        setProducts((prevProducts) => {
-            const ps = [...prevProducts];
-            ps.splice(offset, limit, ...rows);
-
-            return ps;
-        });
-    }, [rows, pagination]);
-
     const value = useMemo(() => {
         return {
             params,
@@ -102,11 +88,28 @@ export default function ProductsProvider({
             isLoading,
             isSuccess,
             error,
+            queriedPagination,
+            useEndlessScrolling,
+            setEndlessScrolling,
             setPage,
             setParams,
             toggleCategory,
+            setProducts,
         };
-    }, [params, pagination, products, isLoading, isSuccess, error]);
+    }, [
+        params,
+        pagination,
+        products,
+        isLoading,
+        isSuccess,
+        error,
+        useEndlessScrolling,
+        queriedPagination,
+        setEndlessScrolling,
+        toggleCategory,
+        setParams,
+        setPage,
+    ]);
 
     return (
         <ProductsContext.Provider value={value}>

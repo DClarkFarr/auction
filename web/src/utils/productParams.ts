@@ -56,7 +56,8 @@ export function getProductQueryParams(search: URLSearchParams) {
 
 export function setProductQueryParams(
     params: PaginatedProductParams,
-    search: URLSearchParams
+    search: URLSearchParams,
+    useEndlessScrolling: boolean
 ) {
     const prevKeys = Array.from(search.keys());
     const paramKeys = Object.keys(params);
@@ -92,7 +93,9 @@ export function setProductQueryParams(
         return acc;
     }, {} as Record<string, string | string[]>);
 
-    delete paramsToSet.page;
+    if (useEndlessScrolling) {
+        delete paramsToSet.page;
+    }
 
     return { ...otherKeys, ...paramsToSet };
 }
@@ -111,7 +114,7 @@ export function filterDefaultProductParams(params: PaginatedProductParams) {
 
 export function makePaginatedActiveItemsKey(
     locationKey: string,
-    { page, ...params }: PaginatedProductParams
+    { ...params }: PaginatedProductParams
 ) {
     const arr = ["paginatedActiveItems", locationKey];
 
@@ -132,10 +135,12 @@ export function makePaginatedActiveItemsKey(
     };
 
     Object.entries(params).forEach(([key, value]) => {
+        if (key === "page") return;
+
         arr.push(joinValues(key, value));
     });
 
-    arr.push(`page:${page}`);
+    arr.push(`page:${params.page}`);
 
     return arr;
 }

@@ -6,6 +6,7 @@ import { Link, useParams } from "react-router-dom";
 import { Alert, Breadcrumb, Spinner } from "flowbite-react";
 import SiteService from "../../services/SiteService";
 import HomeIcon from "~icons/ic/baseline-house";
+import { homeRoutes } from "../../router";
 
 export default function ShopPage() {
     const isMobile = useIsMaxBreakpoint("md");
@@ -93,15 +94,15 @@ export default function ShopPage() {
                             <Breadcrumb.Item>
                                 <Link
                                     className="text-cyan-900 hover:underline"
-                                    to="/shop"
+                                    to={homeRoutes.shop.to}
                                 >
-                                    Shop
+                                    Bid Now
                                 </Link>
                             </Breadcrumb.Item>
                             <Breadcrumb.Item>
                                 <Link
                                     className="text-cyan-600 hover:text-cyan-700 hover:underline"
-                                    to="/categories"
+                                    to={homeRoutes.categories.to}
                                 >
                                     Categories
                                 </Link>
@@ -121,7 +122,7 @@ export default function ShopPage() {
                             </div>
                         </ProductsSection.Heading>
                         <ProductsSection.Grid />
-                        <ProductsSection.EndlessScroller />
+                        <ProductsSection.Pagination />
                     </div>
                 </div>
             </div>

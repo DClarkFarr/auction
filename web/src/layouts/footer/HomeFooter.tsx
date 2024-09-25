@@ -1,5 +1,6 @@
 import { Footer } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
+import { homeRoutes } from "../../router";
 
 export default function HomeFooter() {
     const navigate = useNavigate();
@@ -12,35 +13,55 @@ export default function HomeFooter() {
             navigate(href);
         }
     };
+
+    const year = new Date().getFullYear();
     return (
-        <div className="container">
-            <Footer
-                theme={{
-                    root: {
-                        base: "w-full rounded-lg bg-white shadow dark:bg-gray-900 md:flex md:items-center md:justify-between mt-4",
-                        container: "w-full p-6",
-                        bgDark: "bg-gray-900",
-                    },
-                }}
-                bgDark
-                container
-            >
-                <Footer.Copyright href="#" by="Auction" year={2024} />
-                <Footer.LinkGroup>
+        <Footer
+            theme={{
+                root: {
+                    base: "w-full bg-white shadow dark:bg-gray-900 md:flex md:items-center md:justify-between mt-4",
+                    container: "w-full p-6",
+                    bgDark: "bg-gray-900",
+                },
+            }}
+            bgDark
+            container
+        >
+            <div className="container flex flex:wrap gap-4">
+                <Footer.Copyright
+                    by="Southern Utah Bargain Bin Auctions"
+                    year={year}
+                />
+                <Footer.LinkGroup className="ml-auto">
                     <Footer.Link href="/" onClick={handleLinkClick}>
                         Home
                     </Footer.Link>
-                    <Footer.Link href="/shop" onClick={handleLinkClick}>
-                        Shop
+                    <Footer.Link
+                        href={homeRoutes.shop.to}
+                        onClick={handleLinkClick}
+                    >
+                        Bid Now
                     </Footer.Link>
-                    <Footer.Link href="/categories" onClick={handleLinkClick}>
-                        Categories
+                    <Footer.Link
+                        href={homeRoutes.howItWorks.to}
+                        onClick={handleLinkClick}
+                    >
+                        How it works
                     </Footer.Link>
-                    <Footer.Link href="#" onClick={handleLinkClick}>
-                        Contact
+                    <Footer.Link
+                        href={homeRoutes.aboutUs.to}
+                        onClick={handleLinkClick}
+                    >
+                        About us
+                    </Footer.Link>
+                    <Footer.Link
+                        href={homeRoutes.contactUs.to}
+                        onClick={handleLinkClick}
+                    >
+                        Contact Us
                     </Footer.Link>
                 </Footer.LinkGroup>
-            </Footer>
-        </div>
+            </div>
+        </Footer>
     );
 }

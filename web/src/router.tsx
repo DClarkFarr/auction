@@ -48,6 +48,41 @@ function ErrorPage() {
     );
 }
 
+export const homeRoutes = {
+    home: {
+        to: "/",
+        exact: true,
+    },
+    shop: {
+        to: "/bid",
+        exact: false,
+    },
+    categories: {
+        to: "/categories",
+        exact: false,
+    },
+    aboutUs: {
+        to: "/about-us",
+        exact: true,
+    },
+    contactUs: {
+        to: "/contact",
+        exact: true,
+    },
+    howItWorks: {
+        to: "/how-it-works",
+        exact: true,
+    },
+    login: {
+        to: "/login",
+        exact: true,
+    },
+    signUp: {
+        to: "/sign-up",
+        exact: true,
+    },
+};
+
 const router = createBrowserRouter([
     {
         path: "/test",
@@ -59,11 +94,11 @@ const router = createBrowserRouter([
         errorElement: <ErrorPage />,
         children: [
             {
-                path: "shop",
+                path: "bid",
                 element: <ShopPage />,
             },
             {
-                path: "shop/single/:itemId",
+                path: "bid/single/:itemId",
                 element: <ShopSinglePage />,
             },
             {

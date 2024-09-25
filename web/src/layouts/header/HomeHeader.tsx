@@ -2,29 +2,9 @@ import { Avatar, Dropdown, Navbar } from "flowbite-react";
 import { Link, useLocation } from "react-router-dom";
 import useUserStore, { useUserInitials } from "../../stores/useUserStore";
 import { useMemo } from "react";
+import Logo from "../../assets/auctions-logo.png";
+import { homeRoutes } from "../../router";
 
-const homeRoutes = {
-    home: {
-        to: "/",
-        exact: true,
-    },
-    shop: {
-        to: "/shop",
-        exact: false,
-    },
-    categories: {
-        to: "/categories",
-        exact: false,
-    },
-    login: {
-        to: "/login",
-        exact: true,
-    },
-    signUp: {
-        to: "/sign-up",
-        exact: true,
-    },
-};
 export default function HomeHeader() {
     const { user, logout } = useUserStore();
 
@@ -72,12 +52,12 @@ export default function HomeHeader() {
                 <Navbar className="relative z-[70] lg:[z-40]">
                     <Navbar.Brand as={Link} to={homeRoutes.home.to}>
                         <img
-                            src="https://placehold.co/150x80"
-                            className="mr-3 h-6 sm:h-9"
+                            src={Logo}
+                            className="mr-3 h-12 sm:-my-1"
                             alt="Auction Logo"
                         />
                         <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-                            Auction
+                            Auctions
                         </span>
                     </Navbar.Brand>
                     <div className="ml-auto"></div>
@@ -195,18 +175,37 @@ export default function HomeHeader() {
                             active={activeRouteName === "shop"}
                         >
                             <Link className="block" to={homeRoutes.shop.to}>
-                                Shop
+                                Bid Now
                             </Link>
                         </Navbar.Link>
                         <Navbar.Link
                             as="span"
-                            active={activeRouteName === "categories"}
+                            active={activeRouteName === "howItWorks"}
                         >
                             <Link
                                 className="block"
-                                to={homeRoutes.categories.to}
+                                to={homeRoutes.howItWorks.to}
                             >
-                                Categories
+                                How it works
+                            </Link>
+                        </Navbar.Link>
+                        <Navbar.Link
+                            as="span"
+                            active={activeRouteName === "aboutUs"}
+                        >
+                            <Link className="block" to={homeRoutes.aboutUs.to}>
+                                About Us
+                            </Link>
+                        </Navbar.Link>
+                        <Navbar.Link
+                            as="span"
+                            active={activeRouteName === "contactUs"}
+                        >
+                            <Link
+                                className="block"
+                                to={homeRoutes.contactUs.to}
+                            >
+                                Contact Us
                             </Link>
                         </Navbar.Link>
                         {!user && (

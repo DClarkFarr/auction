@@ -8,11 +8,23 @@ export default function ProductsEndlessScroller() {
     const [{ y }, scrollTo] = useWindowScroll();
     const ref = React.useRef<HTMLDivElement>(null);
 
-    const { pagination, setPage, products, isLoading } = useProductsContext();
+    const {
+        pagination,
+        setPage,
+        products,
+        isLoading,
+        setProducts,
+        queriedPagination,
+        setEndlessScrolling,
+    } = useProductsContext();
 
     const { page, pages } = pagination || { page: 1 };
 
     const [nextPage, setNextPage] = React.useState(1);
+
+    React.useLayoutEffect(() => {
+        setEndlessScrolling(true);
+    });
 
     React.useEffect(() => {
         /**
@@ -48,6 +60,26 @@ export default function ProductsEndlessScroller() {
             }
         }
     }, [y]);
+
+    const rows = React.useMemo(() => {
+        return queriedPagination ? queriedPagination.rows : [];
+    }, [queriedPagination]);
+
+    React.useEffect(() => {
+        const { page, limit } = pagination;
+        const offset = page * limit - limit;
+
+        if (page === 1) {
+            setProducts(rows);
+            return;
+        }
+        setProducts((prevProducts) => {
+            const ps = [...prevProducts];
+            ps.splice(offset, limit, ...rows);
+
+            return ps;
+        });
+    }, [rows, pagination]);
 
     return (
         <div ref={ref}>

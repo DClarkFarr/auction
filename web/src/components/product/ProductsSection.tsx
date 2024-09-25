@@ -20,11 +20,13 @@ import ProductsHeading from "./ProductsSection/ProductsHeading";
 import ProductsSortBy from "./ProductsSection/ProductsSortBy";
 import ProductsToggleMobileFilters from "./ProductsSection/ProductsToggleMobileFilters";
 import { PaginatedActiveQueryMethod } from "../../hooks/usePaginatedActiveItemsQuery";
+import ProductsPagination from "./ProductsSection/ProductsPagination";
 
 type ProductsSectionWrapperProps = React.PropsWithChildren<{
     params?: Partial<PaginatedProductParams>;
     method?: PaginatedActiveQueryMethod;
     locationKey?: string;
+    endlessScroller?: boolean;
 }>;
 
 function ProductsSectionWrapper({
@@ -36,7 +38,10 @@ function ProductsSectionWrapper({
     const [search] = useSearchParams();
 
     const params = React.useMemo(() => {
-        return { ...getProductQueryParams(search), ...overrideParams };
+        return {
+            ...getProductQueryParams(search),
+            ...overrideParams,
+        };
     }, [search, overrideParams]);
 
     return (
@@ -61,6 +66,7 @@ const ProductsSection = Object.assign(ProductsSectionWrapper, {
     DesktopSidebar: ProductsDesktopSidebar,
     EndlessScroller: ProductsEndlessScroller,
     SidebarCategories: ProductsSidebarCategories,
+    Pagination: ProductsPagination,
     SidebarQualities: ProductsSidebarQualities,
     SidebarPrices: ProductSidebarPrices,
     Heading: ProductsHeading,
