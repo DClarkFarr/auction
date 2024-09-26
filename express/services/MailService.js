@@ -1,17 +1,6 @@
 import nodemailer from "nodemailer";
 import { env } from "../utils/environment.js";
 
-const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-        user: env("mail.email"),
-        pass: env("mail.password"),
-    },
-});
-
 const FROM_EMAIL = "no-reply@auction.danielsjunk.com";
 
 function htmlToText(html) {
@@ -19,8 +8,24 @@ function htmlToText(html) {
 }
 
 export default class MailService {
+    getTransporter() {
+        if (this.transporter) {
+            return this.transporter;
+        }
+
+        return (this.transporter = nodemailer.createTransport({
+            service: "Gmail",
+            host: "smtp.gmail.com",
+            port: 465,
+            secure: true,
+            auth: {
+                user: env("mail.email"),
+                pass: env("mail.password"),
+            },
+        }));
+    }
     static async sendMail(to, subject, html) {
-        const res = await transporter.sendMail({
+        const res = await this.getTransporter().sendMail({
             from: FROM_EMAIL,
             to,
             subject,

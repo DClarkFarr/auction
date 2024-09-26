@@ -208,10 +208,10 @@ class UserController extends BaseController {
 
             res.json({ message: "Password reset email sent" });
         } catch (err) {
-            console.warn("Error finding user by email", err);
+            console.warn("Error sending reset email", err);
             return res
                 .status(400)
-                .json({ message: "Error finding user by email" });
+                .json({ message: "Error sending reset email" });
         }
     }
 
