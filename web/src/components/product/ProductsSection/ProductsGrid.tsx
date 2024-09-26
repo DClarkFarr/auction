@@ -8,18 +8,11 @@ export default function ProductsGrid({
     item: Item = ProductsItem,
     children,
 }: ProductsGridProps) {
-    const { products, useEndlessScrolling, isLoading } = useProductsContext();
+    const { products, isLoading } = useProductsContext();
 
     const hasChildren = !!children;
 
-    console.log(
-        "got",
-        !useEndlessScrolling && isLoading,
-        "from",
-        !useEndlessScrolling,
-        isLoading
-    );
-    if (useEndlessScrolling && isLoading) {
+    if (isLoading) {
         return (
             <Banner>
                 <div className="flex w-full justify-between border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-700">

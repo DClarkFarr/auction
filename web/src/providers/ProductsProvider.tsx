@@ -34,7 +34,12 @@ export default function ProductsProvider({
         isLoading,
         isSuccess,
         error,
-    } = usePaginatedActiveItemsQuery(params, method, locationKey);
+    } = usePaginatedActiveItemsQuery(
+        params,
+        method,
+        locationKey,
+        useEndlessScrolling
+    );
 
     const pagination = useMemo(() => {
         return {

@@ -21,7 +21,8 @@ export type PaginatedActiveQueryMethod = (
 export default function usePaginatedActiveItemsQuery(
     params: PaginatedProductParams,
     method: PaginatedActiveQueryMethod = SiteService.getPaginatedActiveItems,
-    locationKey: string
+    locationKey: string,
+    useEndlessScrolling = false
 ) {
     const queryClient = useQueryClient();
 
@@ -37,12 +38,15 @@ export default function usePaginatedActiveItemsQuery(
             const data = filterDefaultProductParams(params);
             return method(data);
         },
-        placeholderData: keepPreviousData,
+        placeholderData: useEndlessScrolling ? keepPreviousData : undefined,
         staleTime: 5000,
         retry: false,
     });
 
     useEffect(() => {
+        if (!useEndlessScrolling) {
+            return;
+        }
         if (
             !isPlaceholderData &&
             (pagination?.pages || 0) > (pagination?.page || 1)
