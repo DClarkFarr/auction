@@ -43,6 +43,10 @@ export default class UserService {
             throw new UserError("Invalid code");
         }
 
+        if (code.usedAt) {
+            throw new UserError("Code has already been used");
+        }
+
         const user = await prisma.user.findUnique({
             where: {
                 id: code.id_user,
