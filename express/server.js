@@ -25,6 +25,8 @@ createEnvironment({
     SESSION_SECRET: process.env.SESSION_SECRET,
     STRIPE_SECRET: process.env.STRIPE_SECRET_KEY,
     SOCKET_ORIGIN: process.env.SOCKET_ORIGIN,
+    MAIL_EMAIL: process.env.MAIL_EMAIL,
+    MAIL_PASSWORD: process.env.MAIL_PASSWORD,
 })
     .then(() => app.configureExpress())
     .then(async () => {
