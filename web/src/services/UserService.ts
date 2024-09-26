@@ -109,4 +109,21 @@ export default class UserService {
             .put<{ user: User }>("/user/profile", data)
             .then((res) => res.data.user);
     }
+
+    static async sendForgotPassword(email: string) {
+        return apiClient
+            .post(`/user/password/forgot`, { email })
+            .then((res) => res.data);
+    }
+
+    static async resetForgotPassword(data: {
+        code: string;
+        password: string;
+        passwordConfirm: string;
+        email: string;
+    }) {
+        return apiClient
+            .post(`/user/password/reset`, data)
+            .then((res) => res.data);
+    }
 }

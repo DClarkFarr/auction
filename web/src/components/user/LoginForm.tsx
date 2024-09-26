@@ -3,6 +3,8 @@ import { ReactNode, useMemo } from "react";
 import { validateEmail, validatePassword } from "../../utils/validate";
 import SpinIcon from "~icons/ic/baseline-refresh";
 import useForm from "../../hooks/useForm";
+import { Link } from "react-router-dom";
+import { homeRoutes } from "../../router";
 
 type LoginFormState = {
     email: string;
@@ -108,6 +110,14 @@ export default function LoginForm({ onSubmit, footer }: LoginFormProps) {
                         }
                         {...attrs}
                     />
+                    <div className="text-right text-sm">
+                        <Link
+                            className="text-sky-600 hover:underline"
+                            to={homeRoutes.forgotPassword.to}
+                        >
+                            Forgot password?
+                        </Link>
+                    </div>
                 </div>
 
                 {errorMessage && (

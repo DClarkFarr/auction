@@ -28,6 +28,7 @@ import AccountBids from "./views/account/AccountBids";
 import AccountFavorites from "./views/account/AccountFavorites";
 import AccountPurchases from "./views/account/AccountPurchases";
 import AccountPurchaseDetails from "./views/account/purchases/AccountPurchaseDetails";
+import ForgotPasswordPage from "./views/ForgotPasswordPage";
 
 function ErrorPage() {
     const error = useRouteError();
@@ -81,6 +82,10 @@ export const homeRoutes = {
         to: "/sign-up",
         exact: true,
     },
+    forgotPassword: {
+        to: "/forgot-password",
+        exact: true,
+    },
 };
 
 const router = createBrowserRouter([
@@ -118,6 +123,10 @@ const router = createBrowserRouter([
             {
                 path: "sign-up",
                 element: <SignupPage />,
+            },
+            {
+                path: "forgot-password",
+                element: <ForgotPasswordPage />,
             },
             {
                 path: "",

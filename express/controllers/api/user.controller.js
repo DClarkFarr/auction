@@ -14,6 +14,7 @@ import ProductService, {
     PRODUCT_ITEM_STATUSES,
 } from "../../services/ProductService.js";
 import { pick } from "lodash-es";
+import MailService from "../../services/MailService.js";
 
 class UserController extends BaseController {
     base = "/user";
@@ -38,6 +39,18 @@ class UserController extends BaseController {
             webSessionMiddleware.optional,
             hasRecaptcha((req) => req.body.token),
             this.route(this.userRegister)
+        );
+
+        this.router.post(
+            "/password/forgot",
+            webSessionMiddleware.optional,
+            this.route(this.sendForgotPasswordEmail)
+        );
+
+        this.router.post(
+            "/password/reset",
+            webSessionMiddleware.optional,
+            this.route(this.resetForgotPassword)
         );
 
         this.router.post(
@@ -125,6 +138,81 @@ class UserController extends BaseController {
             hasUser(),
             this.route(this.getUser)
         );
+    }
+
+    async resetForgotPassword(req, res) {
+        const { email, code: token, password, passwordConfirm } = req.body;
+
+        if (!email || !validator.isEmail(email)) {
+            return res.status(400).json({ message: "Invalid email" });
+        }
+
+        if (!token || token.length !== 6) {
+            return res.status(400).json({ message: "Invalid code" });
+        }
+
+        if (!req.body.password || req.body.password?.length < 6) {
+            return res.status(401).json({
+                message: "Password is required",
+            });
+        }
+
+        if (password !== passwordConfirm) {
+            return res.status(400).json({ message: "Passwords do not match" });
+        }
+
+        try {
+            const { user } = await UserService.getPasswordResetCode(
+                email,
+                token
+            );
+            await UserService.resetPassword(user, password);
+
+            res.json({ message: "Password reset" });
+        } catch (err) {
+            console.warn("Error resetting password", err);
+
+            if (err instanceof UserError) {
+                return res.status(400).json({ message: err.message });
+            }
+
+            return res
+                .status(400)
+                .json({ message: "Error resetting password" });
+        }
+    }
+
+    async sendForgotPasswordEmail(req, res) {
+        const { email } = req.body;
+
+        if (!email || !validator.isEmail(email)) {
+            return res.status(400).json({ message: "Invalid email" });
+        }
+
+        const userModel = new UserModel();
+        try {
+            const user = await userModel.findByEmail(email);
+
+            if (!user) {
+                return res.json({
+                    email: true,
+                    message: "Password reset email sent",
+                });
+            }
+
+            const createdCode = await UserService.generatePasswordResetCode(
+                user
+            );
+
+            await MailService.sendForgotPasswordEmail(email, createdCode.token);
+
+            res.json({ message: "Password reset email sent" });
+        } catch (err) {
+            console.warn("Error finding user by email", err);
+            return res
+                .status(400)
+                .json({ message: "Error finding user by email" });
+        }
     }
 
     async saveUserProfile(req, res) {

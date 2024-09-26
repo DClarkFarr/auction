@@ -18,11 +18,23 @@ model User {
     createdAt              DateTime @default(now())
     updatedAt              DateTime @updatedAt
 
-    Bid         Bid[]
-    stripeUser  StripeUser?
-    ProductItem ProductItem[]
-    Favorite    Favorite[]
-    Purchase    Purchase[]
+    Bid               Bid[]
+    stripeUser        StripeUser?
+    ProductItem       ProductItem[]
+    Favorite          Favorite[]
+    Purchase          Purchase[]
+    UserPasswordReset UserPasswordReset[]
+}
+
+model UserPasswordReset {
+    id        Int       @id @default(autoincrement())
+    id_user   Int
+    token     String
+    expiresAt DateTime
+    usedAt    DateTime?
+    createdAt DateTime  @default(now())
+
+    user User @relation(fields: [id_user], references: [id])
 }
 
 model Product {

@@ -10,8 +10,116 @@ import { getPrisma } from "../prisma/client.js";
 import ProductService from "./ProductService.js";
 import UserError from "../errors/UserError.js";
 import StripeService from "./StripeService.js";
+import { random } from "lodash-es";
+import { DateTime } from "luxon";
+import UserModel from "../models/UserModel.js";
 
 export default class UserService {
+    static async resetPassword(user, password) {
+        const prisma = getPrisma();
+        const userModel = new UserModel();
+
+        const updated = await prisma.user.update({
+            where: {
+                id: user.id,
+            },
+            data: {
+                password: userModel.hashPassword(password),
+            },
+        });
+
+        return updated;
+    }
+    static async getPasswordResetCode(email, token) {
+        const prisma = getPrisma();
+
+        const code = await prisma.userPasswordReset.findFirst({
+            where: {
+                token,
+            },
+        });
+
+        if (!code) {
+            throw new UserError("Invalid code");
+        }
+
+        const user = await prisma.user.findUnique({
+            where: {
+                id: code.id_user,
+            },
+        });
+
+        if (!user) {
+            throw new UserError("Matching user not found");
+        }
+
+        if (user.email !== email) {
+            throw new UserError("Email does not match");
+        }
+
+        const expiresAt = DateTime.fromJSDate(code.expiresAt);
+        const now = DateTime.now();
+
+        if (expiresAt < now) {
+            throw new UserError("Code has expired");
+        }
+
+        const updated = await prisma.userPasswordReset.update({
+            where: {
+                id: code.id,
+            },
+            data: {
+                usedAt: now.toJSDate(),
+            },
+        });
+
+        return { code: updated, user };
+    }
+
+    static async generatePasswordResetCode(user) {
+        const prisma = getPrisma();
+
+        const getCode = async () => {
+            const token = String(random(100000, 999999));
+
+            const exists = await prisma.userPasswordReset.findFirst({
+                where: {
+                    token,
+                    expiresAt: {
+                        gte: DateTime.now().minus({ days: 1 }).toJSDate(),
+                    },
+                },
+            });
+
+            if (exists) {
+                return null;
+            }
+
+            const created = await prisma.userPasswordReset.create({
+                data: {
+                    token,
+                    id_user: user.id,
+                    expiresAt: DateTime.now().plus({ minutes: 45 }).toJSDate(),
+                },
+            });
+
+            return created;
+        };
+
+        let code = null;
+        let count = 0;
+        do {
+            count++;
+            code = await getCode();
+        } while (count < 100 && !code);
+
+        if (!code) {
+            throw new Error("Failed to generate code, with count: " + count);
+        }
+
+        return code;
+    }
+
     /**
      * @param {UserDocument} user
      */
