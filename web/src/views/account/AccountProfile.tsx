@@ -1,4 +1,4 @@
-import { Label, TextInput } from "flowbite-react";
+import { Button, Label, TextInput } from "flowbite-react";
 import Panel from "../../components/controls/Panel";
 import useUserStore from "../../stores/useUserStore";
 import ResetPasswordForm, {
@@ -12,14 +12,74 @@ import { Link } from "react-router-dom";
 import React from "react";
 import StripeProvider from "../../providers/StripeProvider";
 import StripeCardForm from "../../components/stripe/StripeCardForm";
+import useForm from "../../hooks/useForm";
+import QuickInput from "../../components/controls/QuickInput";
+
+export type UserProfileForm = {
+    phone: string;
+    subscribedToNewsletter: boolean;
+};
+
+const validate = {
+    phone: (value: string): [boolean, string] => {
+        if (!value || value.replace(/\D/g, "").length !== 10) {
+            return [false, "Phone number must be 10 digits"];
+        }
+
+        return [true, ""];
+    },
+};
 
 export default function AccountProfile() {
-    const { user, paymentMethod } = useUserStore();
+    const { user, paymentMethod, updateUser } = useUserStore();
     const { toast } = useToastContext();
 
     const [paymentView, setPaymentView] = React.useState<"form" | "card">(
         "card"
     );
+
+    const initialState = React.useMemo(() => {
+        return {
+            phone: user?.phone || "",
+            subscribedToNewsletter: user?.subscribedToNewsletter || false,
+        };
+    }, [user]);
+
+    const {
+        fields: { phone, subscribedToNewsletter },
+        isSubmitting,
+        handleSubmit,
+        setField,
+        isValid,
+        attrs,
+    } = useForm<UserProfileForm>({
+        initialState,
+        validate,
+        resetOnSubmit: false,
+        onSubmit: async (data) => {
+            try {
+                const updated = await UserService.saveProfile(data);
+                updateUser(updated);
+
+                toast({
+                    text: "Profile updated successfully",
+                    type: "success",
+                });
+            } catch (err) {
+                if (err instanceof AxiosError) {
+                    toast({
+                        text: err.response?.data?.message || err.message,
+                        type: "failure",
+                    });
+                } else if (err instanceof Error) {
+                    toast({
+                        text: err.message,
+                        type: "failure",
+                    });
+                }
+            }
+        },
+    });
 
     if (!user) {
         return null;
@@ -70,6 +130,59 @@ export default function AccountProfile() {
                         <Label>Email</Label>
                         <TextInput value={user.email} disabled />
                     </div>
+
+                    <form action="" onSubmit={handleSubmit}>
+                        <div className="mb-8">
+                            <QuickInput
+                                name="phone"
+                                lable="Phone #"
+                                field={phone}
+                                {...attrs}
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <div className="mb-2">
+                                <Label className="text-xl">
+                                    Email notification settings
+                                </Label>
+                            </div>
+
+                            <Label>New auctions</Label>
+                            <div>
+                                <label className="inline-flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        checked={subscribedToNewsletter.value}
+                                        onChange={(e) => {
+                                            const target =
+                                                e.target as HTMLInputElement;
+
+                                            console.log(
+                                                "setting",
+                                                target.checked
+                                            );
+                                            setField("subscribedToNewsletter", {
+                                                value: target.checked,
+                                                dirty: true,
+                                            });
+                                        }}
+                                    />
+                                    <span>
+                                        {subscribedToNewsletter.value
+                                            ? "Subscribed"
+                                            : "Not subscribed"}
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <Button
+                            type="submit"
+                            isProcessing={isSubmitting}
+                            disabled={isSubmitting || !isValid}
+                        >
+                            Save Profile
+                        </Button>
+                    </form>
                 </Panel>
 
                 <div className="h-10"></div>

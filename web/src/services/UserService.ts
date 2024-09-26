@@ -5,6 +5,7 @@ import { PaginatedResults } from "../types/Paginate";
 import { FullProductItem, ProductItemStatus } from "../types/Product";
 import { FullPurchase, Purchase } from "../types/Purchase";
 import { RegisterPayload, User, UserFavorite } from "../types/User";
+import { UserProfileForm } from "../views/account/AccountProfile";
 import apiClient from "./apiClient";
 import { PaginatedProductParams } from "./SiteService";
 
@@ -101,5 +102,11 @@ export default class UserService {
         return apiClient
             .get<FullPurchase>(`/user/purchases/${idPurchase}`)
             .then((res) => res.data);
+    }
+
+    static async saveProfile(data: UserProfileForm) {
+        return apiClient
+            .put<{ user: User }>("/user/profile", data)
+            .then((res) => res.data.user);
     }
 }

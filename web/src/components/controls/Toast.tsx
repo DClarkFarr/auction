@@ -21,7 +21,7 @@ export const InfoToast: ToastComponent = ({
     theme,
 }) => {
     return (
-        <Toast className={className} theme={theme}>
+        <Toast className={[className, "min-w-[220px]"].join(" ")} theme={theme}>
             <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-sky-500 dark:bg-sky-800 dark:text-sky-200">
                 <InfoIcon className="h-5 w-5" />
             </div>
@@ -38,7 +38,7 @@ export const SuccessToast: ToastComponent = ({
     theme,
 }) => {
     return (
-        <Toast className={className} theme={theme}>
+        <Toast className={[className, "min-w-[220px]"].join(" ")} theme={theme}>
             <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
                 <CheckIcon className="h-5 w-5" />
             </div>
@@ -55,7 +55,7 @@ export const FailureToast: ToastComponent = ({
     theme,
 }) => {
     return (
-        <Toast className={className} theme={theme}>
+        <Toast className={[className, "min-w-[220px]"].join(" ")} theme={theme}>
             <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
                 <TimesIcon className="h-5 w-5" />
             </div>
@@ -72,7 +72,7 @@ export const WarningToast: ToastComponent = ({
     theme,
 }) => {
     return (
-        <Toast className={className} theme={theme}>
+        <Toast className={[className, "min-w-[220px]"].join(" ")} theme={theme}>
             <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
                 <WarningIcon className="h-5 w-5" />
             </div>

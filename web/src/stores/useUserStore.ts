@@ -26,6 +26,7 @@ export type UserStore = {
     hasLoadedBids: boolean;
     isLoading: boolean;
     isLoaded: boolean;
+    updateUser: (user: User) => void;
     loadUserBids: () => Promise<void>;
     applyUserBid: (bid: Bid) => void;
     loadFavorites: () => Promise<void>;
@@ -112,6 +113,9 @@ const useUserStore = create<UserStore>((set, get) => {
         } finally {
             set({ isLoading: false, isLoaded: true });
         }
+    };
+    const updateUser = (user: User) => {
+        set({ user });
     };
     const setPaymentMethod = (paymentMethod: PaymentMethod | null) => {
         set({ paymentMethod });
@@ -222,6 +226,7 @@ const useUserStore = create<UserStore>((set, get) => {
         hasLoadedBids: false,
         loadUserBids,
         applyUserBid,
+        updateUser,
     } satisfies UserStore;
 });
 

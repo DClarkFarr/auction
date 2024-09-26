@@ -108,6 +108,13 @@ class UserController extends BaseController {
             this.route(this.getUserPurchase)
         );
 
+        this.router.put(
+            "/profile",
+            webSessionMiddleware,
+            hasUser(),
+            this.route(this.saveUserProfile)
+        );
+
         this.router.get("/test", (req, res) => {
             res.json({ message: "test" });
         });
@@ -118,6 +125,34 @@ class UserController extends BaseController {
             hasUser(),
             this.route(this.getUser)
         );
+    }
+
+    async saveUserProfile(req, res) {
+        const user = req.user;
+
+        const userModel = new UserModel();
+
+        const { phone, subscribedToNewsletter } = req.body;
+
+        if (phone && !validator.isMobilePhone(phone, "en-US")) {
+            return res.status(400).json({ message: "Invalid phone number" });
+        }
+
+        try {
+            const updated = await userModel.update(user.id, {
+                phone: phone.replace(/\D/g, ""),
+                subscribedToNewsletter: subscribedToNewsletter === true,
+            });
+
+            if (!updated) {
+                return res.status(400).json({ message: "Error updating user" });
+            }
+
+            res.json({ message: "Profile updated", user: updated });
+        } catch (err) {
+            console.warn("Error updating user profile", err);
+            res.status(400).json({ message: "Error updating user profile" });
+        }
     }
 
     async getUserPurchases(req, res) {
@@ -356,9 +391,18 @@ class UserController extends BaseController {
 
     async getUser(req, res) {
         try {
-            const user = req.user;
+            const sessionUser = req.user;
+            const userModel = new UserModel();
 
             let paymentMethod = null;
+            const user = userModel.toObject(
+                await userModel.table.findFirst({
+                    where: {
+                        id: sessionUser.id,
+                    },
+                })
+            );
+
             try {
                 paymentMethod = await StripeService.getUserDefaultPaymentMethod(
                     user

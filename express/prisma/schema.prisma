@@ -8,13 +8,15 @@ datasource db {
 }
 
 model User {
-    id        Int      @id @default(autoincrement())
-    email     String   @unique
-    role      ROLES    @default(user)
-    name      String
-    password  String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id                     Int      @id @default(autoincrement())
+    email                  String   @unique
+    role                   ROLES    @default(user)
+    phone                  String?
+    subscribedToNewsletter Boolean  @default(false)
+    name                   String
+    password               String
+    createdAt              DateTime @default(now())
+    updatedAt              DateTime @updatedAt
 
     Bid         Bid[]
     stripeUser  StripeUser?
