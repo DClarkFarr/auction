@@ -38,7 +38,8 @@ export type ProductSortBy =
     | "name"
     | "quality"
     | "lowStock"
-    | "lowPrice";
+    | "lowPrice"
+    | "highPrice";
 
 export type Category = {
     id_category: number;

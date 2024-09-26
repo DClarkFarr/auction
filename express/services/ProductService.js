@@ -54,6 +54,7 @@ const SORT_OPTIONS = {
     quality: ["p.quality", "desc"],
     lowStock: ["p.remainingQuantity", "asc"],
     lowPrice: ["COALESCE(b.amount, p.priceInitial)", "asc"],
+    highPrice: ["COALESCE(b.amount, p.priceInitial)", "desc"],
 };
 export default class ProductService {
     /**

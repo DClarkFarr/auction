@@ -16,8 +16,8 @@ const sortValues: { value: ProductSortBy; label: string }[] = [
         label: "Lowest - Highest Price",
     },
     {
-        value: "lowStock",
-        label: "Almost Sold Out",
+        value: "highPrice",
+        label: "Highest - Lowest Price",
     },
     {
         value: "name",
