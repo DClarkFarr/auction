@@ -7,13 +7,15 @@ function htmlToText(html) {
     return html.replace(/<[^>]*>?/gm, "");
 }
 
+let _transporter = null;
+
 export default class MailService {
-    getTransporter() {
-        if (this.transporter) {
-            return this.transporter;
+    static getTransporter() {
+        if (_transporter) {
+            return _transporter;
         }
 
-        return (this.transporter = nodemailer.createTransport({
+        return (_transporter = nodemailer.createTransport({
             service: "Gmail",
             host: "smtp.gmail.com",
             port: 465,
